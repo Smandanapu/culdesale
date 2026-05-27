@@ -21,6 +21,7 @@ export default function Profile() {
   const [tab, setTab] = useState('listings')
   const [listings, setListings] = useState([])
   const [bids, setBids] = useState([])
+  const [favorites, setFavorites] = useState([])
   const [loading, setLoading] = useState(true)
   const [editingUsername, setEditingUsername] = useState(false)
   const [newUsername, setNewUsername] = useState('')
@@ -30,6 +31,7 @@ export default function Profile() {
   useEffect(() => {
     fetchListings()
     fetchBids()
+    fetchFavorites()
   }, [])
 
   const fetchListings = async () => {
@@ -49,6 +51,25 @@ export default function Profile() {
       .eq('bidder_id', user.id)
       .order('created_at', { ascending: false })
     setBids(data || [])
+  }
+
+  const fetchFavorites = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('favorites')
+        .select('*, listings(id, title, photos, category, current_price, starting_price, status, ends_at, seller_id, profiles(username))')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+      
+      if (error) {
+        console.error('Error fetching favorites:', error)
+        return
+      }
+      
+      setFavorites(data || [])
+    } catch (err) {
+      console.error('Favorites fetch error:', err)
+    }
   }
 
   const handleUsernameUpdate = async () => {
@@ -176,6 +197,7 @@ export default function Profile() {
           {[
             { id: 'listings', label: 'My Listings' },
             { id: 'bids', label: 'My Bids' },
+            { id: 'favorites', label: 'Favorites' },
           ].map(t => (
             <button
               key={t.id}
@@ -289,6 +311,59 @@ export default function Profile() {
                         Outbid
                       </span>
                     )}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Favorites Tab */}
+        {!loading && tab === 'favorites' && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {favorites.length === 0 && (
+              <div className="col-span-full text-center py-12">
+                <div className="text-4xl mb-3">❤️</div>
+                <div className="text-zinc-400 mb-4">No favorites yet</div>
+                <button
+                  onClick={() => navigate('/feed')}
+                  className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-sm font-medium transition"
+                >
+                  Browse listings
+                </button>
+              </div>
+            )}
+
+            {favorites.map(fav => (
+              <div
+                key={fav.id}
+                onClick={() => navigate(`/listing/${fav.listing_id}`)}
+                className="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden cursor-pointer hover:border-orange-500/40 hover:-translate-y-1 transition-all duration-200"
+              >
+                <div className="h-48 bg-zinc-800 flex items-center justify-center relative">
+                  {fav.listings?.photos && fav.listings.photos[0] ? (
+                    <img
+                      src={fav.listings.photos[0]}
+                      alt={fav.listings.title}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <span className="text-5xl">📦</span>
+                  )}
+                </div>
+
+                <div className="p-4">
+                  <div className="text-xs text-zinc-500 mb-1">{fav.listings?.category}</div>
+                  <h3 className="font-bold text-base mb-1 truncate">{fav.listings?.title}</h3>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="text-orange-500 font-bold text-lg">
+                        ${fav.listings?.current_price || fav.listings?.starting_price}
+                      </span>
+                    </div>
+                    <div className="text-xs text-zinc-500">
+                      by {fav.listings?.profiles?.username}
+                    </div>
                   </div>
                 </div>
               </div>
