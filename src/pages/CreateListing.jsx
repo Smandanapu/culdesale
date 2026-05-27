@@ -10,7 +10,7 @@ const DURATIONS = [
   { label: '3 days', hours: 72 },
   { label: '7 days', hours: 168 },
 ]
-const MEETUP_TYPES = ['Porch Pickup', 'Clubhouse', 'Parking Lot', 'Mailroom']
+const MEETUP_TYPES = ['Porch Pickup', 'Clubhouse', 'Parking Lot', 'Mailroom', 'Mutual Preference']
 
 export default function CreateListing() {
   const navigate = useNavigate()

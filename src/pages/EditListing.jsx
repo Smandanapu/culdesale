@@ -5,7 +5,7 @@ import { useAuth } from '../hooks/useAuth'
 import Navbar from '../components/Navbar'
 
 const CATEGORIES = ['Furniture', 'Electronics', 'Sports', 'Kids', 'Tools', 'Appliances', 'Clothing', 'Books', 'Other']
-const MEETUP_TYPES = ['Porch Pickup', 'Clubhouse', 'Parking Lot', 'Mailroom']
+const MEETUP_TYPES = ['Porch Pickup', 'Clubhouse', 'Parking Lot', 'Mailroom', 'Mutual Preference']
 
 export default function EditListing() {
   const { id } = useParams()
