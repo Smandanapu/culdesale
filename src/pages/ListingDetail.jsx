@@ -110,12 +110,88 @@ export default function ListingDetail() {
     const confirmed = window.confirm('Buy this item now for $' + listing.buy_now_price + '?')
     if (!confirmed) return
     setBidding(true)
-    await supabase
-      .from('listings')
-      .update({ status: 'sold', current_price: listing.buy_now_price })
-      .eq('id', id)
-    setSuccess('Purchased! Arrange pickup with the seller.')
-    setBidding(false)
+    setError('')
+    
+    try {
+      // Update listing status to sold
+      const { error: updateError } = await supabase
+        .from('listings')
+        .update({ status: 'sold', current_price: listing.buy_now_price })
+        .eq('id', id)
+      
+      if (updateError) {
+        setError('Error updating listing: ' + updateError.message)
+        setBidding(false)
+        return
+      }
+      
+      // Get buyer name
+      const { data: buyerProfile } = await supabase
+        .from('profiles')
+        .select('username')
+        .eq('id', user.id)
+        .single()
+      
+      const buyerName = buyerProfile?.username || 'Someone'
+      
+      // Create notification in database
+      const { data: notifData, error: notifError } = await supabase
+        .from('notifications')
+        .insert({
+          user_id: listing.seller_id,
+          type: 'buy_now',
+          title: 'Item Sold!',
+          message: `${buyerName} bought "${listing.title}" for $${listing.buy_now_price}. Check it now!`,
+          listing_id: id,
+          related_user_id: user.id,
+          is_read: false
+        })
+        .select()
+        .single()
+      
+      if (notifError) {
+        console.error('Notification error:', notifError)
+        setError('Error creating notification: ' + notifError.message)
+        setBidding(false)
+        return
+      }
+      
+      console.log('Notification created:', notifData)
+      
+      // Call edge function to send email
+      try {
+        const response = await fetch(
+          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-buy-now-notification`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`
+            },
+            body: JSON.stringify({
+              record: notifData
+            })
+          }
+        )
+        
+        const emailResult = await response.json()
+        console.log('Email function response:', emailResult)
+        
+        if (!response.ok) {
+          console.error('Email sending failed:', emailResult)
+        }
+      } catch (emailErr) {
+        console.error('Error calling email function:', emailErr)
+        // Don't fail the purchase if email fails
+      }
+      
+      setSuccess('Purchased! Arrange pickup with the seller. Seller has been notified.')
+      setBidding(false)
+    } catch (err) {
+      console.error('Error:', err)
+      setError('Error: ' + err.message)
+      setBidding(false)
+    }
   }
 
   const handleMessage = async () => {
@@ -208,6 +284,8 @@ export default function ListingDetail() {
   const minBid = (listing.current_price || listing.starting_price) + 1
   const isEnded = timeLeft(listing.ends_at) === 'Ended'
   const isSold = listing.status === 'sold'
+  const highestBid = bids.length > 0 ? bids[0].amount : 0
+  const isBuyNowDisabled = listing.buy_now_price && highestBid >= listing.buy_now_price
 
   return (
     <div className="min-h-screen bg-zinc-950 text-white">
@@ -374,10 +452,14 @@ export default function ListingDetail() {
             {listing.buy_now_price && (
               <button
                 onClick={handleBuyNow}
-                disabled={bidding}
-                className="w-full py-3 bg-green-500/10 hover:bg-green-500/20 border border-green-500/30 text-green-400 font-semibold rounded-xl transition"
+                disabled={bidding || isBuyNowDisabled}
+                className={`w-full py-3 font-semibold rounded-xl transition ${
+                  isBuyNowDisabled
+                    ? 'bg-zinc-700 text-zinc-500 cursor-not-allowed opacity-50'
+                    : 'bg-green-500/10 hover:bg-green-500/20 border border-green-500/30 text-green-400'
+                }`}
               >
-                Buy It Now - ${listing.buy_now_price}
+                {isBuyNowDisabled ? 'Buy It Now Unavailable' : `Buy It Now - $${listing.buy_now_price}`}
               </button>
             )}
 
