@@ -5,7 +5,18 @@ const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY")
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")
 const SUPABASE_SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")
 
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization",
+}
+
 serve(async (req) => {
+  // Handle CORS preflight
+  if (req.method === "OPTIONS") {
+    return new Response("ok", { headers: corsHeaders })
+  }
+
   try {
     const body = await req.json()
     console.log("Buy Now notification webhook received:", JSON.stringify(body))
@@ -13,7 +24,10 @@ serve(async (req) => {
     const record = body.record
     if (!record || record.type !== 'buy_now') {
       console.log("Not a buy_now notification")
-      return new Response("Not a buy_now notification", { status: 400 })
+      return new Response(JSON.stringify({ error: "Not a buy_now notification" }), { 
+        status: 400,
+        headers: corsHeaders
+      })
     }
 
     const supabase = createClient(SUPABASE_URL!, SUPABASE_SERVICE_KEY!)
@@ -23,7 +37,10 @@ serve(async (req) => {
 
     if (userError || !userData?.user?.email) {
       console.log("User error:", userError)
-      return new Response("User not found", { status: 404 })
+      return new Response(JSON.stringify({ error: "User not found" }), { 
+        status: 404,
+        headers: corsHeaders
+      })
     }
 
     const sellerEmail = userData.user.email
@@ -74,10 +91,16 @@ serve(async (req) => {
     const emailData = await emailRes.json()
     console.log("Resend response:", JSON.stringify(emailData))
 
-    return new Response(JSON.stringify(emailData), { status: 200 })
+    return new Response(JSON.stringify(emailData), { 
+      status: 200,
+      headers: corsHeaders
+    })
 
   } catch (error: any) {
     console.log("Fatal error:", error.message)
-    return new Response(JSON.stringify({ error: error.message }), { status: 500 })
+    return new Response(JSON.stringify({ error: error.message }), { 
+      status: 500,
+      headers: corsHeaders
+    })
   }
 })
