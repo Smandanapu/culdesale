@@ -3,6 +3,7 @@ import { useAuth } from '../hooks/useAuth'
 import { useEffect, useState, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
 
+#
 export default function Navbar() {
   const navigate = useNavigate()
   const { user } = useAuth()
