@@ -11,6 +11,7 @@ export default function Inbox() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    markAllAsRead()
     fetchConversations()
 
     const channel = supabase
@@ -24,6 +25,23 @@ export default function Inbox() {
 
     return () => supabase.removeChannel(channel)
   }, [])
+
+  const markAllAsRead = async () => {
+    const { data: conversations } = await supabase
+      .from('conversations')
+      .select('id')
+      .or(`seller_id.eq.${user.id},buyer_id.eq.${user.id}`)
+
+    if (conversations && conversations.length > 0) {
+      const ids = conversations.map(c => c.id)
+      await supabase
+        .from('messages')
+        .update({ is_read: true })
+        .in('conversation_id', ids)
+        .eq('is_read', false)
+        .neq('sender_id', user.id)
+    }
+  }
 
   const fetchConversations = async () => {
     const { data } = await supabase
