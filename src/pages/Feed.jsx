@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
+import { useAuth } from '../hooks/useAuth'
 import Navbar from '../components/Navbar'
 
 const CATEGORIES = ['All', 'Furniture', 'Electronics', 'Sports', 'Kids', 'Tools', 'Appliances', 'Clothing', 'Books', 'Other']
@@ -18,23 +19,54 @@ function timeLeft(endsAt) {
 
 export default function Feed() {
   const navigate = useNavigate()
+  const { user } = useAuth()
   const [search, setSearch] = useState('')
   const [listings, setListings] = useState([])
   const [category, setCategory] = useState('All')
   const [loading, setLoading] = useState(true)
+  const [favorites, setFavorites] = useState(new Set())
 
   const fetchListings = useCallback(async () => {
     const { data } = await supabase
       .from('listings')
       .select('*, profiles(username)')
-      .eq('status', 'active')
       .order('created_at', { ascending: false })
-    setListings(data || [])
+    
+    // Fetch highest bid for each listing
+    const listingsWithBids = await Promise.all(
+      (data || []).map(async (listing) => {
+        const { data: bids } = await supabase
+          .from('bids')
+          .select('amount')
+          .eq('listing_id', listing.id)
+          .order('amount', { ascending: false })
+          .limit(1)
+        
+        return {
+          ...listing,
+          highest_bid: bids && bids.length > 0 ? bids[0].amount : null
+        }
+      })
+    )
+    
+    setListings(listingsWithBids)
     setLoading(false)
   }, [])
 
+  const fetchFavorites = useCallback(async () => {
+    if (!user) return
+    const { data } = await supabase
+      .from('favorites')
+      .select('listing_id')
+      .eq('user_id', user.id)
+    
+    const favSet = new Set(data?.map(f => f.listing_id) || [])
+    setFavorites(favSet)
+  }, [user])
+
   useEffect(() => {
     fetchListings()
+    fetchFavorites()
 
     const channel = supabase
       .channel('feed-listings')
@@ -48,7 +80,7 @@ export default function Feed() {
       .subscribe()
 
     return () => supabase.removeChannel(channel)
-  }, [fetchListings])
+  }, [fetchListings, fetchFavorites])
 
   const filtered = listings.filter(l => {
     const matchesCategory = category === 'All' || l.category === category
@@ -57,6 +89,53 @@ export default function Feed() {
       l.description?.toLowerCase().includes(search.toLowerCase())
     return matchesCategory && matchesSearch
   })
+
+  const toggleFavorite = async (e, listingId) => {
+    e.stopPropagation()
+    if (!user) {
+      navigate('/login')
+      return
+    }
+
+    const isFavorited = favorites.has(listingId)
+
+    try {
+      if (isFavorited) {
+        const { error } = await supabase
+          .from('favorites')
+          .delete()
+          .eq('user_id', user.id)
+          .eq('listing_id', listingId)
+        
+        if (error) {
+          console.error('Error removing favorite:', error)
+          return
+        }
+        
+        const newFavs = new Set(favorites)
+        newFavs.delete(listingId)
+        setFavorites(newFavs)
+      } else {
+        const { error } = await supabase
+          .from('favorites')
+          .insert({
+            user_id: user.id,
+            listing_id: listingId
+          })
+        
+        if (error) {
+          console.error('Error adding favorite:', error)
+          return
+        }
+        
+        const newFavs = new Set(favorites)
+        newFavs.add(listingId)
+        setFavorites(newFavs)
+      }
+    } catch (err) {
+      console.error('Favorite toggle error:', err)
+    }
+  }
 
   return (
     <div className="min-h-screen bg-zinc-950 text-white">
@@ -141,6 +220,16 @@ export default function Feed() {
                   ) : (
                     <span className="text-5xl">📦</span>
                   )}
+                  
+                  {/* SOLD Overlay */}
+                  {listing.status === 'sold' && (
+                    <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                      <div className="text-4xl font-bold text-white transform -rotate-45 border-3 border-white px-6 py-3">
+                        SOLD
+                      </div>
+                    </div>
+                  )}
+                  
                   <div className="absolute top-3 right-3">
                     {listing.is_free ? (
                       <span className="bg-blue-500/20 text-blue-400 text-xs font-medium px-2 py-1 rounded-full">FREE</span>
@@ -160,20 +249,45 @@ export default function Feed() {
 
                 {/* Info */}
                 <div className="p-4">
-                  <div className="text-xs text-zinc-500 mb-1">{listing.category}</div>
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="text-xs text-zinc-500">{listing.category}</div>
+                    <button
+                      onClick={(e) => toggleFavorite(e, listing.id)}
+                      className="text-lg transition hover:scale-110"
+                    >
+                      {favorites.has(listing.id) ? '❤️' : '🤍'}
+                    </button>
+                  </div>
                   <h3 className="font-bold text-base mb-1 truncate">{listing.title}</h3>
                   <p className="text-zinc-400 text-sm truncate mb-3">{listing.description}</p>
-                  <div className="flex items-center justify-between">
+                  
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-1 text-xs text-zinc-500">
+                      <span>🕐</span>
+                      <span>{listing.is_free ? 'Free' : timeLeft(listing.ends_at)}</span>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center justify-between mb-2">
                     <div>
                       {listing.is_free ? (
                         <span className="text-blue-400 font-bold text-lg">Free</span>
                       ) : (
-                        <span className="text-orange-500 font-bold text-lg">${listing.current_price || listing.starting_price}</span>
+                        <div>
+                          <div className="text-xs text-zinc-500">
+                            {listing.highest_bid ? 'Highest Bid' : 'Current Price'}
+                          </div>
+                          <span className="text-orange-500 font-bold text-lg">
+                            ${listing.highest_bid || listing.current_price || listing.starting_price}
+                          </span>
+                        </div>
                       )}
                     </div>
-                    <div className="text-xs text-zinc-500">
-                      by {listing.profiles?.username}
-                    </div>
+                  </div>
+                  
+                  <div className="flex items-center justify-between text-xs text-zinc-500 mb-2">
+                    <span>Listed: ${listing.starting_price}</span>
+                    <span>by {listing.profiles?.username}</span>
                   </div>
                 </div>
               </div>
