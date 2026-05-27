@@ -18,33 +18,66 @@ serve(async (req) => {
   }
 
   try {
-    const body = await req.json()
+    // Read the request body as text first
+    const bodyText = await req.text()
+    console.log("Request body text:", bodyText)
+
+    if (!bodyText) {
+      console.log("Empty request body")
+      return new Response(JSON.stringify({ error: "Empty request body" }), { 
+        status: 400,
+        headers: corsHeaders
+      })
+    }
+
+    let body
+    try {
+      body = JSON.parse(bodyText)
+    } catch (parseError) {
+      console.log("Failed to parse JSON:", parseError.message)
+      return new Response(JSON.stringify({ error: "Invalid JSON in request body" }), { 
+        status: 400,
+        headers: corsHeaders
+      })
+    }
+
     console.log("Buy Now notification webhook received:", JSON.stringify(body))
 
     const record = body.record
     if (!record || record.type !== 'buy_now') {
-      console.log("Not a buy_now notification")
+      console.log("Not a buy_now notification, record:", record)
       return new Response(JSON.stringify({ error: "Not a buy_now notification" }), { 
         status: 400,
         headers: corsHeaders
       })
     }
 
+    console.log("Processing buy_now notification for user:", record.user_id)
+
     const supabase = createClient(SUPABASE_URL!, SUPABASE_SERVICE_KEY!)
 
     // Get seller email from auth.users
+    console.log("Fetching user:", record.user_id)
     const { data: userData, error: userError } = await supabase.auth.admin.getUserById(record.user_id)
 
-    if (userError || !userData?.user?.email) {
+    if (userError) {
       console.log("User error:", userError)
-      return new Response(JSON.stringify({ error: "User not found" }), { 
+      return new Response(JSON.stringify({ error: "Failed to get user: " + userError.message }), { 
+        status: 404,
+        headers: corsHeaders
+      })
+    }
+
+    if (!userData?.user?.email) {
+      console.log("No email found for user")
+      return new Response(JSON.stringify({ error: "User has no email" }), { 
         status: 404,
         headers: corsHeaders
       })
     }
 
     const sellerEmail = userData.user.email
-    console.log("Sending to:", sellerEmail)
+    console.log("Sending email to:", sellerEmail)
 
     // Send email
     const emailRes = await fetch("https://api.resend.com/emails", {
@@ -88,16 +121,18 @@ serve(async (req) => {
       }),
     })
 
+    console.log("Email API response status:", emailRes.status)
     const emailData = await emailRes.json()
     console.log("Resend response:", JSON.stringify(emailData))
 
-    return new Response(JSON.stringify(emailData), { 
+    return new Response(JSON.stringify({ success: true, email: emailData }), { 
       status: 200,
       headers: corsHeaders
     })
 
   } catch (error: any) {
     console.log("Fatal error:", error.message)
+    console.log("Error stack:", error.stack)
     return new Response(JSON.stringify({ error: error.message }), { 
       status: 500,
       headers: corsHeaders
