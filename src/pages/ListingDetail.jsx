@@ -158,33 +158,6 @@ export default function ListingDetail() {
       
       console.log('Notification created:', notifData)
       
-      // Call edge function to send email
-      try {
-        const response = await fetch(
-          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-buy-now-notification`,
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`
-            },
-            body: JSON.stringify({
-              record: notifData
-            })
-          }
-        )
-        
-        const emailResult = await response.json()
-        console.log('Email function response:', emailResult)
-        
-        if (!response.ok) {
-          console.error('Email sending failed:', emailResult)
-        }
-      } catch (emailErr) {
-        console.error('Error calling email function:', emailErr)
-        // Don't fail the purchase if email fails
-      }
-      
       setSuccess('Purchased! Arrange pickup with the seller. Seller has been notified.')
       setBidding(false)
     } catch (err) {
