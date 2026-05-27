@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
-import { useAuth } from '../hooks/useAuth'
+import { useAuth } from '../context/AuthContext'
 import Navbar from '../components/Navbar'
 
 const CATEGORIES = ['Furniture', 'Electronics', 'Sports', 'Kids', 'Tools', 'Appliances', 'Clothing', 'Books', 'Other']
-const MEETUP_TYPES = ['Porch Pickup', 'Clubhouse', 'Parking Lot', 'Mailroom']
+const MEETUP_TYPES = ['Porch Pickup', 'Clubhouse', 'Parking Lot', 'Mailroom', 'Mutual Preference']
 
 export default function EditListing() {
   const { id } = useParams()

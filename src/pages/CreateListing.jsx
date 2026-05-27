@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
-import { useAuth } from '../hooks/useAuth'
+import { useAuth } from '../context/AuthContext'
 import Navbar from '../components/Navbar'
 
 const CATEGORIES = ['Furniture', 'Electronics', 'Sports', 'Kids', 'Tools', 'Appliances', 'Clothing', 'Books', 'Other']
@@ -10,7 +10,7 @@ const DURATIONS = [
   { label: '3 days', hours: 72 },
   { label: '7 days', hours: 168 },
 ]
-const MEETUP_TYPES = ['Porch Pickup', 'Clubhouse', 'Parking Lot', 'Mailroom']
+const MEETUP_TYPES = ['Porch Pickup', 'Clubhouse', 'Parking Lot', 'Mailroom', 'Mutual Preference']
 
 export default function CreateListing() {
   const navigate = useNavigate()

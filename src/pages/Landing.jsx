@@ -32,11 +32,11 @@ export default function Landing() {
       <div className="flex flex-col items-center text-center px-6 py-24">
         <div className="text-6xl mb-6">🏘️</div>
         <h1 className="text-5xl font-extrabold leading-tight mb-4 max-w-xl">
-          Sell to your neighbors.<br />
-          <span className="text-orange-500">Not strangers.</span>
+          The 24/7 neighborhood garage sale.<br />
+          <span className="text-orange-500">Sell your stuff locally.</span>
         </h1>
         <p className="text-zinc-400 text-lg max-w-md mb-10 leading-relaxed">
-          List your household items, let your community bid, and meet at the end of the block. Hyperlocal. Trusted. Free.
+          No shipping, just fast neighborhood buyers. List your household items, let your community bid, and meet at the end of the block.
         </p>
         <button
           onClick={() => navigate('/register')}

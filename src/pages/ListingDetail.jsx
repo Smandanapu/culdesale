@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
-import { useAuth } from '../hooks/useAuth'
+import { useAuth } from '../context/AuthContext'
 import Navbar from '../components/Navbar'
 
 function timeLeft(endsAt) {
@@ -56,12 +56,12 @@ export default function ListingDetail() {
     fetchBids()
 
     const channel = supabase
-      .channel(`listing-${id}`)
+      .channel('listing-' + id)
       .on('postgres_changes', {
         event: 'INSERT',
         schema: 'public',
         table: 'bids',
-        filter: `listing_id=eq.${id}`
+        filter: 'listing_id=eq.' + id
       }, payload => {
         setBids(prev => [payload.new, ...prev])
       })
@@ -110,11 +110,21 @@ export default function ListingDetail() {
     const confirmed = window.confirm('Buy this item now for $' + listing.buy_now_price + '?')
     if (!confirmed) return
     setBidding(true)
-    await supabase
+    setError('')
+
+    const { error } = await supabase
       .from('listings')
       .update({ status: 'sold', current_price: listing.buy_now_price })
       .eq('id', id)
-    setSuccess('Purchased! Arrange pickup with the seller.')
+
+    if (error) {
+      setError(error.message)
+      setBidding(false)
+      return
+    }
+
+    setListing(prev => ({ ...prev, status: 'sold' }))
+    setSuccess('Purchased! Arrange pickup with the seller. Seller has been notified by email.')
     setBidding(false)
   }
 
@@ -233,8 +243,7 @@ export default function ListingDetail() {
             ) : (
               <span className="text-6xl">📦</span>
             )}
-            
-            {/* SOLD Overlay */}
+
             {isSold && (
               <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
                 <div className="text-6xl font-bold text-white transform -rotate-45 border-4 border-white px-8 py-4">
@@ -242,7 +251,7 @@ export default function ListingDetail() {
                 </div>
               </div>
             )}
-            
+
             <div className="absolute top-3 right-3">
               <span className={`text-xs font-medium px-3 py-1 rounded-full ${
                 isSold
@@ -291,7 +300,7 @@ export default function ListingDetail() {
                 {listing.is_free ? 'Free' : '$' + (listing.current_price || listing.starting_price)}
               </div>
             </div>
-            {listing.buy_now_price && (
+            {listing.buy_now_price && !isSold && (
               <div className="text-right">
                 <div className="text-xs text-zinc-500 mb-1">Buy It Now</div>
                 <div className="text-2xl font-bold text-green-400">${listing.buy_now_price}</div>
@@ -375,9 +384,9 @@ export default function ListingDetail() {
               <button
                 onClick={handleBuyNow}
                 disabled={bidding}
-                className="w-full py-3 bg-green-500/10 hover:bg-green-500/20 border border-green-500/30 text-green-400 font-semibold rounded-xl transition"
+                className="w-full py-3 bg-green-500/10 hover:bg-green-500/20 border border-green-500/30 text-green-400 font-semibold rounded-xl transition disabled:opacity-50"
               >
-                Buy It Now - ${listing.buy_now_price}
+                {bidding ? 'Processing...' : 'Buy It Now - $' + listing.buy_now_price}
               </button>
             )}
 
@@ -400,7 +409,7 @@ export default function ListingDetail() {
                 disabled={marking}
                 className="w-full py-3 bg-green-500/10 hover:bg-green-500/20 border border-green-500/30 text-green-400 font-semibold rounded-xl transition disabled:opacity-50"
               >
-                {marking ? 'Marking...' : '✓ Mark as Sold'}
+                {marking ? 'Marking...' : 'Mark as Sold'}
               </button>
             )}
             <button
