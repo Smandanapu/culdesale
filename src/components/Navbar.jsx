@@ -9,14 +9,19 @@ export default function Navbar() {
   const [unread, setUnread] = useState(0)
 
   const fetchUnread = useCallback(async () => {
-    const { data } = await supabase
+    if (!user) return
+    const { data: convs } = await supabase
       .from('conversations')
       .select('id')
       .or(`seller_id.eq.${user.id},buyer_id.eq.${user.id}`)
 
-    if (!data || data.length === 0) return
+    if (!convs || convs.length === 0) {
+      setUnread(0)
+      return
+    }
 
-    const ids = data.map(c => c.id)
+    const ids = convs.map(c => c.id)
+
     const { count } = await supabase
       .from('messages')
       .select('id', { count: 'exact' })
@@ -32,9 +37,14 @@ export default function Navbar() {
     fetchUnread()
 
     const channel = supabase
-      .channel('unread-messages')
+      .channel('navbar-unread-' + user.id)
       .on('postgres_changes', {
         event: 'INSERT',
+        schema: 'public',
+        table: 'messages'
+      }, () => fetchUnread())
+      .on('postgres_changes', {
+        event: 'UPDATE',
         schema: 'public',
         table: 'messages'
       }, () => fetchUnread())
@@ -68,7 +78,7 @@ export default function Navbar() {
           <span className="text-xl">💬</span>
           {unread > 0 && (
             <span className="absolute -top-1 -right-1 bg-orange-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
-              {unread}
+              {unread > 9 ? '9+' : unread}
             </span>
           )}
         </button>
