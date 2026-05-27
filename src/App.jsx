@@ -4,6 +4,8 @@ import ProtectedRoute from './components/ProtectedRoute'
 import Landing from './pages/Landing'
 import Login from './pages/Login'
 import Register from './pages/Register'
+import ForgotPassword from './pages/ForgotPassword'
+import ResetPassword from './pages/ResetPassword'
 import Feed from './pages/Feed'
 import ListingDetail from './pages/ListingDetail'
 import CreateListing from './pages/CreateListing'
@@ -21,6 +23,8 @@ export default function App() {
           <Route path="/" element={<Landing />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/feed" element={<ProtectedRoute><Feed /></ProtectedRoute>} />
           <Route path="/listing/:id" element={<ProtectedRoute><ListingDetail /></ProtectedRoute>} />
           <Route path="/create" element={<ProtectedRoute><CreateListing /></ProtectedRoute>} />
