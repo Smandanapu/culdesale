@@ -1,57 +1,28 @@
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
-import { useEffect, useState, useCallback } from 'react'
-import { supabase } from '../lib/supabase'
+import { useEffect } from 'react'
 
 export default function Navbar() {
   const navigate = useNavigate()
-  const { user } = useAuth()
-  const [unread, setUnread] = useState(0)
-
-  const fetchUnread = useCallback(async () => {
-    if (!user) return
-    const { data: convs } = await supabase
-      .from('conversations')
-      .select('id')
-      .or(`seller_id.eq.${user.id},buyer_id.eq.${user.id}`)
-
-    if (!convs || convs.length === 0) {
-      setUnread(0)
-      return
-    }
-
-    const ids = convs.map(c => c.id)
-
-    const { count } = await supabase
-      .from('messages')
-      .select('id', { count: 'exact' })
-      .in('conversation_id', ids)
-      .eq('is_read', false)
-      .neq('sender_id', user.id)
-
-    setUnread(count || 0)
-  }, [user])
+  const location = useLocation()
+  const { user, unreadCount, setUnreadCount, fetchUnreadCount, inboxViewed, setInboxViewed } = useAuth()
 
   useEffect(() => {
     if (!user) return
-    fetchUnread()
 
-    const channel = supabase
-      .channel('navbar-unread-' + user.id)
-      .on('postgres_changes', {
-        event: 'INSERT',
-        schema: 'public',
-        table: 'messages'
-      }, () => fetchUnread())
-      .on('postgres_changes', {
-        event: 'UPDATE',
-        schema: 'public',
-        table: 'messages'
-      }, () => fetchUnread())
-      .subscribe()
-
-    return () => supabase.removeChannel(channel)
-  }, [user, fetchUnread])
+    // If on inbox page, set unread to 0 and mark inbox as viewed
+    if (location.pathname === '/inbox' || location.pathname.startsWith('/inbox/')) {
+      setUnreadCount(0)
+      setInboxViewed(true)
+    } else if (inboxViewed) {
+      // If we just came from inbox, keep unread at 0 and reset the flag
+      setUnreadCount(0)
+      setInboxViewed(false)
+    } else {
+      // Otherwise fetch unread count
+      fetchUnreadCount(user.id)
+    }
+  }, [user, location.pathname])
 
   return (
     <nav className="sticky top-0 z-50 bg-zinc-950/90 backdrop-blur border-b border-zinc-800 px-6 py-4 flex items-center justify-between">
@@ -72,13 +43,16 @@ export default function Navbar() {
         </button>
 
         <button
-          onClick={() => navigate('/inbox')}
+          onClick={async () => {
+            setUnreadCount(0)
+            navigate('/inbox')
+          }}
           className="relative p-2 text-zinc-400 hover:text-white transition"
         >
           <span className="text-xl">💬</span>
-          {unread > 0 && (
+          {unreadCount > 0 && (
             <span className="absolute -top-1 -right-1 bg-orange-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
-              {unread > 9 ? '9+' : unread}
+              {unreadCount}
             </span>
           )}
         </button>

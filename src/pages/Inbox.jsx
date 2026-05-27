@@ -11,6 +11,7 @@ export default function Inbox() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    markAllAsRead()
     fetchConversations()
 
     const channel = supabase
@@ -24,6 +25,33 @@ export default function Inbox() {
 
     return () => supabase.removeChannel(channel)
   }, [])
+
+  const markAllAsRead = async () => {
+    try {
+      const { data: conversations } = await supabase
+        .from('conversations')
+        .select('id')
+        .or(`seller_id.eq.${user.id},buyer_id.eq.${user.id}`)
+
+      if (conversations && conversations.length > 0) {
+        const ids = conversations.map(c => c.id)
+        const { error } = await supabase
+          .from('messages')
+          .update({ is_read: true })
+          .in('conversation_id', ids)
+          .eq('is_read', false)
+          .neq('sender_id', user.id)
+        
+        if (error) {
+          console.error('Error marking messages as read:', error)
+        } else {
+          console.log('Messages marked as read successfully')
+        }
+      }
+    } catch (err) {
+      console.error('Error in markAllAsRead:', err)
+    }
+  }
 
   const fetchConversations = async () => {
     const { data } = await supabase
@@ -50,17 +78,10 @@ export default function Inbox() {
           .order('created_at', { ascending: false })
           .limit(1)
 
-        const { count } = await supabase
-          .from('messages')
-          .select('id', { count: 'exact' })
-          .eq('conversation_id', conv.id)
-          .eq('is_read', false)
-          .neq('sender_id', user.id)
-
         return {
           ...conv,
           lastMessage: msgs && msgs[0] ? msgs[0] : null,
-          unread: count || 0
+          unread: 0
         }
       }))
       setConversations(withMessages)
@@ -72,6 +93,24 @@ export default function Inbox() {
     return user.id === conv.seller_id
       ? conv.buyer && conv.buyer.username
       : conv.seller && conv.seller.username
+  }
+
+  const handleOpenConversation = async (convId) => {
+    // Mark all unread messages as read before navigating
+    await supabase
+      .from('messages')
+      .update({ is_read: true })
+      .eq('conversation_id', convId)
+      .neq('sender_id', user.id)
+    
+    // Update the conversation in state to remove unread count
+    setConversations(prev => 
+      prev.map(conv => 
+        conv.id === convId ? { ...conv, unread: 0 } : conv
+      )
+    )
+    
+    navigate('/inbox/' + convId)
   }
 
   return (
@@ -99,7 +138,7 @@ export default function Inbox() {
           {conversations.map(conv => (
             <div
               key={conv.id}
-              onClick={() => navigate('/inbox/' + conv.id)}
+              onClick={() => handleOpenConversation(conv.id)}
               className="flex items-center gap-4 bg-zinc-900 border border-zinc-800 hover:border-orange-500/40 rounded-2xl p-4 cursor-pointer transition"
             >
               <div className="w-14 h-14 rounded-xl bg-zinc-800 flex items-center justify-center overflow-hidden flex-shrink-0">
@@ -131,12 +170,6 @@ export default function Inbox() {
                   {conv.lastMessage ? conv.lastMessage.content : 'No messages yet'}
                 </div>
               </div>
-
-              {conv.unread > 0 && (
-                <div className="w-6 h-6 bg-orange-500 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">
-                  {conv.unread}
-                </div>
-              )}
             </div>
           ))}
         </div>
