@@ -158,6 +158,47 @@ export default function ListingDetail() {
       
       console.log('Notification created:', notifData)
       
+      // Get seller email to pass to edge function
+      const { data: sellerProfile } = await supabase
+        .from('profiles')
+        .select('email')
+        .eq('id', listing.seller_id)
+        .single()
+      
+      const sellerEmail = sellerProfile?.email
+      
+      // Call edge function to send email
+      if (sellerEmail) {
+        try {
+          const response = await fetch(
+            `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-buy-now-notification`,
+            {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`
+              },
+              body: JSON.stringify({
+                record: {
+                  ...notifData,
+                  seller_email: sellerEmail
+                }
+              })
+            }
+          )
+          
+          const emailResult = await response.json()
+          console.log('Email function response:', emailResult)
+          
+          if (!response.ok) {
+            console.error('Email sending failed:', emailResult)
+          }
+        } catch (emailErr) {
+          console.error('Error calling email function:', emailErr)
+          // Don't fail the purchase if email fails
+        }
+      }
+      
       setSuccess('Purchased! Arrange pickup with the seller. Seller has been notified.')
       setBidding(false)
     } catch (err) {
