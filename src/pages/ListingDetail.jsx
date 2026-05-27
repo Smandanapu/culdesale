@@ -27,6 +27,7 @@ export default function ListingDetail() {
   const [bidding, setBidding] = useState(false)
   const [messaging, setMessaging] = useState(false)
   const [deleting, setDeleting] = useState(false)
+  const [marking, setMarking] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [photo, setPhoto] = useState(0)
@@ -166,6 +167,29 @@ export default function ListingDetail() {
     navigate('/feed')
   }
 
+  const handleMarkSold = async () => {
+    const confirmed = window.confirm('Mark this item as sold?')
+    if (!confirmed) return
+    setMarking(true)
+    setError('')
+    setSuccess('')
+
+    const { error } = await supabase
+      .from('listings')
+      .update({ status: 'sold' })
+      .eq('id', id)
+
+    if (error) {
+      setError(error.message)
+      setMarking(false)
+      return
+    }
+
+    setListing(prev => ({ ...prev, status: 'sold' }))
+    setSuccess('Item marked as sold!')
+    setMarking(false)
+  }
+
   if (loading) return (
     <div className="min-h-screen bg-zinc-950 text-white">
       <Navbar />
@@ -209,6 +233,16 @@ export default function ListingDetail() {
             ) : (
               <span className="text-6xl">📦</span>
             )}
+            
+            {/* SOLD Overlay */}
+            {isSold && (
+              <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                <div className="text-6xl font-bold text-white transform -rotate-45 border-4 border-white px-8 py-4">
+                  SOLD
+                </div>
+              </div>
+            )}
+            
             <div className="absolute top-3 right-3">
               <span className={`text-xs font-medium px-3 py-1 rounded-full ${
                 isSold
@@ -360,6 +394,15 @@ export default function ListingDetail() {
         {/* Seller Actions */}
         {isSeller && (
           <div className="flex flex-col gap-3">
+            {listing.status === 'active' && (
+              <button
+                onClick={handleMarkSold}
+                disabled={marking}
+                className="w-full py-3 bg-green-500/10 hover:bg-green-500/20 border border-green-500/30 text-green-400 font-semibold rounded-xl transition disabled:opacity-50"
+              >
+                {marking ? 'Marking...' : '✓ Mark as Sold'}
+              </button>
+            )}
             <button
               onClick={() => navigate('/edit/' + id)}
               className="w-full py-3 bg-zinc-800 hover:bg-zinc-700 text-white font-semibold rounded-xl transition"

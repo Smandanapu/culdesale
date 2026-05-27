@@ -30,7 +30,6 @@ export default function Feed() {
     const { data } = await supabase
       .from('listings')
       .select('*, profiles(username)')
-      .eq('status', 'active')
       .order('created_at', { ascending: false })
     
     // Fetch highest bid for each listing
@@ -221,6 +220,16 @@ export default function Feed() {
                   ) : (
                     <span className="text-5xl">📦</span>
                   )}
+                  
+                  {/* SOLD Overlay */}
+                  {listing.status === 'sold' && (
+                    <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                      <div className="text-4xl font-bold text-white transform -rotate-45 border-3 border-white px-6 py-3">
+                        SOLD
+                      </div>
+                    </div>
+                  )}
+                  
                   <div className="absolute top-3 right-3">
                     {listing.is_free ? (
                       <span className="bg-blue-500/20 text-blue-400 text-xs font-medium px-2 py-1 rounded-full">FREE</span>
