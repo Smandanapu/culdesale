@@ -32,8 +32,8 @@ CREATE POLICY "Users can update their own notifications"
   FOR UPDATE
   USING (auth.uid() = user_id);
 
--- RLS Policy: System can insert notifications
-CREATE POLICY "System can insert notifications"
+-- RLS Policy: Authenticated users can insert notifications for any user
+CREATE POLICY "Authenticated users can insert notifications"
   ON notifications
   FOR INSERT
-  WITH CHECK (TRUE);
+  WITH CHECK (auth.role() = 'authenticated');
