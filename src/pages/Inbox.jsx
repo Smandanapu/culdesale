@@ -27,19 +27,29 @@ export default function Inbox() {
   }, [])
 
   const markAllAsRead = async () => {
-    const { data: conversations } = await supabase
-      .from('conversations')
-      .select('id')
-      .or(`seller_id.eq.${user.id},buyer_id.eq.${user.id}`)
+    try {
+      const { data: conversations } = await supabase
+        .from('conversations')
+        .select('id')
+        .or(`seller_id.eq.${user.id},buyer_id.eq.${user.id}`)
 
-    if (conversations && conversations.length > 0) {
-      const ids = conversations.map(c => c.id)
-      await supabase
-        .from('messages')
-        .update({ is_read: true })
-        .in('conversation_id', ids)
-        .eq('is_read', false)
-        .neq('sender_id', user.id)
+      if (conversations && conversations.length > 0) {
+        const ids = conversations.map(c => c.id)
+        const { error } = await supabase
+          .from('messages')
+          .update({ is_read: true })
+          .in('conversation_id', ids)
+          .eq('is_read', false)
+          .neq('sender_id', user.id)
+        
+        if (error) {
+          console.error('Error marking messages as read:', error)
+        } else {
+          console.log('Messages marked as read successfully')
+        }
+      }
+    } catch (err) {
+      console.error('Error in markAllAsRead:', err)
     }
   }
 

@@ -9,6 +9,7 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true)
   const [needsUsername, setNeedsUsername] = useState(false)
   const [unreadCount, setUnreadCount] = useState(0)
+  const [inboxViewed, setInboxViewed] = useState(false)
 
   const fetchProfile = useCallback(async (userId) => {
     const { data } = await supabase
@@ -65,6 +66,7 @@ export const AuthProvider = ({ children }) => {
         } else {
           setProfile(null)
           setUnreadCount(0)
+          setInboxViewed(false)
         }
       }
     )
@@ -98,7 +100,9 @@ export const AuthProvider = ({ children }) => {
       signOut,
       unreadCount,
       setUnreadCount,
-      fetchUnreadCount
+      fetchUnreadCount,
+      inboxViewed,
+      setInboxViewed
     }}>
       {!loading && children}
     </AuthContext.Provider>

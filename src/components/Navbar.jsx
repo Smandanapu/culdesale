@@ -1,63 +1,28 @@
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import { useEffect } from 'react'
-import { supabase } from '../lib/supabase'
 
 export default function Navbar() {
   const navigate = useNavigate()
   const location = useLocation()
-  const { user, unreadCount, setUnreadCount, fetchUnreadCount } = useAuth()
+  const { user, unreadCount, setUnreadCount, fetchUnreadCount, inboxViewed, setInboxViewed } = useAuth()
 
   useEffect(() => {
     if (!user) return
 
-    // If on inbox page, mark all messages as read and set unread to 0
+    // If on inbox page, set unread to 0 and mark inbox as viewed
     if (location.pathname === '/inbox' || location.pathname.startsWith('/inbox/')) {
-      const markAsRead = async () => {
-        try {
-          const { data: conversations } = await supabase
-            .from('conversations')
-            .select('id')
-            .or(`seller_id.eq.${user.id},buyer_id.eq.${user.id}`)
-
-          if (conversations && conversations.length > 0) {
-            const ids = conversations.map(c => c.id)
-            await supabase
-              .from('messages')
-              .update({ is_read: true })
-              .in('conversation_id', ids)
-              .eq('is_read', false)
-              .neq('sender_id', user.id)
-          }
-          setUnreadCount(0)
-        } catch (err) {
-          console.error('Error in markAsRead:', err)
-        }
-      }
-      markAsRead()
+      setUnreadCount(0)
+      setInboxViewed(true)
+    } else if (inboxViewed) {
+      // If we just came from inbox, keep unread at 0 and reset the flag
+      setUnreadCount(0)
+      setInboxViewed(false)
     } else {
       // Otherwise fetch unread count
       fetchUnreadCount(user.id)
     }
-
-    // Listen for new messages (INSERT)
-    const insertChannel = supabase
-      .channel('unread-messages-insert-' + user.id)
-      .on('postgres_changes', {
-        event: 'INSERT',
-        schema: 'public',
-        table: 'messages'
-      }, () => {
-        if (!location.pathname.startsWith('/inbox')) {
-          fetchUnreadCount(user.id)
-        }
-      })
-      .subscribe()
-
-    return () => {
-      supabase.removeChannel(insertChannel)
-    }
-  }, [user, location.pathname, setUnreadCount, fetchUnreadCount])
+  }, [user, location.pathname])
 
   return (
     <nav className="sticky top-0 z-50 bg-zinc-950/90 backdrop-blur border-b border-zinc-800 px-6 py-4 flex items-center justify-between">
