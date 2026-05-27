@@ -1,20 +1,26 @@
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import { useEffect, useState, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
 
 export default function Navbar() {
   const navigate = useNavigate()
+  const location = useLocation()
   const { user } = useAuth()
   const [unread, setUnread] = useState(0)
 
   const fetchUnread = useCallback(async () => {
+    if (!user) return
+    
     const { data } = await supabase
       .from('conversations')
       .select('id')
       .or(`seller_id.eq.${user.id},buyer_id.eq.${user.id}`)
 
-    if (!data || data.length === 0) return
+    if (!data || data.length === 0) {
+      setUnread(0)
+      return
+    }
 
     const ids = data.map(c => c.id)
     const { count } = await supabase
@@ -29,6 +35,13 @@ export default function Navbar() {
 
   useEffect(() => {
     if (!user) return
+    
+    // If on inbox page, set unread to 0
+    if (location.pathname === '/inbox') {
+      setUnread(0)
+      return
+    }
+    
     fetchUnread()
 
     const channel = supabase
@@ -41,7 +54,7 @@ export default function Navbar() {
       .subscribe()
 
     return () => supabase.removeChannel(channel)
-  }, [user, fetchUnread])
+  }, [user, fetchUnread, location.pathname])
 
   return (
     <nav className="sticky top-0 z-50 bg-zinc-950/90 backdrop-blur border-b border-zinc-800 px-6 py-4 flex items-center justify-between">
