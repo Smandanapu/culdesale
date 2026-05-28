@@ -21,9 +21,11 @@ export default function Feed() {
   const navigate = useNavigate()
   const { user } = useAuth()
   const [search, setSearch] = useState('')
+
   const [listings, setListings] = useState([])
   const [category, setCategory] = useState('All')
-  const [sortOption, setSortOption] = useState('Newest')
+const [sortOption, setSortOption] = useState('Newest')
+
   const SORT_OPTIONS = ['Newest', 'Ending Soonest', 'Price: Low to High', 'Price: High to Low', 'Free Items']
   const [loading, setLoading] = useState(true)
   const [favorites, setFavorites] = useState(new Set())
@@ -124,6 +126,7 @@ export default function Feed() {
     }
   }, [fetchListings, fetchFavorites])
 
+
   // Removed in-memory filtering since it's now handled by the database
 
   const toggleFavorite = async (e, listingId) => {
@@ -164,23 +167,27 @@ export default function Feed() {
 
       <div className="max-w-6xl mx-auto px-4 py-6 relative z-10">
 
-        {/* Search */}
-        <div className="relative mb-4 group">
-          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-orange-400 transition-colors">🔍</span>
-          <input
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            placeholder="Search listings in your neighborhood..."
-            className="w-full bg-white/[0.02] border border-white/[0.06] rounded-xl pl-11 pr-10 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-orange-500/60 focus:bg-white/[0.04] focus:ring-1 focus:ring-orange-500/20 backdrop-blur-md transition-all duration-300 shadow-inner"
-          />
-          {search && (
-            <button
-              onClick={() => setSearch('')}
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition cursor-pointer"
-            >
-              ✕
-            </button>
-          )}
+        {/* Search & Sort */}
+        <div className="flex flex-col sm:flex-row gap-4 mb-4">
+          <div className="relative flex-1 group">
+            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-orange-400 transition-colors">🔍</span>
+            <input
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              placeholder="Search listings in your neighborhood..."
+              className="w-full bg-white/[0.02] border border-white/[0.06] rounded-xl pl-11 pr-10 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-orange-500/60 focus:bg-white/[0.04] focus:ring-1 focus:ring-orange-500/20 backdrop-blur-md transition-all duration-300 shadow-inner"
+            />
+            {search && (
+              <button
+                onClick={() => setSearch('')}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition cursor-pointer"
+              >
+                ✕
+              </button>
+            )}
+          </div>
+
+
         </div>
 
         {/* Categories and Sort */}
@@ -191,8 +198,8 @@ export default function Feed() {
               <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none group-hover:text-orange-400 transition-colors">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" /></svg>
               </div>
-              <select
-                value={sortOption}
+  
+                <select value={sortOption}
                 onChange={(e) => setSortOption(e.target.value)}
                 className="bg-white/[0.02] border border-white/[0.08] hover:border-orange-500/40 hover:bg-white/[0.04] rounded-xl pl-9 pr-8 py-2.5 text-sm text-slate-200 font-semibold focus:outline-none focus:ring-1 focus:ring-orange-500/50 transition-all cursor-pointer appearance-none shadow-sm"
               >
