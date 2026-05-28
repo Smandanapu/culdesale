@@ -53,7 +53,7 @@ export default function Navbar() {
   }
 
   return (
-    <nav className="sticky top-0 z-50 bg-[#07090e]/75 backdrop-blur-md border-b border-white/[0.06] px-6 py-4 flex items-center justify-between">
+    <nav className="sticky top-0 z-50 bg-[#07090e]/75 backdrop-blur-md border-b border-white/[0.06] px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
       <div
         className="flex items-center gap-2 cursor-pointer group"
         onClick={() => navigate('/feed')}
@@ -64,12 +64,13 @@ export default function Navbar() {
         </span>
       </div>
 
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2 sm:gap-3">
         <button
           onClick={() => navigate('/create')}
-          className="px-4 py-2 text-sm bg-gradient-to-r from-orange-500 to-amber-500 hover:opacity-90 text-white rounded-lg transition-all font-semibold shadow-lg shadow-orange-500/25 active:scale-95 cursor-pointer"
+          className="px-3 sm:px-4 py-2 text-sm bg-gradient-to-r from-orange-500 to-amber-500 hover:opacity-90 text-white rounded-lg transition-all font-semibold shadow-lg shadow-orange-500/25 active:scale-95 cursor-pointer"
         >
-          + List Item
+          <span className="sm:hidden">+</span>
+          <span className="hidden sm:inline">+ List Item</span>
         </button>
 
         <button

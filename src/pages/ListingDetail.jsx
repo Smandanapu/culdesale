@@ -377,7 +377,7 @@ export default function ListingDetail() {
         </button>
 
         <div className="card-gradient-border bg-white/[0.015] backdrop-blur-md border border-white/[0.04] rounded-2xl overflow-hidden mb-6 shadow-2xl">
-          <div className="h-80 bg-white/[0.02] flex items-center justify-center relative border-b border-white/[0.04]">
+          <div className="h-56 sm:h-80 bg-white/[0.02] flex items-center justify-center relative border-b border-white/[0.04]">
             {listing.photos && listing.photos.length > 0 ? (
               <img
                 src={listing.photos[photo]}
@@ -540,7 +540,7 @@ export default function ListingDetail() {
         {!isSeller && listing.status === 'active' && !isEnded && (
           <div className="flex flex-col gap-4">
             {!listing.is_free && (
-              <div className="flex gap-3">
+              <div className="flex flex-col sm:flex-row gap-3">
                 <input
                   type="number"
                   value={bidAmount}

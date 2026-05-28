@@ -115,7 +115,7 @@ export default function Chat() {
       <Navbar />
 
       {/* Chat Header */}
-      <div className="border-b border-white/[0.06] px-6 py-4 flex items-center gap-3 bg-[#07090e]/75 backdrop-blur-md relative z-10">
+      <div className="border-b border-white/[0.06] px-4 sm:px-6 py-3 sm:py-4 flex items-center gap-2 sm:gap-3 bg-[#07090e]/75 backdrop-blur-md relative z-10">
         <button
           onClick={() => navigate('/inbox')}
           className="text-slate-400 hover:text-white transition-all hover:-translate-x-1 cursor-pointer font-bold text-xl"
@@ -150,7 +150,7 @@ export default function Chat() {
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-6 py-6 flex flex-col gap-4 relative z-10">
+      <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 sm:py-6 flex flex-col gap-4 relative z-10">
         {loading && (
           <div className="flex flex-col items-center justify-center py-20 text-slate-400 gap-3">
             <div className="w-6 h-6 border-2 border-orange-500/20 border-t-orange-500 rounded-full animate-spin"></div>
@@ -196,7 +196,7 @@ export default function Chat() {
       </div>
 
       {/* Input */}
-      <div className="border-t border-white/[0.06] px-6 py-4 flex gap-3 bg-[#07090e]/90 backdrop-blur-md relative z-10">
+      <div className="border-t border-white/[0.06] px-4 sm:px-6 py-3 sm:py-4 flex gap-2 sm:gap-3 bg-[#07090e]/90 backdrop-blur-md relative z-10">
         <input
           value={input}
           onChange={e => setInput(e.target.value)}

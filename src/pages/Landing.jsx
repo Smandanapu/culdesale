@@ -114,10 +114,10 @@ export default function Landing() {
             CulDeSale
           </span>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 sm:gap-4">
           <a href="#safety" className="hidden sm:block px-4 py-2 text-sm text-slate-400 hover:text-white transition duration-200 font-medium cursor-pointer">Safety</a>
-          <button onClick={() => navigate('/login')} className="px-4 py-2 text-sm text-slate-400 hover:text-white transition duration-200 font-medium cursor-pointer">Sign in</button>
-          <button onClick={() => navigate('/register')} className="px-5 py-2.5 text-sm bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white rounded-xl transition duration-300 font-semibold shadow-md shadow-orange-500/10 hover:shadow-lg hover:shadow-orange-500/25 hover:scale-[1.02] active:scale-[0.98] cursor-pointer">Get Started</button>
+          <button onClick={() => navigate('/login')} className="px-3 sm:px-4 py-2 text-sm text-slate-400 hover:text-white transition duration-200 font-medium cursor-pointer">Sign in</button>
+          <button onClick={() => navigate('/register')} className="px-4 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white rounded-xl transition duration-300 font-semibold shadow-md shadow-orange-500/10 hover:shadow-lg hover:shadow-orange-500/25 hover:scale-[1.02] active:scale-[0.98] cursor-pointer">Get Started</button>
         </div>
       </nav>
 
@@ -165,7 +165,7 @@ export default function Landing() {
             <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-orange-500/10 border border-orange-500/20 text-xs font-bold tracking-wider text-orange-400 uppercase mb-8 hover:bg-orange-500/15 transition duration-300">
               ⚡ The 24/7 Neighborhood Marketplace
             </div>
-            <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight leading-[1.1] mb-6 text-white">
+            <h1 className="text-3xl sm:text-4xl md:text-6xl font-extrabold tracking-tight leading-[1.1] mb-6 text-white">
               The neighborhood <br className="hidden md:inline" /> garage sale.<br />
               <span className="bg-gradient-to-r from-orange-500 via-amber-400 to-rose-500 bg-clip-text text-transparent drop-shadow-sm">
                 Available 24/7.
@@ -185,7 +185,7 @@ export default function Landing() {
           </div>
           <div className="lg:col-span-5 w-full max-w-md mx-auto relative z-20">
             <div className="absolute inset-0 bg-gradient-to-tr from-orange-500/5 to-indigo-500/5 blur-3xl -z-10 rounded-3xl" />
-            <div className={`relative rounded-3xl backdrop-blur-xl border p-4 sm:p-6 transition-all duration-300 shadow-2xl ${
+            <div className={`relative rounded-3xl backdrop-blur-xl border p-3 sm:p-6 transition-all duration-300 shadow-2xl ${
               flashType === 'user' ? 'border-emerald-500/40 bg-emerald-950/[0.03] shadow-emerald-500/10 scale-[1.01]' 
               : flashType === 'neighbor' ? 'border-orange-500/40 bg-orange-950/[0.02] shadow-orange-500/10 scale-[1.01]' 
               : 'border-white/[0.08] bg-white/[0.02] hover:border-white/[0.12]'
@@ -284,17 +284,17 @@ export default function Landing() {
       </div>
 
       <div className="px-6 py-20 border-t border-b border-white/[0.06] bg-white/[0.01] backdrop-blur-md relative z-10">
-        <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+        <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8 text-center">
           {[
             { icon: "🔒", label: "Neighbors Only", desc: "Verified local community" },
             { icon: "⚡", label: "Live Bidding", desc: "True automatic value" },
             { icon: "💬", label: "Private Chat", desc: "Secure direct messaging" },
             { icon: "🎁", label: "Free Stuff Tab", desc: "Declutter and give back" },
           ].map(f => (
-            <div key={f.label} className="flex flex-col items-center gap-2 group cursor-default">
-              <div className="text-4xl mb-2 transform group-hover:scale-115 transition duration-300">{f.icon}</div>
-              <div className="text-base font-bold text-white tracking-tight">{f.label}</div>
-              <div className="text-xs text-slate-500 font-medium">{f.desc}</div>
+            <div key={f.label} className="flex flex-col items-center gap-1 sm:gap-2 group cursor-default">
+              <div className="text-3xl sm:text-4xl mb-1 sm:mb-2 transform group-hover:scale-115 transition duration-300">{f.icon}</div>
+              <div className="text-sm sm:text-base font-bold text-white tracking-tight">{f.label}</div>
+              <div className="text-[10px] sm:text-xs text-slate-500 font-medium">{f.desc}</div>
             </div>
           ))}
         </div>
@@ -347,11 +347,11 @@ export default function Landing() {
           <span className="font-semibold text-white tracking-tight">CulDeSale</span>
         </div>
         <div>© 2026 CulDeSale · Built for connected neighborhoods</div>
-        <div className="flex gap-4 text-xs font-medium">
+        <div className="flex flex-wrap justify-center gap-x-4 gap-y-2 text-xs font-medium">
           <Link to="/privacy" className="hover:text-white transition duration-200">Privacy Policy</Link>
-          <span>·</span>
+          <span className="hidden sm:inline">·</span>
           <Link to="/terms" className="hover:text-white transition duration-200">Terms of Service</Link>
-          <span>·</span>
+          <span className="hidden sm:inline">·</span>
           <Link to="/contact" className="hover:text-white transition duration-200">Contact</Link>
         </div>
       </div>
