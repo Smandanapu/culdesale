@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
@@ -23,33 +23,61 @@ export default function Feed() {
   const [search, setSearch] = useState('')
   const [listings, setListings] = useState([])
   const [category, setCategory] = useState('All')
+  const [sortOption, setSortOption] = useState('Newest')
+  const SORT_OPTIONS = ['Newest', 'Ending Soonest', 'Price: Low to High', 'Price: High to Low', 'Free Items']
   const [loading, setLoading] = useState(true)
   const [favorites, setFavorites] = useState(new Set())
+  const [hasMore, setHasMore] = useState(true)
+  const [loadingMore, setLoadingMore] = useState(false)
+  const pageRef = useRef(0)
+  const PAGE_SIZE = 12
 
-  const fetchListings = useCallback(async () => {
-    const { data } = await supabase
-      .from('listings')
-      .select('*, profiles(username)')
-      .order('created_at', { ascending: false })
+  const fetchListings = useCallback(async (isLoadMore = false) => {
+    const currentPage = isLoadMore ? pageRef.current + 1 : 0
+    if (isLoadMore) setLoadingMore(true)
+    else setLoading(true)
 
-    const listingsWithBids = await Promise.all(
-      (data || []).map(async (listing) => {
-        const { data: bids } = await supabase
-          .from('bids')
-          .select('amount')
-          .eq('listing_id', listing.id)
-          .order('amount', { ascending: false })
-          .limit(1)
-        return {
-          ...listing,
-          highest_bid: bids && bids.length > 0 ? bids[0].amount : null
-        }
-      })
-    )
+    let query = supabase.from('listings').select('*, profiles(username)')
 
-    setListings(listingsWithBids)
+    if (category !== 'All') {
+      query = query.eq('category', category)
+    }
+    
+    if (search) {
+      query = query.or(`title.ilike.%${search}%,description.ilike.%${search}%`)
+    }
+
+    if (sortOption === 'Newest') {
+      query = query.order('created_at', { ascending: false })
+    } else if (sortOption === 'Ending Soonest') {
+      query = query.not('ends_at', 'is', null).order('ends_at', { ascending: true })
+    } else if (sortOption === 'Price: Low to High') {
+      query = query.order('current_price', { ascending: true })
+    } else if (sortOption === 'Price: High to Low') {
+      query = query.order('current_price', { ascending: false })
+    } else if (sortOption === 'Free Items') {
+      query = query.eq('is_free', true).order('created_at', { ascending: false })
+    }
+
+    const { data } = await query.range(currentPage * PAGE_SIZE, (currentPage + 1) * PAGE_SIZE - 1)
+
+    if (data) {
+      setHasMore(data.length === PAGE_SIZE)
+      if (isLoadMore) {
+        setListings(prev => {
+          const newIds = data.map(d => d.id)
+          const filteredPrev = prev.filter(p => !newIds.includes(p.id))
+          return [...filteredPrev, ...data]
+        })
+      } else {
+        setListings(data)
+      }
+      pageRef.current = currentPage
+    }
+    
     setLoading(false)
-  }, [])
+    setLoadingMore(false)
+  }, [category, search, sortOption])
 
   const fetchFavorites = useCallback(async () => {
     if (!user) return
@@ -85,8 +113,8 @@ export default function Feed() {
         event: 'UPDATE',
         schema: 'public',
         table: 'listings'
-      }, () => {
-        fetchListings()
+      }, payload => {
+        setListings(prev => prev.map(l => l.id === payload.new.id ? { ...l, ...payload.new } : l))
       })
       .subscribe()
 
@@ -96,13 +124,7 @@ export default function Feed() {
     }
   }, [fetchListings, fetchFavorites])
 
-  const filtered = listings.filter(l => {
-    const matchesCategory = category === 'All' || l.category === category
-    const matchesSearch = search === '' ||
-      l.title.toLowerCase().includes(search.toLowerCase()) ||
-      l.description?.toLowerCase().includes(search.toLowerCase())
-    return matchesCategory && matchesSearch
-  })
+  // Removed in-memory filtering since it's now handled by the database
 
   const toggleFavorite = async (e, listingId) => {
     e.stopPropagation()
@@ -161,21 +183,44 @@ export default function Feed() {
           )}
         </div>
 
-        {/* Categories */}
-        <div className="flex gap-2 overflow-x-auto pb-2 mb-6 scrollbar-thin scrollbar-thumb-white/[0.05]">
-          {CATEGORIES.map(c => (
-            <button
-              key={c}
-              onClick={() => setCategory(c)}
-              className={`px-4 py-2 rounded-full text-sm whitespace-nowrap transition-all duration-200 font-semibold cursor-pointer ${
-                category === c
-                  ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-md shadow-orange-500/10'
-                  : 'bg-white/[0.02] border border-white/[0.06] text-slate-400 hover:text-white hover:bg-white/[0.05]'
-              }`}
-            >
-              {c}
-            </button>
-          ))}
+        {/* Categories and Sort */}
+        <div className="flex flex-col gap-3 mb-6">
+          <div className="flex justify-between items-end px-1">
+            <h2 className="text-sm font-bold text-slate-300 uppercase tracking-wider">Browse</h2>
+            <div className="relative group">
+              <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none group-hover:text-orange-400 transition-colors">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" /></svg>
+              </div>
+              <select
+                value={sortOption}
+                onChange={(e) => setSortOption(e.target.value)}
+                className="bg-white/[0.02] border border-white/[0.08] hover:border-orange-500/40 hover:bg-white/[0.04] rounded-xl pl-9 pr-8 py-2.5 text-sm text-slate-200 font-semibold focus:outline-none focus:ring-1 focus:ring-orange-500/50 transition-all cursor-pointer appearance-none shadow-sm"
+              >
+                {SORT_OPTIONS.map(s => (
+                  <option key={s} value={s} className="bg-[#07090e] text-slate-300">{s}</option>
+                ))}
+              </select>
+              <div className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none group-hover:text-orange-400 transition-colors">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-white/[0.05]">
+            {CATEGORIES.map(c => (
+              <button
+                key={c}
+                onClick={() => setCategory(c)}
+                className={`px-4 py-2 rounded-full text-sm whitespace-nowrap transition-all duration-200 font-semibold cursor-pointer ${
+                  category === c
+                    ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-md shadow-orange-500/10'
+                    : 'bg-white/[0.02] border border-white/[0.06] text-slate-400 hover:text-white hover:bg-white/[0.05]'
+                }`}
+              >
+                {c}
+              </button>
+            ))}
+          </div>
         </div>
 
         {loading && (
@@ -185,7 +230,7 @@ export default function Feed() {
           </div>
         )}
 
-        {!loading && filtered.length === 0 && (
+        {!loading && listings.length === 0 && (
           <div className="flex flex-col items-center justify-center py-24 text-center bg-white/[0.01] border border-white/[0.04] rounded-2xl p-8 backdrop-blur-md max-w-lg mx-auto">
             <div className="text-5xl mb-4 animate-bounce">📦</div>
             <h3 className="text-xl font-bold mb-2 text-white">No listings found</h3>
@@ -199,9 +244,9 @@ export default function Feed() {
           </div>
         )}
 
-        {!loading && filtered.length > 0 && (
+        {!loading && listings.length > 0 && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filtered.map(listing => (
+            {listings.map(listing => (
               <div
                 key={listing.id}
                 onClick={() => navigate('/listing/' + listing.id)}
@@ -283,10 +328,10 @@ export default function Feed() {
                         ) : (
                           <div>
                             <div className="text-[10px] text-slate-500 uppercase font-semibold tracking-wider mb-0.5">
-                              {listing.highest_bid ? 'Highest Bid' : 'Starting Price'}
+                              {listing.current_price && listing.current_price > listing.starting_price ? 'Highest Bid' : 'Starting Price'}
                             </div>
                             <span className="text-orange-400 font-extrabold text-xl">
-                              ${listing.highest_bid || listing.current_price || listing.starting_price}
+                              ${listing.current_price || listing.starting_price}
                             </span>
                           </div>
                         )}
@@ -313,6 +358,26 @@ export default function Feed() {
                 </div>
               </div>
             ))}
+          </div>
+        )}
+
+        {/* Load More Button */}
+        {!loading && hasMore && listings.length > 0 && (
+          <div className="flex justify-center mt-10 mb-4">
+            <button
+              onClick={() => fetchListings(true)}
+              disabled={loadingMore}
+              className="px-8 py-3 bg-white/[0.02] hover:bg-white/[0.06] border border-white/[0.08] text-white rounded-xl font-semibold transition-all active:scale-95 disabled:opacity-50 flex items-center gap-2 cursor-pointer shadow-lg"
+            >
+              {loadingMore ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-orange-500/20 border-t-orange-500 rounded-full animate-spin"></div>
+                  Loading...
+                </>
+              ) : (
+                'Load More Listings'
+              )}
+            </button>
           </div>
         )}
       </div>
