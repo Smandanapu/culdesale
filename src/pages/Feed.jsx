@@ -33,6 +33,7 @@ const [sortOption, setSortOption] = useState('Newest')
   const [loadingMore, setLoadingMore] = useState(false)
   const pageRef = useRef(0)
   const PAGE_SIZE = 12
+  const [sellerRatings, setSellerRatings] = useState({})
 
   const fetchListings = useCallback(async (isLoadMore = false) => {
     const currentPage = isLoadMore ? pageRef.current + 1 : 0
@@ -125,6 +126,34 @@ const [sortOption, setSortOption] = useState('Newest')
       document.removeEventListener('visibilitychange', handleVisibility)
     }
   }, [fetchListings, fetchFavorites])
+
+  // Fetch ratings for all unique sellers on the current feed
+  useEffect(() => {
+    if (!listings || listings.length === 0) return
+    const sellerIds = [...new Set(listings.map(l => l.seller_id).filter(Boolean))]
+    if (sellerIds.length === 0) return
+
+    supabase
+      .from('reviews')
+      .select('seller_id, rating')
+      .in('seller_id', sellerIds)
+      .then(({ data }) => {
+        if (data) {
+          const groups = {}
+          data.forEach(r => {
+            if (!groups[r.seller_id]) groups[r.seller_id] = []
+            groups[r.seller_id].push(r.rating)
+          })
+          const map = {}
+          Object.keys(groups).forEach(sellerId => {
+            const ratings = groups[sellerId]
+            const avg = (ratings.reduce((sum, val) => sum + val, 0) / ratings.length).toFixed(1)
+            map[sellerId] = { avg, count: ratings.length }
+          })
+          setSellerRatings(map)
+        }
+      })
+  }, [listings])
 
 
   // Removed in-memory filtering since it's now handled by the database
@@ -344,7 +373,14 @@ const [sortOption, setSortOption] = useState('Newest')
                         )}
                       </div>
                       <div className="text-xs text-slate-500 dark:text-slate-400 text-right">
-                        <div className="font-semibold text-slate-900 dark:text-white/95">@{listing.profiles?.username || 'neighbor'}</div>
+                        <div className="flex items-center justify-end gap-1.5 font-semibold text-slate-900 dark:text-white/95">
+                          <span>@{listing.profiles?.username || 'neighbor'}</span>
+                          {sellerRatings[listing.seller_id] && (
+                            <span className="text-amber-400 font-extrabold text-[11px] flex items-center gap-0.5 bg-amber-500/10 border border-amber-500/20 px-1.5 py-0.5 rounded-full">
+                              ★{sellerRatings[listing.seller_id].avg}
+                            </span>
+                          )}
+                        </div>
                         {!listing.is_free && listing.status !== 'sold' && timeLeft(listing.ends_at) !== 'Ended' && (
                           <div className="flex items-center gap-1 mt-1 justify-end text-emerald-400 font-medium">
                             <span>🕐</span>
