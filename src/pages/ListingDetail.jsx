@@ -36,6 +36,7 @@ export default function ListingDetail() {
   const [reviewHover, setReviewHover] = useState(0)
   const [reviewComment, setReviewComment] = useState('')
   const [submittingReview, setSubmittingReview] = useState(false)
+  const [sellerRating, setSellerRating] = useState(null)
 
   const fetchListing = useCallback(async () => {
     const { data } = await supabase
@@ -91,6 +92,21 @@ export default function ListingDetail() {
         })
     }
   }, [user, listing, id])
+
+  // Fetch seller's average rating
+  useEffect(() => {
+    if (!listing?.seller_id) return
+    supabase
+      .from('reviews')
+      .select('rating')
+      .eq('seller_id', listing.seller_id)
+      .then(({ data }) => {
+        if (data && data.length > 0) {
+          const avg = (data.reduce((sum, r) => sum + r.rating, 0) / data.length).toFixed(1)
+          setSellerRating({ avg, count: data.length })
+        }
+      })
+  }, [listing?.seller_id])
 
   const handleBid = async () => {
     setError('')
@@ -499,6 +515,12 @@ export default function ListingDetail() {
           <p className="text-slate-600 dark:text-slate-300 leading-relaxed mb-4 text-base">{listing.description}</p>
           <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 border-t border-slate-200 dark:border-white/[0.04] pt-4">
             <span className="font-semibold text-slate-900 dark:text-white/95">@{listing.profiles?.username || 'neighbor'}</span>
+            {sellerRating && (
+              <span className="flex items-center gap-1 bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-bold px-2 py-0.5 rounded-full">
+                ★ {sellerRating.avg}
+                <span className="text-amber-400/60 font-normal">({sellerRating.count})</span>
+              </span>
+            )}
             <span>·</span>
             <span className="bg-white dark:bg-white/[0.03] border border-slate-200 dark:border-white/[0.06] text-slate-600 dark:text-slate-300 px-2 py-0.5 rounded-md text-xs font-semibold">{listing.meetup_type}</span>
           </div>
