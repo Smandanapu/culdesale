@@ -83,6 +83,8 @@ export default function ListingDetail() {
 
     setBidding(true)
 
+    const previousHighestBidder = bids.length > 0 ? bids[0].bidder_id : null;
+
     const { error } = await supabase.from('bids').insert({
       listing_id: id,
       bidder_id: user.id,
@@ -99,6 +101,17 @@ export default function ListingDetail() {
       .from('listings')
       .update({ current_price: amount })
       .eq('id', id)
+
+    if (previousHighestBidder && previousHighestBidder !== user.id) {
+      await supabase.functions.invoke('send-outbid-notification', {
+        body: {
+          outbidUserId: previousHighestBidder,
+          newBidAmount: amount,
+          listingId: id,
+          listingTitle: listing.title
+        }
+      }).catch(err => console.error('Failed to trigger outbid email:', err))
+    }
 
     setListing(prev => ({ ...prev, current_price: amount }))
     setSuccess('Bid placed successfully!')

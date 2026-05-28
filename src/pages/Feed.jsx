@@ -21,6 +21,7 @@ export default function Feed() {
   const navigate = useNavigate()
   const { user } = useAuth()
   const [search, setSearch] = useState('')
+  const [sortOption, setSortOption] = useState('newest')
   const [listings, setListings] = useState([])
   const [category, setCategory] = useState('All')
   const [loading, setLoading] = useState(true)
@@ -102,6 +103,23 @@ export default function Feed() {
       l.title.toLowerCase().includes(search.toLowerCase()) ||
       l.description?.toLowerCase().includes(search.toLowerCase())
     return matchesCategory && matchesSearch
+  }).sort((a, b) => {
+    if (sortOption === 'price_asc') {
+      const priceA = a.is_free ? 0 : (a.highest_bid || a.current_price || a.starting_price || 0)
+      const priceB = b.is_free ? 0 : (b.highest_bid || b.current_price || b.starting_price || 0)
+      return priceA - priceB
+    }
+    if (sortOption === 'price_desc') {
+      const priceA = a.highest_bid || a.current_price || a.starting_price || 0
+      const priceB = b.highest_bid || b.current_price || b.starting_price || 0
+      return priceB - priceA
+    }
+    if (sortOption === 'ending_soon') {
+      if (!a.ends_at) return 1
+      if (!b.ends_at) return -1
+      return new Date(a.ends_at).getTime() - new Date(b.ends_at).getTime()
+    }
+    return new Date(b.created_at) - new Date(a.created_at)
   })
 
   const toggleFavorite = async (e, listingId) => {
@@ -142,23 +160,37 @@ export default function Feed() {
 
       <div className="max-w-6xl mx-auto px-4 py-6 relative z-10">
 
-        {/* Search */}
-        <div className="relative mb-4 group">
-          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-orange-400 transition-colors">🔍</span>
-          <input
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            placeholder="Search listings in your neighborhood..."
-            className="w-full bg-white/[0.02] border border-white/[0.06] rounded-xl pl-11 pr-10 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-orange-500/60 focus:bg-white/[0.04] focus:ring-1 focus:ring-orange-500/20 backdrop-blur-md transition-all duration-300 shadow-inner"
-          />
-          {search && (
-            <button
-              onClick={() => setSearch('')}
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition cursor-pointer"
-            >
-              ✕
-            </button>
-          )}
+        {/* Search & Sort */}
+        <div className="flex flex-col sm:flex-row gap-4 mb-4">
+          <div className="relative flex-1 group">
+            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-orange-400 transition-colors">🔍</span>
+            <input
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              placeholder="Search listings in your neighborhood..."
+              className="w-full bg-white/[0.02] border border-white/[0.06] rounded-xl pl-11 pr-10 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-orange-500/60 focus:bg-white/[0.04] focus:ring-1 focus:ring-orange-500/20 backdrop-blur-md transition-all duration-300 shadow-inner"
+            />
+            {search && (
+              <button
+                onClick={() => setSearch('')}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition cursor-pointer"
+              >
+                ✕
+              </button>
+            )}
+          </div>
+
+          <select
+            value={sortOption}
+            onChange={(e) => setSortOption(e.target.value)}
+            className="bg-white/[0.02] border border-white/[0.06] rounded-xl px-4 py-3 text-sm text-slate-300 focus:outline-none focus:border-orange-500/60 focus:bg-white/[0.04] backdrop-blur-md cursor-pointer transition-all appearance-none pr-10 hover:bg-white/[0.04]"
+            style={{ backgroundImage: "url(\"data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e\")", backgroundRepeat: "no-repeat", backgroundPosition: "right 1rem center", backgroundSize: "1em" }}
+          >
+            <option value="newest" className="bg-[#07090e]">Newest First</option>
+            <option value="ending_soon" className="bg-[#07090e]">Ending Soonest</option>
+            <option value="price_asc" className="bg-[#07090e]">Price: Low to High</option>
+            <option value="price_desc" className="bg-[#07090e]">Price: High to Low</option>
+          </select>
         </div>
 
         {/* Categories */}
