@@ -114,7 +114,7 @@ export default function Profile() {
   const soldListings = listings.filter(l => l.status === 'sold')
 
   return (
-    <div className="min-h-screen bg-[#07090e] bg-grid-pattern text-slate-100 relative overflow-hidden">
+    <div className="min-h-screen bg-slate-50 dark:bg-[#07090e] bg-grid-pattern text-slate-900 dark:text-slate-100 relative overflow-hidden">
       {/* Floating Ambient Glow Orbs */}
       <div className="absolute top-[10%] left-[-10%] w-[500px] h-[500px] rounded-full bg-orange-600/10 blur-[120px] pointer-events-none animate-float-slow z-0" />
       <div className="absolute bottom-[10%] right-[-10%] w-[600px] h-[600px] rounded-full bg-indigo-600/10 blur-[140px] pointer-events-none animate-float-slower z-0" />
@@ -124,9 +124,9 @@ export default function Profile() {
       <div className="max-w-2xl mx-auto px-4 py-8 relative z-10">
 
         {/* Profile Header */}
-        <div className="card-gradient-border bg-white/[0.015] border border-white/[0.04] rounded-2xl p-6 mb-6 shadow-2xl">
+        <div className="card-gradient-border bg-white dark:bg-white/[0.015] border border-slate-200 dark:border-white/[0.04] rounded-2xl p-6 mb-6 shadow-2xl">
           <div className="flex items-center gap-4 mb-5">
-            <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-orange-500 to-indigo-500 flex items-center justify-center text-2xl font-bold text-white shadow-lg shadow-orange-500/20">
+            <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-orange-500 to-indigo-500 flex items-center justify-center text-2xl font-bold text-slate-900 dark:text-white shadow-lg shadow-orange-500/20">
               {profile?.username?.[0]?.toUpperCase() || '?'}
             </div>
             <div className="flex-grow min-w-0">
@@ -136,18 +136,18 @@ export default function Profile() {
                     value={newUsername}
                     onChange={e => setNewUsername(e.target.value.toLowerCase())}
                     placeholder={profile?.username}
-                    className="bg-white/[0.02] border border-white/[0.06] rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-orange-500/60 focus:bg-white/[0.04] focus:ring-1 focus:ring-orange-500/20 transition-all duration-300 flex-1 shadow-inner"
+                    className="bg-white dark:bg-white/[0.02] border border-slate-200 dark:border-white/[0.06] rounded-xl px-3 py-2 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-orange-500/60 focus:bg-white dark:bg-white/[0.04] focus:ring-1 focus:ring-orange-500/20 transition-all duration-300 flex-1 shadow-inner"
                   />
                   <div className="flex gap-2">
                     <button
                       onClick={handleUsernameUpdate}
-                      className="flex-1 sm:flex-none px-4 py-2 bg-gradient-to-r from-orange-500 to-amber-500 text-white text-xs font-bold rounded-lg transition active:scale-95 cursor-pointer shadow shadow-orange-500/10"
+                      className="flex-1 sm:flex-none px-4 py-2 bg-gradient-to-r from-orange-500 to-amber-500 text-slate-900 dark:text-white text-xs font-bold rounded-lg transition active:scale-95 cursor-pointer shadow shadow-orange-500/10"
                     >
                       Save
                     </button>
                     <button
                       onClick={() => setEditingUsername(false)}
-                      className="flex-1 sm:flex-none px-4 py-2 bg-white/[0.02] border border-white/[0.06] text-slate-300 text-xs font-bold rounded-lg transition hover:bg-white/[0.05] active:scale-95 cursor-pointer"
+                      className="flex-1 sm:flex-none px-4 py-2 bg-white dark:bg-white/[0.02] border border-slate-200 dark:border-white/[0.06] text-slate-600 dark:text-slate-300 text-xs font-bold rounded-lg transition hover:bg-white/[0.05] active:scale-95 cursor-pointer"
                     >
                       Cancel
                     </button>
@@ -155,7 +155,7 @@ export default function Profile() {
                 </div>
               ) : (
                 <div className="flex items-center gap-2">
-                  <div className="text-xl font-extrabold text-white">{profile?.username}</div>
+                  <div className="text-xl font-extrabold text-slate-900 dark:text-white">{profile?.username}</div>
                   <button
                     onClick={() => {
                       setNewUsername(profile?.username || '')
@@ -167,7 +167,7 @@ export default function Profile() {
                   </button>
                 </div>
               )}
-              <div className="text-xs text-slate-400 mt-1 font-semibold truncate">{user?.email}</div>
+              <div className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-semibold truncate">{user?.email}</div>
             </div>
           </div>
 
@@ -184,7 +184,7 @@ export default function Profile() {
           )}
 
           {/* Stats */}
-          <div className="grid grid-cols-3 gap-4 pt-5 border-t border-white/[0.04]">
+          <div className="grid grid-cols-3 gap-4 pt-5 border-t border-slate-200 dark:border-white/[0.04]">
             {[
               ['Total Listed', listings.length],
               ['Active Items', activeListings.length],
@@ -210,15 +210,15 @@ export default function Profile() {
               onClick={() => setTab(t.id)}
               className={`px-4 py-2 rounded-full text-xs font-bold transition-all duration-200 cursor-pointer whitespace-nowrap ${
                 tab === t.id
-                  ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-md shadow-orange-500/10'
-                  : 'bg-white/[0.02] border border-white/[0.06] text-slate-400 hover:text-white hover:bg-white/[0.05]'
+                  ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-slate-900 dark:text-white shadow-md shadow-orange-500/10'
+                  : 'bg-white dark:bg-white/[0.02] border border-slate-200 dark:border-white/[0.06] text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:text-white hover:bg-white/[0.05]'
               }`}
             >{t.label}</button>
           ))}
         </div>
 
         {loading && (
-          <div className="flex flex-col items-center justify-center py-20 text-slate-400 gap-3">
+          <div className="flex flex-col items-center justify-center py-20 text-slate-500 dark:text-slate-400 gap-3">
             <div className="w-6 h-6 border-2 border-orange-500/20 border-t-orange-500 rounded-full animate-spin"></div>
             <span className="text-xs font-semibold tracking-wide">Loading statistics...</span>
           </div>
@@ -228,12 +228,12 @@ export default function Profile() {
         {!loading && tab === 'listings' && (
           <div className="flex flex-col gap-3">
             {listings.length === 0 && (
-              <div className="text-center py-16 bg-white/[0.01] border border-white/[0.04] rounded-2xl p-6">
+              <div className="text-center py-16 bg-white/[0.01] border border-slate-200 dark:border-white/[0.04] rounded-2xl p-6">
                 <div className="text-4xl mb-3">📦</div>
-                <div className="text-slate-400 text-sm mb-4">No active listings yet</div>
+                <div className="text-slate-500 dark:text-slate-400 text-sm mb-4">No active listings yet</div>
                 <button
                   onClick={() => navigate('/create')}
-                  className="px-5 py-2.5 bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-lg text-xs font-bold transition active:scale-95 cursor-pointer shadow-md shadow-orange-500/25"
+                  className="px-5 py-2.5 bg-gradient-to-r from-orange-500 to-amber-500 text-slate-900 dark:text-white rounded-lg text-xs font-bold transition active:scale-95 cursor-pointer shadow-md shadow-orange-500/25"
                 >
                   + List your first item
                 </button>
@@ -244,9 +244,9 @@ export default function Profile() {
               <div
                 key={listing.id}
                 onClick={() => navigate(`/listing/${listing.id}`)}
-                className="card-gradient-border bg-white/[0.015] border border-white/[0.04] hover:border-orange-500/40 rounded-2xl p-4 cursor-pointer hover:-translate-y-0.5 hover:bg-white/[0.03] transition-all duration-300 flex gap-4 items-center"
+                className="card-gradient-border bg-white dark:bg-white/[0.015] border border-slate-200 dark:border-white/[0.04] hover:border-orange-500/40 rounded-2xl p-4 cursor-pointer hover:-translate-y-0.5 hover:bg-white dark:bg-white/[0.03] transition-all duration-300 flex gap-4 items-center"
               >
-                <div className="w-16 h-16 rounded-xl border border-white/[0.06] bg-white/[0.02] flex items-center justify-center overflow-hidden flex-shrink-0 shadow-inner">
+                <div className="w-16 h-16 rounded-xl border border-slate-200 dark:border-white/[0.06] bg-white dark:bg-white/[0.02] flex items-center justify-center overflow-hidden flex-shrink-0 shadow-inner">
                   {listing.photos?.[0] ? (
                     <img src={listing.photos[0]} className="w-full h-full object-cover" />
                   ) : (
@@ -254,7 +254,7 @@ export default function Profile() {
                   )}
                 </div>
                 <div className="flex-grow min-w-0">
-                  <div className="font-bold text-white truncate text-base mb-0.5">{listing.title}</div>
+                  <div className="font-bold text-slate-900 dark:text-white truncate text-base mb-0.5">{listing.title}</div>
                   <div className="text-[10px] text-indigo-400 font-semibold uppercase tracking-wider mb-2">{listing.category}</div>
                   <div className="flex items-center gap-2.5">
                     <span className="text-orange-400 font-extrabold text-sm">
@@ -280,12 +280,12 @@ export default function Profile() {
         {!loading && tab === 'bids' && (
           <div className="flex flex-col gap-3">
             {bids.length === 0 && (
-              <div className="text-center py-16 bg-white/[0.01] border border-white/[0.04] rounded-2xl p-6">
+              <div className="text-center py-16 bg-white/[0.01] border border-slate-200 dark:border-white/[0.04] rounded-2xl p-6">
                 <div className="text-4xl mb-3">⚡</div>
-                <div className="text-slate-400 text-sm mb-4">No bids placed yet</div>
+                <div className="text-slate-500 dark:text-slate-400 text-sm mb-4">No bids placed yet</div>
                 <button
                   onClick={() => navigate('/feed')}
-                  className="px-5 py-2.5 bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-lg text-xs font-bold transition active:scale-95 cursor-pointer shadow-md shadow-orange-500/25"
+                  className="px-5 py-2.5 bg-gradient-to-r from-orange-500 to-amber-500 text-slate-900 dark:text-white rounded-lg text-xs font-bold transition active:scale-95 cursor-pointer shadow-md shadow-orange-500/25"
                 >
                   Browse Listings
                 </button>
@@ -296,13 +296,13 @@ export default function Profile() {
               <div
                 key={bid.id}
                 onClick={() => navigate(`/listing/${bid.listing_id}`)}
-                className="card-gradient-border bg-white/[0.015] border border-white/[0.04] hover:border-orange-500/40 rounded-2xl p-4 cursor-pointer hover:-translate-y-0.5 hover:bg-white/[0.03] transition-all duration-300 flex items-center"
+                className="card-gradient-border bg-white dark:bg-white/[0.015] border border-slate-200 dark:border-white/[0.04] hover:border-orange-500/40 rounded-2xl p-4 cursor-pointer hover:-translate-y-0.5 hover:bg-white dark:bg-white/[0.03] transition-all duration-300 flex items-center"
               >
                 <div className="flex-grow min-w-0">
-                  <div className="font-bold text-white truncate text-base mb-1.5">
+                  <div className="font-bold text-slate-900 dark:text-white truncate text-base mb-1.5">
                     {bid.listings?.title}
                   </div>
-                  <div className="flex items-center gap-2.5 text-xs text-slate-400 font-semibold">
+                  <div className="flex items-center gap-2.5 text-xs text-slate-500 dark:text-slate-400 font-semibold">
                     <span>Your bid:</span>
                     <span className="text-orange-400 font-extrabold">${bid.amount}</span>
                     <span className="text-slate-500">·</span>
@@ -329,12 +329,12 @@ export default function Profile() {
         {!loading && tab === 'favorites' && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {favorites.length === 0 && (
-              <div className="col-span-full text-center py-16 bg-white/[0.01] border border-white/[0.04] rounded-2xl p-6">
+              <div className="col-span-full text-center py-16 bg-white/[0.01] border border-slate-200 dark:border-white/[0.04] rounded-2xl p-6">
                 <div className="text-4xl mb-3">❤️</div>
-                <div className="text-slate-400 text-sm mb-4">No favorites saved yet</div>
+                <div className="text-slate-500 dark:text-slate-400 text-sm mb-4">No favorites saved yet</div>
                 <button
                   onClick={() => navigate('/feed')}
-                  className="px-5 py-2.5 bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-lg text-xs font-bold transition active:scale-95 cursor-pointer shadow-md shadow-orange-500/25"
+                  className="px-5 py-2.5 bg-gradient-to-r from-orange-500 to-amber-500 text-slate-900 dark:text-white rounded-lg text-xs font-bold transition active:scale-95 cursor-pointer shadow-md shadow-orange-500/25"
                 >
                   Browse Listings
                 </button>
@@ -345,9 +345,9 @@ export default function Profile() {
               <div
                 key={fav.id}
                 onClick={() => navigate(`/listing/${fav.listing_id}`)}
-                className="card-gradient-border bg-white/[0.015] border border-white/[0.04] rounded-2xl overflow-hidden cursor-pointer hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-indigo-500/5 transition-all duration-300 flex flex-col h-full group"
+                className="card-gradient-border bg-white dark:bg-white/[0.015] border border-slate-200 dark:border-white/[0.04] rounded-2xl overflow-hidden cursor-pointer hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-indigo-500/5 transition-all duration-300 flex flex-col h-full group"
               >
-                <div className="h-48 bg-white/[0.02] flex items-center justify-center relative overflow-hidden border-b border-white/[0.04]">
+                <div className="h-48 bg-white dark:bg-white/[0.02] flex items-center justify-center relative overflow-hidden border-b border-slate-200 dark:border-white/[0.04]">
                   {fav.listings?.photos && fav.listings.photos[0] ? (
                     <img
                       src={fav.listings.photos[0]}
@@ -362,9 +362,9 @@ export default function Profile() {
                 <div className="p-4 flex flex-col flex-grow justify-between">
                   <div>
                     <div className="text-[10px] text-indigo-400 font-semibold uppercase tracking-wider mb-1.5">{fav.listings?.category}</div>
-                    <h3 className="font-bold text-base text-white mb-2 truncate group-hover:text-orange-400 transition-colors duration-200">{fav.listings?.title}</h3>
+                    <h3 className="font-bold text-base text-slate-900 dark:text-white mb-2 truncate group-hover:text-orange-400 transition-colors duration-200">{fav.listings?.title}</h3>
                   </div>
-                  <div className="flex items-center justify-between border-t border-white/[0.04] pt-3">
+                  <div className="flex items-center justify-between border-t border-slate-200 dark:border-white/[0.04] pt-3">
                     <div>
                       <span className="text-orange-400 font-extrabold text-base">
                         ${fav.listings?.current_price || fav.listings?.starting_price}

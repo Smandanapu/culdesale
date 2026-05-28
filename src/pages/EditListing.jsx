@@ -150,9 +150,9 @@ export default function EditListing() {
   }
 
   if (loading) return (
-    <div className="min-h-screen bg-[#07090e] bg-grid-pattern text-slate-100 relative overflow-hidden">
+    <div className="min-h-screen bg-slate-50 dark:bg-[#07090e] bg-grid-pattern text-slate-900 dark:text-slate-100 relative overflow-hidden">
       <Navbar />
-      <div className="flex flex-col items-center justify-center py-32 text-slate-400 gap-3 relative z-10">
+      <div className="flex flex-col items-center justify-center py-32 text-slate-500 dark:text-slate-400 gap-3 relative z-10">
         <div className="w-8 h-8 border-2 border-orange-500/20 border-t-orange-500 rounded-full animate-spin"></div>
         <span className="text-sm font-medium tracking-wide">Loading listing details...</span>
       </div>
@@ -160,7 +160,7 @@ export default function EditListing() {
   )
 
   return (
-    <div className="min-h-screen bg-[#07090e] bg-grid-pattern text-slate-100 relative overflow-hidden">
+    <div className="min-h-screen bg-slate-50 dark:bg-[#07090e] bg-grid-pattern text-slate-900 dark:text-slate-100 relative overflow-hidden">
       {/* Floating Ambient Glow Orbs */}
       <div className="absolute top-[5%] left-[-10%] w-[500px] h-[500px] rounded-full bg-orange-600/10 blur-[120px] pointer-events-none animate-float-slow z-0" />
       <div className="absolute bottom-[5%] right-[-10%] w-[600px] h-[600px] rounded-full bg-indigo-600/10 blur-[140px] pointer-events-none animate-float-slower z-0" />
@@ -173,11 +173,11 @@ export default function EditListing() {
         <div className="flex items-center gap-3 mb-8">
           <button
             onClick={() => navigate(`/listing/${id}`)}
-            className="text-slate-400 hover:text-white transition-all hover:-translate-x-1 cursor-pointer font-bold text-lg"
+            className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:text-white transition-all hover:-translate-x-1 cursor-pointer font-bold text-lg"
           >
             ←
           </button>
-          <h1 className="text-2xl font-extrabold text-white tracking-tight">Edit Listing</h1>
+          <h1 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">Edit Listing</h1>
         </div>
 
         {error && (
@@ -192,30 +192,30 @@ export default function EditListing() {
           </div>
         )}
 
-        <div className="card-gradient-border bg-white/[0.015] backdrop-blur-md border border-white/[0.04] rounded-2xl p-6 shadow-2xl flex flex-col gap-6">
+        <div className="card-gradient-border bg-white dark:bg-white/[0.015] backdrop-blur-md border border-slate-200 dark:border-white/[0.04] rounded-2xl p-6 shadow-2xl flex flex-col gap-6">
 
           {/* Photos */}
           <div>
-            <label className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2 block">
+            <label className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2 block">
               Photos ({form.photos.length}/5) <span className="text-rose-400 ml-1 lowercase">*at least 1 required</span>
             </label>
 
             {form.photos.length > 0 && (
               <div className="grid grid-cols-3 gap-2.5 mb-3">
                 {form.photos.map((url, i) => (
-                  <div key={i} className="relative group rounded-xl overflow-hidden aspect-video border border-white/[0.06]">
+                  <div key={i} className="relative group rounded-xl overflow-hidden aspect-video border border-slate-200 dark:border-white/[0.06]">
                     <img
                       src={url}
                       className="w-full h-full object-cover"
                     />
                     <button
                       onClick={() => removePhoto(i)}
-                      className="absolute top-1.5 right-1.5 w-6 h-6 bg-rose-500 hover:bg-rose-600 text-white rounded-full text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity font-bold shadow-md cursor-pointer"
+                      className="absolute top-1.5 right-1.5 w-6 h-6 bg-rose-500 hover:bg-rose-600 text-slate-900 dark:text-white rounded-full text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity font-bold shadow-md cursor-pointer"
                     >
                       x
                     </button>
                     {i === 0 && (
-                      <div className="absolute bottom-1.5 left-1.5 bg-black/60 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                      <div className="absolute bottom-1.5 left-1.5 bg-black/60 text-slate-900 dark:text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
                         Cover
                       </div>
                     )}
@@ -225,13 +225,13 @@ export default function EditListing() {
             )}
 
             {form.photos.length < 5 && (
-              <label className="flex flex-col items-center justify-center h-20 border-2 border-dashed border-white/[0.08] hover:border-orange-500/60 rounded-xl cursor-pointer hover:bg-white/[0.02] transition-all duration-300">
+              <label className="flex flex-col items-center justify-center h-20 border-2 border-dashed border-slate-200 dark:border-white/[0.08] hover:border-orange-500/60 rounded-xl cursor-pointer hover:bg-white dark:bg-white/[0.02] transition-all duration-300">
                 {uploading ? (
-                  <span className="text-slate-400 text-sm font-medium animate-pulse">Uploading...</span>
+                  <span className="text-slate-500 dark:text-slate-400 text-sm font-medium animate-pulse">Uploading...</span>
                 ) : (
                   <>
                     <span className="text-xl mb-1">📷</span>
-                    <span className="text-sm font-semibold text-slate-400">
+                    <span className="text-sm font-semibold text-slate-500 dark:text-slate-400">
                       Add photos ({5 - form.photos.length} remaining)
                     </span>
                   </>
@@ -249,19 +249,19 @@ export default function EditListing() {
 
           {/* Title */}
           <div>
-            <label className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5 block">Title</label>
+            <label className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5 block">Title</label>
             <input
               value={form.title}
               onChange={e => set('title', e.target.value)}
               placeholder="e.g. IKEA desk lamp"
-              className="w-full bg-white/[0.02] border border-white/[0.06] rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-orange-500/60 focus:bg-white/[0.04] focus:ring-1 focus:ring-orange-500/20 transition-all duration-300 shadow-inner"
+              className="w-full bg-white dark:bg-white/[0.02] border border-slate-200 dark:border-white/[0.06] rounded-xl px-4 py-3 text-sm text-slate-900 dark:text-white placeholder-slate-500 focus:outline-none focus:border-orange-500/60 focus:bg-white dark:bg-white/[0.04] focus:ring-1 focus:ring-orange-500/20 transition-all duration-300 shadow-inner"
             />
           </div>
 
           {/* Description */}
           <div>
             <div className="flex items-center justify-between mb-1.5">
-              <label className="text-xs font-semibold uppercase tracking-wider text-slate-400">Description</label>
+              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Description</label>
               <span className={`text-[10px] font-bold tracking-wide ${form.description.length > 450 ? 'text-rose-400' : 'text-slate-500'}`}>
                 {form.description.length}/500
               </span>
@@ -272,13 +272,13 @@ export default function EditListing() {
               placeholder="Condition, age, dimensions..."
               rows={4}
               maxLength={500}
-              className="w-full bg-white/[0.02] border border-white/[0.06] rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-orange-500/60 focus:bg-white/[0.04] focus:ring-1 focus:ring-orange-500/20 transition-all duration-300 shadow-inner resize-none"
+              className="w-full bg-white dark:bg-white/[0.02] border border-slate-200 dark:border-white/[0.06] rounded-xl px-4 py-3 text-sm text-slate-900 dark:text-white placeholder-slate-500 focus:outline-none focus:border-orange-500/60 focus:bg-white dark:bg-white/[0.04] focus:ring-1 focus:ring-orange-500/20 transition-all duration-300 shadow-inner resize-none"
             />
           </div>
 
           {/* Category */}
           <div>
-            <label className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2 block">Category</label>
+            <label className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2 block">Category</label>
             <div className="flex flex-wrap gap-2">
               {CATEGORIES.map(c => (
                 <button
@@ -286,8 +286,8 @@ export default function EditListing() {
                   onClick={() => set('category', c)}
                   className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 cursor-pointer ${
                     form.category === c
-                      ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-md shadow-orange-500/10'
-                      : 'bg-white/[0.02] border border-white/[0.06] text-slate-400 hover:text-white hover:bg-white/[0.05]'
+                      ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-slate-900 dark:text-white shadow-md shadow-orange-500/10'
+                      : 'bg-white dark:bg-white/[0.02] border border-slate-200 dark:border-white/[0.06] text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:text-white hover:bg-white/[0.05]'
                   }`}
                 >{c}</button>
               ))}
@@ -299,13 +299,13 @@ export default function EditListing() {
             onClick={() => set('is_free', !form.is_free)}
             className={`flex items-center justify-between p-4 rounded-xl border cursor-pointer transition-all duration-200 ${
               form.is_free
-                ? 'bg-blue-500/10 border-blue-500/25 text-white'
-                : 'bg-white/[0.01] border-white/[0.04] hover:bg-white/[0.02]'
+                ? 'bg-blue-500/10 border-blue-500/25 text-slate-900 dark:text-white'
+                : 'bg-white/[0.01] border-slate-200 dark:border-white/[0.04] hover:bg-white dark:bg-white/[0.02]'
             }`}
           >
             <div>
               <div className="font-semibold text-sm">List as Freebie</div>
-              <div className="text-xs text-slate-400 mt-0.5">First to claim it gets it free</div>
+              <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">First to claim it gets it free</div>
             </div>
             <div className={`w-10 h-6 rounded-full relative transition-colors duration-200 ${form.is_free ? 'bg-blue-500' : 'bg-white/[0.08]'}`}>
               <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all duration-200 ${form.is_free ? 'left-5' : 'left-1'}`} />
@@ -316,23 +316,23 @@ export default function EditListing() {
           {!form.is_free && (
             <div className="flex flex-col gap-4">
               <div>
-                <label className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5 block">Starting Bid Price ($)</label>
+                <label className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5 block">Starting Bid Price ($)</label>
                 <input
                   type="number"
                   value={form.starting_price}
                   onChange={e => set('starting_price', e.target.value)}
                   placeholder="0.00"
-                  className="w-full bg-white/[0.02] border border-white/[0.06] rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-orange-500/60 focus:bg-white/[0.04] focus:ring-1 focus:ring-orange-500/20 transition-all duration-300 shadow-inner"
+                  className="w-full bg-white dark:bg-white/[0.02] border border-slate-200 dark:border-white/[0.06] rounded-xl px-4 py-3 text-sm text-slate-900 dark:text-white placeholder-slate-500 focus:outline-none focus:border-orange-500/60 focus:bg-white dark:bg-white/[0.04] focus:ring-1 focus:ring-orange-500/20 transition-all duration-300 shadow-inner"
                 />
               </div>
               <div>
-                <label className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5 block">Buy It Now Price (optional)</label>
+                <label className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5 block">Buy It Now Price (optional)</label>
                 <input
                   type="number"
                   value={form.buy_now_price}
                   onChange={e => set('buy_now_price', e.target.value)}
                   placeholder="Leave blank to skip"
-                  className="w-full bg-white/[0.02] border border-white/[0.06] rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-orange-500/60 focus:bg-white/[0.04] focus:ring-1 focus:ring-orange-500/20 transition-all duration-300 shadow-inner"
+                  className="w-full bg-white dark:bg-white/[0.02] border border-slate-200 dark:border-white/[0.06] rounded-xl px-4 py-3 text-sm text-slate-900 dark:text-white placeholder-slate-500 focus:outline-none focus:border-orange-500/60 focus:bg-white dark:bg-white/[0.04] focus:ring-1 focus:ring-orange-500/20 transition-all duration-300 shadow-inner"
                 />
               </div>
             </div>
@@ -340,7 +340,7 @@ export default function EditListing() {
 
           {/* Meetup */}
           <div>
-            <label className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2 block">Meetup Preference</label>
+            <label className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2 block">Meetup Preference</label>
             <div className="grid grid-cols-1 gap-2.5">
               {MEETUP_TYPES.map(m => (
                 <div
@@ -348,14 +348,14 @@ export default function EditListing() {
                   onClick={() => set('meetup_type', m)}
                   className={`flex items-center gap-3 p-3.5 rounded-xl border cursor-pointer transition-all duration-200 ${
                     form.meetup_type === m
-                      ? 'bg-orange-500/10 border-orange-500/60 text-white'
-                      : 'bg-white/[0.015] border-white/[0.04] hover:bg-white/[0.025] hover:border-white/[0.1]'
+                      ? 'bg-orange-500/10 border-orange-500/60 text-slate-900 dark:text-white'
+                      : 'bg-white dark:bg-white/[0.015] border-slate-200 dark:border-white/[0.04] hover:bg-white/[0.025] hover:border-white/[0.1]'
                   }`}
                 >
                   <span className="text-2xl">
                     {m === 'Porch Pickup' ? '🏠' : m === 'Clubhouse' ? '🏢' : m === 'Parking Lot' ? '🅿️' : m === 'Mailroom' ? '📬' : '👥'}
                   </span>
-                  <span className={`text-xs font-bold ${form.meetup_type === m ? 'text-orange-400' : 'text-slate-300'}`}>
+                  <span className={`text-xs font-bold ${form.meetup_type === m ? 'text-orange-400' : 'text-slate-600 dark:text-slate-300'}`}>
                     {m}
                   </span>
                 </div>
@@ -367,7 +367,7 @@ export default function EditListing() {
           <button
             onClick={handleSave}
             disabled={saving}
-            className="w-full py-3.5 bg-gradient-to-r from-orange-500 to-amber-500 hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold rounded-xl transition-all active:scale-[0.98] cursor-pointer shadow-lg shadow-orange-500/25"
+            className="w-full py-3.5 bg-gradient-to-r from-orange-500 to-amber-500 hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed text-slate-900 dark:text-white font-bold rounded-xl transition-all active:scale-[0.98] cursor-pointer shadow-lg shadow-orange-500/25"
           >
             {saving ? 'Saving...' : 'Save Changes'}
           </button>

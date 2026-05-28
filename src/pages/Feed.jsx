@@ -158,7 +158,7 @@ const [sortOption, setSortOption] = useState('Newest')
   }
 
   return (
-    <div className="min-h-screen bg-[#07090e] bg-grid-pattern text-slate-100 relative overflow-hidden">
+    <div className="min-h-screen bg-slate-50 dark:bg-[#07090e] bg-grid-pattern text-slate-900 dark:text-slate-100 relative overflow-hidden">
       {/* Floating Ambient Glow Orbs */}
       <div className="absolute top-[10%] left-[-10%] w-[500px] h-[500px] rounded-full bg-orange-600/10 blur-[120px] pointer-events-none animate-float-slow z-0" />
       <div className="absolute top-[40%] right-[-10%] w-[600px] h-[600px] rounded-full bg-indigo-600/10 blur-[140px] pointer-events-none animate-float-slower z-0" />
@@ -170,17 +170,17 @@ const [sortOption, setSortOption] = useState('Newest')
         {/* Search & Sort */}
         <div className="flex flex-col sm:flex-row gap-4 mb-4">
           <div className="relative flex-1 group">
-            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-orange-400 transition-colors">🔍</span>
+            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400 group-focus-within:text-orange-400 transition-colors">🔍</span>
             <input
               value={search}
               onChange={e => setSearch(e.target.value)}
               placeholder="Search listings in your neighborhood..."
-              className="w-full bg-white/[0.02] border border-white/[0.06] rounded-xl pl-11 pr-10 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-orange-500/60 focus:bg-white/[0.04] focus:ring-1 focus:ring-orange-500/20 backdrop-blur-md transition-all duration-300 shadow-inner"
+              className="w-full bg-white dark:bg-white/[0.02] border border-slate-200 dark:border-white/[0.06] rounded-xl pl-11 pr-10 py-3 text-sm text-slate-900 dark:text-white placeholder-slate-500 focus:outline-none focus:border-orange-500/60 focus:bg-white dark:bg-white/[0.04] focus:ring-1 focus:ring-orange-500/20 backdrop-blur-md transition-all duration-300 shadow-inner"
             />
             {search && (
               <button
                 onClick={() => setSearch('')}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition cursor-pointer"
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:text-white transition cursor-pointer"
               >
                 ✕
               </button>
@@ -193,21 +193,21 @@ const [sortOption, setSortOption] = useState('Newest')
         {/* Categories and Sort */}
         <div className="flex flex-col gap-3 mb-6">
           <div className="flex justify-between items-end px-1">
-            <h2 className="text-sm font-bold text-slate-300 uppercase tracking-wider">Browse</h2>
+            <h2 className="text-sm font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider">Browse</h2>
             <div className="relative group">
-              <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none group-hover:text-orange-400 transition-colors">
+              <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400 pointer-events-none group-hover:text-orange-400 transition-colors">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" /></svg>
               </div>
   
                 <select value={sortOption}
                 onChange={(e) => setSortOption(e.target.value)}
-                className="bg-white/[0.02] border border-white/[0.08] hover:border-orange-500/40 hover:bg-white/[0.04] rounded-xl pl-9 pr-8 py-2.5 text-sm text-slate-200 font-semibold focus:outline-none focus:ring-1 focus:ring-orange-500/50 transition-all cursor-pointer appearance-none shadow-sm"
+                className="bg-white dark:bg-white/[0.02] border border-slate-200 dark:border-white/[0.08] hover:border-orange-500/40 hover:bg-white dark:bg-white/[0.04] rounded-xl pl-9 pr-8 py-2.5 text-sm text-slate-200 font-semibold focus:outline-none focus:ring-1 focus:ring-orange-500/50 transition-all cursor-pointer appearance-none shadow-sm"
               >
                 {SORT_OPTIONS.map(s => (
-                  <option key={s} value={s} className="bg-[#07090e] text-slate-300">{s}</option>
+                  <option key={s} value={s} className="bg-slate-50 dark:bg-[#07090e] text-slate-600 dark:text-slate-300">{s}</option>
                 ))}
               </select>
-              <div className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none group-hover:text-orange-400 transition-colors">
+              <div className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400 pointer-events-none group-hover:text-orange-400 transition-colors">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
               </div>
             </div>
@@ -220,8 +220,8 @@ const [sortOption, setSortOption] = useState('Newest')
                 onClick={() => setCategory(c)}
                 className={`px-4 py-2 rounded-full text-sm whitespace-nowrap transition-all duration-200 font-semibold cursor-pointer ${
                   category === c
-                    ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-md shadow-orange-500/10'
-                    : 'bg-white/[0.02] border border-white/[0.06] text-slate-400 hover:text-white hover:bg-white/[0.05]'
+                    ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-slate-900 dark:text-white shadow-md shadow-orange-500/10'
+                    : 'bg-white dark:bg-white/[0.02] border border-slate-200 dark:border-white/[0.06] text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:text-white hover:bg-white/[0.05]'
                 }`}
               >
                 {c}
@@ -231,20 +231,20 @@ const [sortOption, setSortOption] = useState('Newest')
         </div>
 
         {loading && (
-          <div className="flex flex-col items-center justify-center py-32 text-slate-400 gap-3">
+          <div className="flex flex-col items-center justify-center py-32 text-slate-500 dark:text-slate-400 gap-3">
             <div className="w-8 h-8 border-2 border-orange-500/20 border-t-orange-500 rounded-full animate-spin"></div>
             <span className="text-sm font-medium tracking-wide">Loading neighborhood listings...</span>
           </div>
         )}
 
         {!loading && listings.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-24 text-center bg-white/[0.01] border border-white/[0.04] rounded-2xl p-8 backdrop-blur-md max-w-lg mx-auto">
+          <div className="flex flex-col items-center justify-center py-24 text-center bg-white/[0.01] border border-slate-200 dark:border-white/[0.04] rounded-2xl p-8 backdrop-blur-md max-w-lg mx-auto">
             <div className="text-5xl mb-4 animate-bounce">📦</div>
-            <h3 className="text-xl font-bold mb-2 text-white">No listings found</h3>
-            <p className="text-slate-400 text-sm mb-6 max-w-xs">Be the first to share something or try a different filter or search term</p>
+            <h3 className="text-xl font-bold mb-2 text-slate-900 dark:text-white">No listings found</h3>
+            <p className="text-slate-500 dark:text-slate-400 text-sm mb-6 max-w-xs">Be the first to share something or try a different filter or search term</p>
             <button
               onClick={() => navigate('/create')}
-              className="px-6 py-3 bg-gradient-to-r from-orange-500 to-amber-500 hover:opacity-90 text-white rounded-lg font-semibold transition-all shadow-lg shadow-orange-500/25 active:scale-95 cursor-pointer"
+              className="px-6 py-3 bg-gradient-to-r from-orange-500 to-amber-500 hover:opacity-90 text-slate-900 dark:text-white rounded-lg font-semibold transition-all shadow-lg shadow-orange-500/25 active:scale-95 cursor-pointer"
             >
               + List Your First Item
             </button>
@@ -257,10 +257,10 @@ const [sortOption, setSortOption] = useState('Newest')
               <div
                 key={listing.id}
                 onClick={() => navigate('/listing/' + listing.id)}
-                className="card-gradient-border bg-white/[0.015] backdrop-blur-md border border-white/[0.04] rounded-2xl overflow-hidden cursor-pointer hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-indigo-500/5 transition-all duration-300 flex flex-col h-full group"
+                className="card-gradient-border bg-white dark:bg-white/[0.015] backdrop-blur-md border border-slate-200 dark:border-white/[0.04] rounded-2xl overflow-hidden cursor-pointer hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-indigo-500/5 transition-all duration-300 flex flex-col h-full group"
               >
                 {/* Image */}
-                <div className="h-48 bg-white/[0.02] flex items-center justify-center relative overflow-hidden border-b border-white/[0.04]">
+                <div className="h-48 bg-white dark:bg-white/[0.02] flex items-center justify-center relative overflow-hidden border-b border-slate-200 dark:border-white/[0.04]">
                   {listing.photos && listing.photos[0] ? (
                     <img
                       src={listing.photos[0]}
@@ -274,7 +274,7 @@ const [sortOption, setSortOption] = useState('Newest')
                   {/* SOLD Overlay */}
                   {listing.status === 'sold' && (
                     <div className="absolute inset-0 bg-black/70 flex items-center justify-center z-10 backdrop-blur-[2px]">
-                      <div className="text-3xl font-extrabold text-white tracking-widest transform -rotate-12 border-4 border-white px-5 py-1.5 rounded-sm">
+                      <div className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-widest transform -rotate-12 border-4 border-white px-5 py-1.5 rounded-sm">
                         SOLD
                       </div>
                     </div>
@@ -323,12 +323,12 @@ const [sortOption, setSortOption] = useState('Newest')
                 <div className="p-5 flex flex-col flex-grow justify-between">
                   <div>
                     <div className="text-xs text-indigo-400 font-semibold uppercase tracking-wider mb-1.5">{listing.category}</div>
-                    <h3 className="font-bold text-lg text-white mb-1 truncate group-hover:text-orange-400 transition-colors duration-200">{listing.title}</h3>
-                    <p className="text-slate-400 text-sm line-clamp-2 mb-4 h-10">{listing.description}</p>
+                    <h3 className="font-bold text-lg text-slate-900 dark:text-white mb-1 truncate group-hover:text-orange-400 transition-colors duration-200">{listing.title}</h3>
+                    <p className="text-slate-500 dark:text-slate-400 text-sm line-clamp-2 mb-4 h-10">{listing.description}</p>
                   </div>
 
                   <div>
-                    <div className="flex items-center justify-between border-t border-white/[0.04] pt-4 mb-3">
+                    <div className="flex items-center justify-between border-t border-slate-200 dark:border-white/[0.04] pt-4 mb-3">
                       <div>
                         {listing.is_free ? (
                           <span className="text-blue-400 font-extrabold text-xl">Free</span>
@@ -343,8 +343,8 @@ const [sortOption, setSortOption] = useState('Newest')
                           </div>
                         )}
                       </div>
-                      <div className="text-xs text-slate-400 text-right">
-                        <div className="font-semibold text-white/95">@{listing.profiles?.username || 'neighbor'}</div>
+                      <div className="text-xs text-slate-500 dark:text-slate-400 text-right">
+                        <div className="font-semibold text-slate-900 dark:text-white/95">@{listing.profiles?.username || 'neighbor'}</div>
                         {!listing.is_free && listing.status !== 'sold' && timeLeft(listing.ends_at) !== 'Ended' && (
                           <div className="flex items-center gap-1 mt-1 justify-end text-emerald-400 font-medium">
                             <span>🕐</span>
@@ -374,7 +374,7 @@ const [sortOption, setSortOption] = useState('Newest')
             <button
               onClick={() => fetchListings(true)}
               disabled={loadingMore}
-              className="px-8 py-3 bg-white/[0.02] hover:bg-white/[0.06] border border-white/[0.08] text-white rounded-xl font-semibold transition-all active:scale-95 disabled:opacity-50 flex items-center gap-2 cursor-pointer shadow-lg"
+              className="px-8 py-3 bg-white dark:bg-white/[0.02] hover:bg-white/[0.06] border border-slate-200 dark:border-white/[0.08] text-slate-900 dark:text-white rounded-xl font-semibold transition-all active:scale-95 disabled:opacity-50 flex items-center gap-2 cursor-pointer shadow-lg"
             >
               {loadingMore ? (
                 <>

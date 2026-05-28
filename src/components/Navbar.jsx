@@ -1,11 +1,13 @@
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { useTheme } from '../context/ThemeContext'
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 
 export default function Navbar() {
   const navigate = useNavigate()
   const { user } = useAuth()
+  const { theme, toggleTheme } = useTheme()
   const [unread, setUnread] = useState(0)
 
   useEffect(() => {
@@ -53,7 +55,7 @@ export default function Navbar() {
   }
 
   return (
-    <nav className="sticky top-0 z-50 bg-[#07090e]/75 backdrop-blur-md border-b border-white/[0.06] px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
+    <nav className="sticky top-0 z-50 bg-slate-50/75 dark:bg-[#07090e]/75 backdrop-blur-md border-b border-slate-200 dark:border-white/[0.06] px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
       <div
         className="flex items-center gap-2 cursor-pointer group"
         onClick={() => navigate('/feed')}
@@ -67,7 +69,7 @@ export default function Navbar() {
       <div className="flex items-center gap-2 sm:gap-3">
         <button
           onClick={() => navigate('/create')}
-          className="px-3 sm:px-4 py-2 text-sm bg-gradient-to-r from-orange-500 to-amber-500 hover:opacity-90 text-white rounded-lg transition-all font-semibold shadow-lg shadow-orange-500/25 active:scale-95 cursor-pointer"
+          className="px-3 sm:px-4 py-2 text-sm bg-gradient-to-r from-orange-500 to-amber-500 hover:opacity-90 text-slate-900 dark:text-white rounded-lg transition-all font-semibold shadow-lg shadow-orange-500/25 active:scale-95 cursor-pointer"
         >
           <span className="sm:hidden">+</span>
           <span className="hidden sm:inline">+ List Item</span>
@@ -75,14 +77,22 @@ export default function Navbar() {
 
         <button
           onClick={() => navigate('/inbox')}
-          className="relative p-2 text-slate-400 hover:text-white transition cursor-pointer active:scale-95"
+          className="relative p-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:text-white transition cursor-pointer active:scale-95"
         >
           <span className="text-xl">💬</span>
           {unread > 0 && (
-            <span className="absolute -top-1 -right-1 bg-orange-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold shadow-md shadow-orange-500/30">
+            <span className="absolute -top-1 -right-1 bg-orange-500 text-slate-900 dark:text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold shadow-md shadow-orange-500/30">
               {unread > 9 ? '9+' : unread}
             </span>
           )}
+        </button>
+
+        <button
+          onClick={toggleTheme}
+          className="p-2 text-slate-500 hover:text-orange-500 dark:text-slate-500 dark:text-slate-400 dark:hover:text-slate-900 dark:text-white transition cursor-pointer active:scale-95"
+          title="Toggle Theme"
+        >
+          <span className="text-xl">{theme === 'dark' ? '☀️' : '🌙'}</span>
         </button>
 
         <button
