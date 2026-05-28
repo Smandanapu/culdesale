@@ -574,7 +574,7 @@ export default function ListingDetail() {
           </div>
         )}
 
-        {/* Auction Ended State */}
+        {/* Auction Ended / Sold State for Buyer */}
         {!isSeller && (isEnded || isSold) && !isReserved && (
           <div className="bg-white dark:bg-white/[0.015] border border-slate-200 dark:border-white/[0.04] rounded-2xl p-6 text-center mb-6 backdrop-blur-md">
             <div className="text-4xl mb-3 animate-pulse">🔨</div>
@@ -587,6 +587,65 @@ export default function ListingDetail() {
             {bids.length > 0 && (
               <div className="text-sm text-slate-600 dark:text-slate-300 font-semibold bg-white dark:bg-white/[0.02] border border-slate-200 dark:border-white/[0.06] rounded-xl py-3 px-4 max-w-xs mx-auto">
                 Final Sold Price: <span className="text-orange-400 font-extrabold ml-1">${listing.current_price}</span>
+              </div>
+            )}
+
+            {/* Review UI — only shown to the buyer of this sold listing */}
+            {isSold && (listing.buyer_id === user?.id || (!listing.buyer_id && listing.reserved_by === user?.id)) && (
+              <div className="mt-5 text-left">
+                {review ? (
+                  <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-2xl p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span>✅</span>
+                      <span className="text-emerald-400 font-bold text-sm">Your Review Submitted</span>
+                    </div>
+                    <div className="flex gap-1 mb-1">
+                      {[1,2,3,4,5].map(star => (
+                        <span key={star} className={`text-lg ${star <= review.rating ? 'text-amber-400' : 'text-slate-600'}`}>★</span>
+                      ))}
+                    </div>
+                    {review.comment && (
+                      <p className="text-sm text-slate-600 dark:text-slate-300 mt-1">{review.comment}</p>
+                    )}
+                  </div>
+                ) : (
+                  <div className="bg-white dark:bg-white/[0.03] border border-slate-200 dark:border-white/[0.08] rounded-2xl p-4">
+                    <div className="flex items-center gap-2 mb-3">
+                      <span>⭐</span>
+                      <span className="text-slate-900 dark:text-white font-bold text-sm">Rate this Seller</span>
+                    </div>
+                    <div className="flex gap-1 mb-3 justify-center">
+                      {[1,2,3,4,5].map(star => (
+                        <button
+                          key={star}
+                          onClick={() => setReviewRating(star)}
+                          onMouseEnter={() => setReviewHover(star)}
+                          onMouseLeave={() => setReviewHover(0)}
+                          className="text-3xl cursor-pointer transition-transform hover:scale-125 active:scale-95"
+                        >
+                          <span className={(reviewHover || reviewRating) >= star ? 'text-amber-400' : 'text-slate-600 dark:text-slate-500'}>
+                            ★
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                    <textarea
+                      value={reviewComment}
+                      onChange={(e) => setReviewComment(e.target.value)}
+                      placeholder="Share your experience with this seller (optional)..."
+                      maxLength={300}
+                      rows={3}
+                      className="w-full bg-slate-100 dark:bg-white/[0.03] border border-slate-200 dark:border-white/[0.06] rounded-xl px-4 py-3 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-orange-500/50 resize-none mb-3"
+                    />
+                    <button
+                      onClick={handleSubmitReview}
+                      disabled={submittingReview || reviewRating === 0}
+                      className="w-full py-3 bg-gradient-to-r from-orange-500 to-amber-500 hover:opacity-90 text-white font-bold rounded-xl transition-all active:scale-[0.98] cursor-pointer disabled:opacity-50 shadow-lg shadow-orange-500/25"
+                    >
+                      {submittingReview ? 'Submitting...' : 'Submit Review'}
+                    </button>
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -694,65 +753,6 @@ export default function ListingDetail() {
             >
               {deleting ? 'Deleting...' : 'Delete Listing'}
             </button>
-          </div>
-        )}
-
-        {/* Buyer Review Section: show if sold and current user is the buyer (via buyer_id or reserved_by fallback) */}
-        {listing.status === 'sold' && (listing.buyer_id === user?.id || (!listing.buyer_id && listing.reserved_by === user?.id)) && (
-          <div className="mt-6">
-            {review ? (
-              <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-2xl p-5">
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="text-lg">✅</span>
-                  <span className="text-emerald-400 font-bold text-sm">Your Review</span>
-                </div>
-                <div className="flex gap-1 mb-2">
-                  {[1,2,3,4,5].map(star => (
-                    <span key={star} className={`text-xl ${star <= review.rating ? 'text-amber-400' : 'text-slate-600'}`}>★</span>
-                  ))}
-                </div>
-                {review.comment && (
-                  <p className="text-sm text-slate-600 dark:text-slate-300">{review.comment}</p>
-                )}
-              </div>
-            ) : (
-              <div className="bg-white dark:bg-white/[0.02] border border-slate-200 dark:border-white/[0.06] rounded-2xl p-5">
-                <div className="flex items-center gap-2 mb-4">
-                  <span className="text-lg">⭐</span>
-                  <span className="text-slate-900 dark:text-white font-bold text-sm">Rate this Seller</span>
-                </div>
-                <div className="flex gap-1 mb-4">
-                  {[1,2,3,4,5].map(star => (
-                    <button
-                      key={star}
-                      onClick={() => setReviewRating(star)}
-                      onMouseEnter={() => setReviewHover(star)}
-                      onMouseLeave={() => setReviewHover(0)}
-                      className="text-3xl cursor-pointer transition-transform hover:scale-125 active:scale-95"
-                    >
-                      <span className={(reviewHover || reviewRating) >= star ? 'text-amber-400' : 'text-slate-600 dark:text-slate-500'}>
-                        ★
-                      </span>
-                    </button>
-                  ))}
-                </div>
-                <textarea
-                  value={reviewComment}
-                  onChange={(e) => setReviewComment(e.target.value)}
-                  placeholder="Share your experience with this seller (optional)..."
-                  maxLength={300}
-                  rows={3}
-                  className="w-full bg-slate-100 dark:bg-white/[0.03] border border-slate-200 dark:border-white/[0.06] rounded-xl px-4 py-3 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-orange-500/50 resize-none mb-3"
-                />
-                <button
-                  onClick={handleSubmitReview}
-                  disabled={submittingReview || reviewRating === 0}
-                  className="w-full py-3 bg-gradient-to-r from-orange-500 to-amber-500 hover:opacity-90 text-white font-bold rounded-xl transition-all active:scale-[0.98] cursor-pointer disabled:opacity-50 shadow-lg shadow-orange-500/25"
-                >
-                  {submittingReview ? 'Submitting...' : 'Submit Review'}
-                </button>
-              </div>
-            )}
           </div>
         )}
 
