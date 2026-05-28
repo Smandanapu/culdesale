@@ -41,9 +41,12 @@ export default function TermsOfService() {
               We reserve the right to remove any listing or terminate any account that violates these terms, at our sole discretion.
             </p>
 
-            <h2>3. Transactions & Liability</h2>
+            <h2>3. Transactions, Liability, & Disclaimer of Warranties</h2>
             <p>
-              <strong>CulDeSale is a venue only.</strong> We do not take part in the actual transaction between buyers and sellers. As a result, we have no control over the quality, safety, morality, or legality of any aspect of the items listed.
+              <strong>CulDeSale is a completely free, community-run service provided "as-is."</strong> We do not take part in the actual transaction between buyers and sellers. As a result, we have no control over the quality, safety, morality, or legality of any aspect of the items listed.
+            </p>
+            <p>
+              <strong>Zero Liability:</strong> By using CulDeSale, you explicitly agree that the platform, its creators, and administrators bear absolutely no responsibility or liability for any damages, losses, injuries, scams, or disputes that arise from your use of the service. You are choosing to use this service entirely at your own interest and your own risk.
             </p>
             <p>
               We are not responsible for enforcing payments. All payments are to be handled offline via cash, Venmo, or other agreed-upon peer-to-peer methods. 
