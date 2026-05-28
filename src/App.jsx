@@ -14,6 +14,8 @@ import Inbox from './pages/Inbox'
 import Chat from './pages/Chat'
 import SetupUsername from './pages/SetupUsername'
 import Profile from './pages/Profile'
+import PrivacyPolicy from './pages/PrivacyPolicy'
+import TermsOfService from './pages/TermsOfService'
 
 export default function App() {
   return (
@@ -25,6 +27,8 @@ export default function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/privacy" element={<PrivacyPolicy />} />
+          <Route path="/terms" element={<TermsOfService />} />
           <Route path="/feed" element={<ProtectedRoute><Feed /></ProtectedRoute>} />
           <Route path="/listing/:id" element={<ProtectedRoute><ListingDetail /></ProtectedRoute>} />
           <Route path="/create" element={<ProtectedRoute><CreateListing /></ProtectedRoute>} />

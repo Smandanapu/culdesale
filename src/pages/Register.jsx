@@ -7,6 +7,7 @@ export default function Register() {
   const { signUp } = useAuth()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [agreed, setAgreed] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -17,6 +18,12 @@ export default function Register() {
 
     if (password.length < 6) {
       setError('Password must be at least 6 characters')
+      setLoading(false)
+      return
+    }
+
+    if (!agreed) {
+      setError('You must agree to the Terms of Service and Privacy Policy')
       setLoading(false)
       return
     }
@@ -33,62 +40,80 @@ export default function Register() {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-white flex flex-col items-center justify-center px-6">
+    <div className="min-h-screen bg-[#07090e] bg-grid-pattern text-slate-100 flex flex-col items-center justify-center px-6 relative overflow-hidden">
+      {/* Floating Ambient Glow Orbs */}
+      <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] rounded-full bg-orange-600/10 blur-[120px] pointer-events-none animate-float-slow z-0" />
+      <div className="absolute bottom-[-10%] right-[-10%] w-[600px] h-[600px] rounded-full bg-indigo-600/10 blur-[140px] pointer-events-none animate-float-slower z-0" />
 
       {/* Logo */}
-      <div className="flex items-center gap-2 mb-8">
-        <span className="text-3xl">🏘️</span>
-        <span className="text-2xl font-bold">CulDeSale</span>
+      <div className="flex items-center gap-2 mb-8 relative z-10 group">
+        <span className="text-3xl transition-transform group-hover:scale-110 duration-200">🏘️</span>
+        <span className="text-2xl font-extrabold tracking-tight animate-text-shimmer bg-gradient-to-r from-orange-400 via-rose-400 to-indigo-400 bg-clip-text text-transparent">CulDeSale</span>
       </div>
 
       {/* Card */}
-      <div className="w-full max-w-md bg-zinc-900 border border-zinc-800 rounded-2xl p-8">
-        <h1 className="text-2xl font-bold mb-1">Create your account</h1>
-        <p className="text-zinc-400 text-sm mb-8">Free forever. No credit card needed.</p>
+      <div className="w-full max-w-md card-gradient-border bg-white/[0.015] backdrop-blur-md border border-white/[0.04] rounded-2xl p-8 shadow-2xl relative z-10">
+        <h1 className="text-2xl font-bold mb-1 text-white">Create your account</h1>
+        <p className="text-slate-400 text-sm mb-8">Free forever. No credit card needed.</p>
 
         {error && (
-          <div className="bg-red-500/10 border border-red-500/30 text-red-400 text-sm rounded-lg px-4 py-3 mb-6">
+          <div className="bg-rose-500/10 border border-rose-500/25 text-rose-400 text-sm rounded-xl px-4 py-3 mb-6">
             {error}
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-5">
           <div>
-            <label className="text-sm text-zinc-400 mb-1 block">Email</label>
+            <label className="text-sm font-medium text-slate-300 mb-1.5 block">Email</label>
             <input
               type="email"
               value={email}
               onChange={e => setEmail(e.target.value)}
               placeholder="you@example.com"
               required
-              className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-orange-500 transition"
+              className="w-full bg-white/[0.02] border border-white/[0.06] rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-orange-500/60 focus:bg-white/[0.04] focus:ring-1 focus:ring-orange-500/20 transition-all duration-300 shadow-inner"
             />
           </div>
 
           <div>
-            <label className="text-sm text-zinc-400 mb-1 block">Password</label>
+            <label className="text-sm font-medium text-slate-300 mb-1.5 block">Password</label>
             <input
               type="password"
               value={password}
               onChange={e => setPassword(e.target.value)}
               placeholder="At least 6 characters"
               required
-              className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-orange-500 transition"
+              className="w-full bg-white/[0.02] border border-white/[0.06] rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-orange-500/60 focus:bg-white/[0.04] focus:ring-1 focus:ring-orange-500/20 transition-all duration-300 shadow-inner"
             />
+          </div>
+
+          <div className="flex items-start gap-3 mt-1">
+            <div className="flex items-center h-5">
+              <input
+                id="terms"
+                type="checkbox"
+                checked={agreed}
+                onChange={(e) => setAgreed(e.target.checked)}
+                className="w-4 h-4 rounded border-white/[0.1] bg-white/[0.02] text-orange-500 focus:ring-orange-500/50 focus:ring-offset-0 cursor-pointer accent-orange-500"
+              />
+            </div>
+            <label htmlFor="terms" className="text-xs text-slate-400 leading-relaxed cursor-pointer select-none">
+              I agree to the <Link to="/terms" target="_blank" className="text-orange-400 hover:text-orange-300 transition-colors">Terms of Service</Link> and <Link to="/privacy" target="_blank" className="text-orange-400 hover:text-orange-300 transition-colors">Privacy Policy</Link>
+            </label>
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-orange-500 hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-lg transition mt-2"
+            className="w-full bg-gradient-to-r from-orange-500 to-amber-500 hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-xl transition-all shadow-lg shadow-orange-500/25 active:scale-[0.98] cursor-pointer mt-2"
           >
             {loading ? 'Creating account...' : 'Create Account →'}
           </button>
         </form>
 
-        <p className="text-center text-zinc-500 text-sm mt-6">
+        <p className="text-center text-slate-400 text-sm mt-6">
           Already have an account?{' '}
-          <Link to="/login" className="text-orange-500 hover:text-orange-400 transition">
+          <Link to="/login" className="text-orange-400 hover:text-orange-300 transition-colors font-medium">
             Sign in
           </Link>
         </p>
