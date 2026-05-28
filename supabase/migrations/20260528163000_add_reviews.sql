@@ -21,7 +21,8 @@ CREATE POLICY "Anyone can read reviews"
   ON reviews FOR SELECT
   USING (true);
 
--- Only the buyer of a sold listing can insert a review
+-- Only the buyer of a sold listing can insert a review.
+-- Falls back to reserved_by if buyer_id was not set (pre-migration sales).
 CREATE POLICY "Buyer can insert review"
   ON reviews FOR INSERT
   WITH CHECK (
@@ -30,7 +31,10 @@ CREATE POLICY "Buyer can insert review"
       SELECT 1 FROM listings
       WHERE listings.id = listing_id
       AND listings.status = 'sold'
-      AND listings.buyer_id = auth.uid()
+      AND (
+        listings.buyer_id = auth.uid()
+        OR (listings.buyer_id IS NULL AND listings.reserved_by = auth.uid())
+      )
     )
   );
 

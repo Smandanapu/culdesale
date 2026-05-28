@@ -40,7 +40,7 @@ export default function ListingDetail() {
   const fetchListing = useCallback(async () => {
     const { data } = await supabase
       .from('listings')
-      .select('*, profiles(username)')
+      .select('*, profiles(username), buyer_id')
       .eq('id', id)
       .single()
     setListing(data)
@@ -78,7 +78,8 @@ export default function ListingDetail() {
   // Fetch existing review for this listing
   useEffect(() => {
     if (!user || !listing) return
-    if (listing.status === 'sold' && listing.buyer_id === user.id) {
+    const isBuyer = listing.buyer_id === user.id || (!listing.buyer_id && listing.reserved_by === user.id)
+    if (listing.status === 'sold' && isBuyer) {
       supabase
         .from('reviews')
         .select('*')
@@ -696,8 +697,8 @@ export default function ListingDetail() {
           </div>
         )}
 
-        {/* Buyer Review Section */}
-        {listing.status === 'sold' && listing.buyer_id === user?.id && (
+        {/* Buyer Review Section: show if sold and current user is the buyer (via buyer_id or reserved_by fallback) */}
+        {listing.status === 'sold' && (listing.buyer_id === user?.id || (!listing.buyer_id && listing.reserved_by === user?.id)) && (
           <div className="mt-6">
             {review ? (
               <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-2xl p-5">
