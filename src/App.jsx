@@ -16,6 +16,7 @@ import SetupUsername from './pages/SetupUsername'
 import Profile from './pages/Profile'
 import PrivacyPolicy from './pages/PrivacyPolicy'
 import TermsOfService from './pages/TermsOfService'
+import Contact from './pages/Contact'
 
 export default function App() {
   return (
@@ -29,6 +30,7 @@ export default function App() {
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/terms" element={<TermsOfService />} />
+          <Route path="/contact" element={<Contact />} />
           <Route path="/feed" element={<ProtectedRoute><Feed /></ProtectedRoute>} />
           <Route path="/listing/:id" element={<ProtectedRoute><ListingDetail /></ProtectedRoute>} />
           <Route path="/create" element={<ProtectedRoute><CreateListing /></ProtectedRoute>} />
