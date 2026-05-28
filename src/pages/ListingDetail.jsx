@@ -120,15 +120,34 @@ export default function ListingDetail() {
   }
 
   const handleBuyNow = async () => {
-    const confirmed = window.confirm('Buy this item now for $' + listing.buy_now_price + '?')
+    const confirmed = window.confirm('This will reserve the item for 24 hours while the seller confirms. Reserve for $' + listing.buy_now_price + '?')
     if (!confirmed) return
     setBidding(true)
     setError('')
 
+    // Check if user already has 3 active reservations
+    const { data: activeReservations } = await supabase
+      .from('listings')
+      .select('id')
+      .eq('reserved_by', user.id)
+      .eq('status', 'reserved')
+
+    if (activeReservations && activeReservations.length >= 3) {
+      setError('You have too many pending reservations (max 3). Complete or wait for one to expire before reserving another item.')
+      setBidding(false)
+      return
+    }
+
     const { error } = await supabase
       .from('listings')
-      .update({ status: 'sold', current_price: listing.buy_now_price })
+      .update({
+        status: 'reserved',
+        reserved_by: user.id,
+        reserved_at: new Date().toISOString(),
+        current_price: listing.buy_now_price
+      })
       .eq('id', id)
+      .eq('status', 'active')
 
     if (error) {
       setError(error.message)
@@ -136,9 +155,89 @@ export default function ListingDetail() {
       return
     }
 
-    setListing(prev => ({ ...prev, status: 'sold' }))
-    setSuccess('Purchased! Arrange pickup with the seller. Seller has been notified by email.')
+    // Trigger the notification edge function directly
+    await supabase.functions.invoke('send-buynow-notification', {
+      body: {
+        record: {
+          id: listing.id,
+          seller_id: listing.seller_id,
+          title: listing.title,
+          buy_now_price: listing.buy_now_price,
+          status: 'reserved'
+        },
+        old_record: {
+          status: 'active'
+        }
+      }
+    }).catch(err => console.error('Failed to trigger reserved email:', err))
+
+    setListing(prev => ({ ...prev, status: 'reserved', reserved_by: user.id, reserved_at: new Date().toISOString() }))
+    setSuccess('Item reserved! The seller has 24 hours to confirm the sale.')
     setBidding(false)
+  }
+
+  const handleConfirmSale = async () => {
+    const confirmed = window.confirm('Confirm sale of this item for $' + listing.buy_now_price + '?')
+    if (!confirmed) return
+    setMarking(true)
+    setError('')
+
+    const { error } = await supabase
+      .from('listings')
+      .update({ status: 'sold' })
+      .eq('id', id)
+
+    if (error) {
+      setError(error.message)
+      setMarking(false)
+      return
+    }
+
+    // Trigger the sold notification
+    await supabase.functions.invoke('send-buynow-notification', {
+      body: {
+        record: {
+          id: listing.id,
+          seller_id: listing.seller_id,
+          title: listing.title,
+          buy_now_price: listing.buy_now_price,
+          status: 'sold'
+        },
+        old_record: {
+          status: 'reserved'
+        }
+      }
+    }).catch(err => console.error('Failed to trigger sold email:', err))
+
+    setListing(prev => ({ ...prev, status: 'sold' }))
+    setSuccess('Sale confirmed! Arrange pickup with the buyer.')
+    setMarking(false)
+  }
+
+  const handleRejectReservation = async () => {
+    const confirmed = window.confirm('Reject this reservation and re-list the item?')
+    if (!confirmed) return
+    setMarking(true)
+    setError('')
+
+    const { error } = await supabase
+      .from('listings')
+      .update({
+        status: 'active',
+        reserved_by: null,
+        reserved_at: null
+      })
+      .eq('id', id)
+
+    if (error) {
+      setError(error.message)
+      setMarking(false)
+      return
+    }
+
+    setListing(prev => ({ ...prev, status: 'active', reserved_by: null, reserved_at: null }))
+    setSuccess('Reservation rejected. Item is back on the market.')
+    setMarking(false)
   }
 
   const handleMessage = async () => {
@@ -246,6 +345,19 @@ export default function ListingDetail() {
   const minBid = (listing.current_price || listing.starting_price) + 1
   const isEnded = timeLeft(listing.ends_at) === 'Ended'
   const isSold = listing.status === 'sold'
+  const isReserved = listing.status === 'reserved'
+  const isReservedByMe = isReserved && listing.reserved_by === user.id
+
+  // Calculate reservation time remaining
+  const reservationTimeLeft = () => {
+    if (!listing.reserved_at) return ''
+    const expiresAt = new Date(new Date(listing.reserved_at).getTime() + 24 * 60 * 60 * 1000)
+    const diff = expiresAt - new Date()
+    if (diff <= 0) return 'Expired'
+    const h = Math.floor(diff / 3600000)
+    const m = Math.floor((diff % 3600000) / 60000)
+    return `${h}h ${m}m`
+  }
 
   return (
     <div className="min-h-screen bg-[#07090e] bg-grid-pattern text-slate-100 relative overflow-hidden">
@@ -284,17 +396,27 @@ export default function ListingDetail() {
               </div>
             )}
 
+            {isReserved && (
+              <div className="absolute inset-0 bg-black/60 flex items-center justify-center backdrop-blur-[2px] z-10">
+                <div className="text-3xl font-extrabold text-amber-400 tracking-widest transform -rotate-12 border-4 border-amber-400 px-6 py-2 rounded-sm shadow-2xl">
+                  RESERVED
+                </div>
+              </div>
+            )}
+
             <div className="absolute top-3 right-3 z-20">
               <span className={`text-xs font-semibold px-2.5 py-1 rounded-full backdrop-blur-md border ${
                 isSold
                   ? 'bg-blue-500/10 border-blue-500/30 text-blue-400'
+                  : isReserved
+                  ? 'bg-amber-500/10 border-amber-500/30 text-amber-400'
                   : listing.is_free
                   ? 'bg-blue-500/10 border-blue-500/30 text-blue-400'
                   : isEnded
                   ? 'bg-rose-500/10 border-rose-500/25 text-rose-400'
                   : 'bg-emerald-500/10 border-emerald-500/25 text-emerald-400'
               }`}>
-                {isSold ? 'Sold' : listing.is_free ? 'FREE' : timeLeft(listing.ends_at)}
+                {isSold ? 'Sold' : isReserved ? `Reserved · ${reservationTimeLeft()}` : listing.is_free ? 'FREE' : timeLeft(listing.ends_at)}
               </span>
             </div>
           </div>
@@ -381,8 +503,23 @@ export default function ListingDetail() {
           </div>
         )}
 
+        {/* Reserved State - Buyer View */}
+        {isReserved && !canManage && (
+          <div className="bg-amber-500/5 border border-amber-500/20 rounded-2xl p-6 text-center mb-6 backdrop-blur-md">
+            <div className="text-4xl mb-3">⏳</div>
+            <div className="text-lg font-bold mb-1 text-amber-400">
+              {isReservedByMe ? 'You Reserved This Item' : 'Item Reserved'}
+            </div>
+            <div className="text-slate-400 text-sm mb-4">
+              {isReservedByMe
+                ? 'Waiting for the seller to confirm. The reservation expires in ' + reservationTimeLeft() + '.'
+                : 'Another buyer has reserved this item. It may become available again if the reservation expires.'}
+            </div>
+          </div>
+        )}
+
         {/* Auction Ended State */}
-        {!isSeller && (isEnded || isSold) && (
+        {!isSeller && (isEnded || isSold) && !isReserved && (
           <div className="bg-white/[0.015] border border-white/[0.04] rounded-2xl p-6 text-center mb-6 backdrop-blur-md">
             <div className="text-4xl mb-3 animate-pulse">🔨</div>
             <div className="text-lg font-bold mb-1 text-white">
@@ -449,6 +586,36 @@ export default function ListingDetail() {
                 <span>🛡️</span> Firefighter Access Override Active
               </div>
             )}
+
+            {/* Reservation Pending - Seller Confirm/Reject */}
+            {isReserved && (
+              <div className="bg-amber-500/5 border border-amber-500/20 rounded-2xl p-5 mb-2">
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="text-2xl">⏳</span>
+                  <div>
+                    <div className="text-amber-400 font-bold text-sm">Reservation Pending</div>
+                    <div className="text-slate-400 text-xs">A buyer wants to purchase this item · Expires in {reservationTimeLeft()}</div>
+                  </div>
+                </div>
+                <div className="flex gap-3">
+                  <button
+                    onClick={handleConfirmSale}
+                    disabled={marking}
+                    className="flex-1 py-3 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/25 text-emerald-400 font-bold rounded-xl transition-all active:scale-[0.98] cursor-pointer disabled:opacity-50"
+                  >
+                    {marking ? 'Confirming...' : '✅ Confirm Sale'}
+                  </button>
+                  <button
+                    onClick={handleRejectReservation}
+                    disabled={marking}
+                    className="flex-1 py-3 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/25 text-rose-400 font-bold rounded-xl transition-all active:scale-[0.98] cursor-pointer disabled:opacity-50"
+                  >
+                    {marking ? 'Rejecting...' : '❌ Reject & Re-list'}
+                  </button>
+                </div>
+              </div>
+            )}
+
             {listing.status === 'active' && (
               <button
                 onClick={handleMarkSold}
