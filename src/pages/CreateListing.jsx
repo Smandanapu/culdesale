@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
@@ -19,6 +19,32 @@ export default function CreateListing() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [uploading, setUploading] = useState(false)
+  const [aiStatus, setAiStatus] = useState(null)
+  const worker = useRef(null)
+
+  useEffect(() => {
+    worker.current = new Worker(new URL('../lib/worker.js', import.meta.url), { type: 'module' })
+    
+    worker.current.addEventListener('message', (e) => {
+      const { status, results } = e.data
+      if (status === 'ready') setAiStatus('ready')
+      else if (status === 'analyzing') setAiStatus('analyzing')
+      else if (status === 'complete' && results && results.length > 0) {
+        setAiStatus('complete')
+        const bestMatch = results[0]
+        setForm(f => ({
+          ...f,
+          category: bestMatch.label,
+          title: f.title || `Automatic: ${bestMatch.label} Item`
+        }))
+        setTimeout(() => setAiStatus(null), 3000)
+      }
+    })
+
+    worker.current.postMessage({ type: 'load' })
+
+    return () => worker.current?.terminate()
+  }, [])
 
   const [form, setForm] = useState({
     title: '',
@@ -40,6 +66,18 @@ export default function CreateListing() {
     const remaining = 5 - form.photos.length
     if (remaining <= 0) return
     setUploading(true)
+
+    if (worker.current && !form.category) {
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        worker.current.postMessage({
+          type: 'analyze',
+          image: e.target.result,
+          categories: CATEGORIES
+        })
+      }
+      reader.readAsDataURL(files[0])
+    }
 
     const urls = []
     for (const file of files.slice(0, remaining)) {
@@ -130,7 +168,21 @@ export default function CreateListing() {
         <div className="card-gradient-border bg-white/[0.015] backdrop-blur-md border border-white/[0.04] rounded-2xl p-6 shadow-2xl">
           {step === 1 && (
             <div className="flex flex-col gap-5">
-              <div className="text-lg font-bold text-white mb-1">Item Details</div>
+              <div className="flex items-center justify-between mb-1">
+                <div className="text-lg font-bold text-white">Item Details</div>
+                {aiStatus === 'analyzing' && (
+                  <div className="flex items-center gap-2 px-3 py-1 bg-purple-500/10 border border-purple-500/20 rounded-full">
+                    <div className="w-3 h-3 border-2 border-purple-400 border-t-transparent rounded-full animate-spin" />
+                    <span className="text-[10px] font-bold text-purple-400 uppercase tracking-widest animate-pulse">AI Analyzing...</span>
+                  </div>
+                )}
+                {aiStatus === 'complete' && (
+                  <div className="flex items-center gap-1.5 px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-full">
+                    <span className="text-xs">✨</span>
+                    <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest">Auto-Filled</span>
+                  </div>
+                )}
+              </div>
 
               {/* Photo Upload */}
               <div>
