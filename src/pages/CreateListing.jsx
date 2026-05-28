@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
+import { compressImage } from '../lib/imageCompression'
 import Navbar from '../components/Navbar'
 
 const CATEGORIES = ['Furniture', 'Electronics', 'Sports', 'Kids', 'Tools', 'Appliances', 'Clothing', 'Books', 'Other']
@@ -81,19 +82,27 @@ export default function CreateListing() {
 
     const urls = []
     for (const file of files.slice(0, remaining)) {
-      const ext = file.name.split('.').pop()
-      const path = `${user.id}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
-      const { error } = await supabase.storage
-        .from('listing-photos')
-        .upload(path, file)
-
-      if (!error) {
-        const { data } = supabase.storage
+      try {
+        const compressedFile = await compressImage(file, 1200, 0.8)
+        const ext = compressedFile.name.split('.').pop()
+        const path = `${user.id}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
+        
+        const { error } = await supabase.storage
           .from('listing-photos')
-          .getPublicUrl(path)
-        urls.push(data.publicUrl)
+          .upload(path, compressedFile)
+
+        if (!error) {
+          const { data } = supabase.storage
+            .from('listing-photos')
+            .getPublicUrl(path)
+          urls.push(data.publicUrl)
+        }
+      } catch (err) {
+        console.error("Compression/upload failed", err)
       }
     }
+
+
 
     set('photos', [...form.photos, ...urls])
     setUploading(false)
