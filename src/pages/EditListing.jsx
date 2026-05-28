@@ -112,6 +112,10 @@ export default function EditListing() {
       setError('Category is required')
       return
     }
+    if (form.photos.length === 0) {
+      setError('At least 1 photo is required')
+      return
+    }
     if (!form.is_free && !form.starting_price) {
       setError('Starting price is required')
       return
@@ -193,7 +197,7 @@ export default function EditListing() {
           {/* Photos */}
           <div>
             <label className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2 block">
-              Photos ({form.photos.length}/5)
+              Photos ({form.photos.length}/5) <span className="text-rose-400 ml-1 lowercase">*at least 1 required</span>
             </label>
 
             {form.photos.length > 0 && (
