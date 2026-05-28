@@ -2,22 +2,22 @@ import Navbar from '../components/Navbar'
 
 export default function PrivacyPolicy() {
   return (
-    <div className="min-h-screen bg-[#07090e] bg-grid-pattern text-slate-100 relative overflow-hidden">
+    <div className="min-h-screen bg-slate-50 dark:bg-[#07090e] bg-grid-pattern text-slate-900 dark:text-slate-100 relative overflow-hidden">
       <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] rounded-full bg-orange-600/10 blur-[120px] pointer-events-none animate-float-slow z-0" />
       <div className="absolute bottom-[-10%] right-[-10%] w-[600px] h-[600px] rounded-full bg-indigo-600/10 blur-[140px] pointer-events-none animate-float-slower z-0" />
 
       <Navbar />
 
       <div className="max-w-4xl mx-auto px-6 py-16 relative z-10">
-        <div className="card-gradient-border bg-white/[0.015] backdrop-blur-md border border-white/[0.04] rounded-3xl p-8 md:p-12 shadow-2xl">
+        <div className="card-gradient-border bg-white dark:bg-white/[0.015] backdrop-blur-md border border-slate-200 dark:border-white/[0.04] rounded-3xl p-8 md:p-12 shadow-2xl">
           <div className="mb-10 text-center">
-            <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight mb-4 text-white">
+            <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight mb-4 text-slate-900 dark:text-white">
               Privacy <span className="bg-gradient-to-r from-orange-400 to-amber-400 bg-clip-text text-transparent">Policy</span>
             </h1>
-            <p className="text-slate-400 text-sm">Last Updated: May 2026</p>
+            <p className="text-slate-500 dark:text-slate-400 text-sm">Last Updated: May 2026</p>
           </div>
 
-          <div className="prose prose-invert max-w-none prose-h2:text-white prose-h2:font-bold prose-h2:text-2xl prose-h2:mb-4 prose-h2:mt-8 prose-p:text-slate-300 prose-p:leading-relaxed prose-li:text-slate-300">
+          <div className="prose prose-invert max-w-none prose-h2:text-slate-900 dark:text-white prose-h2:font-bold prose-h2:text-2xl prose-h2:mb-4 prose-h2:mt-8 prose-p:text-slate-600 dark:text-slate-300 prose-p:leading-relaxed prose-li:text-slate-600 dark:text-slate-300">
             <p>
               At CulDeSale, your privacy is our priority. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website or use our application.
             </p>

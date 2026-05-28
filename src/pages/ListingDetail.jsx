@@ -313,9 +313,9 @@ export default function ListingDetail() {
   }
 
   if (loading) return (
-    <div className="min-h-screen bg-[#07090e] bg-grid-pattern text-slate-100 relative overflow-hidden">
+    <div className="min-h-screen bg-slate-50 dark:bg-[#07090e] bg-grid-pattern text-slate-900 dark:text-slate-100 relative overflow-hidden">
       <Navbar />
-      <div className="flex flex-col items-center justify-center py-32 text-slate-400 gap-3 relative z-10">
+      <div className="flex flex-col items-center justify-center py-32 text-slate-500 dark:text-slate-400 gap-3 relative z-10">
         <div className="w-8 h-8 border-2 border-orange-500/20 border-t-orange-500 rounded-full animate-spin"></div>
         <span className="text-sm font-medium tracking-wide">Loading neighborhood details...</span>
       </div>
@@ -323,15 +323,15 @@ export default function ListingDetail() {
   )
 
   if (!listing) return (
-    <div className="min-h-screen bg-[#07090e] bg-grid-pattern text-slate-100 relative overflow-hidden">
+    <div className="min-h-screen bg-slate-50 dark:bg-[#07090e] bg-grid-pattern text-slate-900 dark:text-slate-100 relative overflow-hidden">
       <Navbar />
       <div className="flex flex-col items-center justify-center py-32 text-center relative z-10 max-w-md mx-auto px-6">
         <div className="text-5xl mb-4">🔍</div>
-        <h3 className="text-xl font-bold mb-2 text-white">Listing not found</h3>
-        <p className="text-slate-400 text-sm mb-6">This listing may have been deleted by the seller or does not exist.</p>
+        <h3 className="text-xl font-bold mb-2 text-slate-900 dark:text-white">Listing not found</h3>
+        <p className="text-slate-500 dark:text-slate-400 text-sm mb-6">This listing may have been deleted by the seller or does not exist.</p>
         <button
           onClick={() => navigate('/feed')}
-          className="px-5 py-2.5 bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-lg font-semibold transition shadow-md active:scale-95 cursor-pointer"
+          className="px-5 py-2.5 bg-gradient-to-r from-orange-500 to-amber-500 text-slate-900 dark:text-white rounded-lg font-semibold transition shadow-md active:scale-95 cursor-pointer"
         >
           Back to Feed
         </button>
@@ -360,7 +360,7 @@ export default function ListingDetail() {
   }
 
   return (
-    <div className="min-h-screen bg-[#07090e] bg-grid-pattern text-slate-100 relative overflow-hidden">
+    <div className="min-h-screen bg-slate-50 dark:bg-[#07090e] bg-grid-pattern text-slate-900 dark:text-slate-100 relative overflow-hidden">
       {/* Floating Ambient Glow Orbs */}
       <div className="absolute top-[10%] left-[-10%] w-[500px] h-[500px] rounded-full bg-orange-600/10 blur-[120px] pointer-events-none animate-float-slow z-0" />
       <div className="absolute bottom-[10%] right-[-10%] w-[600px] h-[600px] rounded-full bg-indigo-600/10 blur-[140px] pointer-events-none animate-float-slower z-0" />
@@ -371,13 +371,13 @@ export default function ListingDetail() {
 
         <button
           onClick={() => navigate('/feed')}
-          className="text-slate-400 hover:text-white text-sm mb-5 flex items-center gap-1 transition-all hover:-translate-x-1 cursor-pointer font-medium"
+          className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:text-white text-sm mb-5 flex items-center gap-1 transition-all hover:-translate-x-1 cursor-pointer font-medium"
         >
           ← Back to Feed
         </button>
 
-        <div className="card-gradient-border bg-white/[0.015] backdrop-blur-md border border-white/[0.04] rounded-2xl overflow-hidden mb-6 shadow-2xl">
-          <div className="h-56 sm:h-80 bg-white/[0.02] flex items-center justify-center relative border-b border-white/[0.04]">
+        <div className="card-gradient-border bg-white dark:bg-white/[0.015] backdrop-blur-md border border-slate-200 dark:border-white/[0.04] rounded-2xl overflow-hidden mb-6 shadow-2xl">
+          <div className="h-56 sm:h-80 bg-white dark:bg-white/[0.02] flex items-center justify-center relative border-b border-slate-200 dark:border-white/[0.04]">
             {listing.photos && listing.photos.length > 0 ? (
               <img
                 src={listing.photos[photo]}
@@ -390,7 +390,7 @@ export default function ListingDetail() {
 
             {isSold && (
               <div className="absolute inset-0 bg-black/70 flex items-center justify-center backdrop-blur-[2px] z-10">
-                <div className="text-4xl font-extrabold text-white tracking-widest transform -rotate-12 border-4 border-white px-6 py-2 rounded-sm shadow-2xl">
+                <div className="text-4xl font-extrabold text-slate-900 dark:text-white tracking-widest transform -rotate-12 border-4 border-white px-6 py-2 rounded-sm shadow-2xl">
                   SOLD
                 </div>
               </div>
@@ -429,7 +429,7 @@ export default function ListingDetail() {
                   src={url}
                   onClick={() => setPhoto(i)}
                   className={`w-16 h-16 object-cover rounded-xl cursor-pointer border-2 transition-all duration-200 hover:scale-105 ${
-                    photo === i ? 'border-orange-500 shadow-md shadow-orange-500/20' : 'border-white/[0.08] hover:border-white/30'
+                    photo === i ? 'border-orange-500 shadow-md shadow-orange-500/20' : 'border-slate-200 dark:border-white/[0.08] hover:border-white/30'
                   }`}
                 />
               ))}
@@ -439,17 +439,17 @@ export default function ListingDetail() {
 
         <div className="mb-6">
           <div className="text-xs text-indigo-400 font-semibold uppercase tracking-wider mb-2">{listing.category}</div>
-          <h1 className="text-3xl font-extrabold text-white mb-3 tracking-tight">{listing.title}</h1>
-          <p className="text-slate-300 leading-relaxed mb-4 text-base">{listing.description}</p>
-          <div className="flex items-center gap-2 text-sm text-slate-400 border-t border-white/[0.04] pt-4">
-            <span className="font-semibold text-white/95">@{listing.profiles?.username || 'neighbor'}</span>
+          <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white mb-3 tracking-tight">{listing.title}</h1>
+          <p className="text-slate-600 dark:text-slate-300 leading-relaxed mb-4 text-base">{listing.description}</p>
+          <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 border-t border-slate-200 dark:border-white/[0.04] pt-4">
+            <span className="font-semibold text-slate-900 dark:text-white/95">@{listing.profiles?.username || 'neighbor'}</span>
             <span>·</span>
-            <span className="bg-white/[0.03] border border-white/[0.06] text-slate-300 px-2 py-0.5 rounded-md text-xs font-semibold">{listing.meetup_type}</span>
+            <span className="bg-white dark:bg-white/[0.03] border border-slate-200 dark:border-white/[0.06] text-slate-600 dark:text-slate-300 px-2 py-0.5 rounded-md text-xs font-semibold">{listing.meetup_type}</span>
           </div>
         </div>
 
         {/* Pricing Dashboard */}
-        <div className="bg-white/[0.015] border border-white/[0.04] rounded-2xl p-6 mb-6 backdrop-blur-md shadow-lg">
+        <div className="bg-white dark:bg-white/[0.015] border border-slate-200 dark:border-white/[0.04] rounded-2xl p-6 mb-6 backdrop-blur-md shadow-lg">
           <div className="flex justify-between items-center mb-4">
             <div>
               <div className="text-[10px] text-slate-500 uppercase font-semibold tracking-wider mb-1">
@@ -466,19 +466,19 @@ export default function ListingDetail() {
               </div>
             )}
           </div>
-          <div className="flex justify-between text-xs text-slate-400 border-t border-white/[0.04] pt-3 font-medium">
+          <div className="flex justify-between text-xs text-slate-500 dark:text-slate-400 border-t border-slate-200 dark:border-white/[0.04] pt-3 font-medium">
             <span>{bids.length} bids placed</span>
             {!listing.is_free && <span>Started at ${listing.starting_price}</span>}
           </div>
         </div>
 
         {bids.length > 0 && (
-          <div className="bg-white/[0.015] border border-white/[0.04] rounded-2xl p-5 mb-6 backdrop-blur-md shadow-lg">
-            <div className="text-sm font-bold text-white mb-4 tracking-tight">Recent Bid History</div>
+          <div className="bg-white dark:bg-white/[0.015] border border-slate-200 dark:border-white/[0.04] rounded-2xl p-5 mb-6 backdrop-blur-md shadow-lg">
+            <div className="text-sm font-bold text-slate-900 dark:text-white mb-4 tracking-tight">Recent Bid History</div>
             <div className="flex flex-col gap-3">
               {bids.slice(0, 5).map((bid) => (
-                <div key={bid.id} className="flex justify-between items-center py-2.5 border-b border-white/[0.04] last:border-0 text-sm">
-                  <span className="text-slate-300 font-medium">@{bid.profiles?.username || 'neighbor'}</span>
+                <div key={bid.id} className="flex justify-between items-center py-2.5 border-b border-slate-200 dark:border-white/[0.04] last:border-0 text-sm">
+                  <span className="text-slate-600 dark:text-slate-300 font-medium">@{bid.profiles?.username || 'neighbor'}</span>
                   <div className="flex items-center gap-3">
                     <span className="text-orange-400 font-extrabold">${bid.amount}</span>
                     <span className="text-slate-500 text-xs font-semibold">
@@ -510,7 +510,7 @@ export default function ListingDetail() {
             <div className="text-lg font-bold mb-1 text-amber-400">
               {isReservedByMe ? 'You Reserved This Item' : 'Item Reserved'}
             </div>
-            <div className="text-slate-400 text-sm mb-4">
+            <div className="text-slate-500 dark:text-slate-400 text-sm mb-4">
               {isReservedByMe
                 ? 'Waiting for the seller to confirm. The reservation expires in ' + reservationTimeLeft() + '.'
                 : 'Another buyer has reserved this item. It may become available again if the reservation expires.'}
@@ -520,16 +520,16 @@ export default function ListingDetail() {
 
         {/* Auction Ended State */}
         {!isSeller && (isEnded || isSold) && !isReserved && (
-          <div className="bg-white/[0.015] border border-white/[0.04] rounded-2xl p-6 text-center mb-6 backdrop-blur-md">
+          <div className="bg-white dark:bg-white/[0.015] border border-slate-200 dark:border-white/[0.04] rounded-2xl p-6 text-center mb-6 backdrop-blur-md">
             <div className="text-4xl mb-3 animate-pulse">🔨</div>
-            <div className="text-lg font-bold mb-1 text-white">
+            <div className="text-lg font-bold mb-1 text-slate-900 dark:text-white">
               {isSold ? 'Item Sold' : 'Auction Ended'}
             </div>
-            <div className="text-slate-400 text-sm mb-4">
+            <div className="text-slate-500 dark:text-slate-400 text-sm mb-4">
               {isSold ? 'This listing is no longer active.' : 'Bidding timeframe has closed.'}
             </div>
             {bids.length > 0 && (
-              <div className="text-sm text-slate-300 font-semibold bg-white/[0.02] border border-white/[0.06] rounded-xl py-3 px-4 max-w-xs mx-auto">
+              <div className="text-sm text-slate-600 dark:text-slate-300 font-semibold bg-white dark:bg-white/[0.02] border border-slate-200 dark:border-white/[0.06] rounded-xl py-3 px-4 max-w-xs mx-auto">
                 Final Sold Price: <span className="text-orange-400 font-extrabold ml-1">${listing.current_price}</span>
               </div>
             )}
@@ -546,12 +546,12 @@ export default function ListingDetail() {
                   value={bidAmount}
                   onChange={e => setBidAmount(e.target.value)}
                   placeholder={'Min $' + minBid}
-                  className="flex-1 bg-white/[0.02] border border-white/[0.06] rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-orange-500/60 focus:bg-white/[0.04] focus:ring-1 focus:ring-orange-500/20 transition-all duration-300 shadow-inner"
+                  className="flex-1 bg-white dark:bg-white/[0.02] border border-slate-200 dark:border-white/[0.06] rounded-xl px-4 py-3 text-sm text-slate-900 dark:text-white placeholder-slate-500 focus:outline-none focus:border-orange-500/60 focus:bg-white dark:bg-white/[0.04] focus:ring-1 focus:ring-orange-500/20 transition-all duration-300 shadow-inner"
                 />
                 <button
                   onClick={handleBid}
                   disabled={bidding}
-                  className="px-6 py-3 bg-gradient-to-r from-orange-500 to-amber-500 hover:opacity-90 disabled:opacity-50 text-white font-semibold rounded-xl transition-all shadow-md active:scale-95 cursor-pointer"
+                  className="px-6 py-3 bg-gradient-to-r from-orange-500 to-amber-500 hover:opacity-90 disabled:opacity-50 text-slate-900 dark:text-white font-semibold rounded-xl transition-all shadow-md active:scale-95 cursor-pointer"
                 >
                   {bidding ? '...' : 'Place Bid'}
                 </button>
@@ -571,7 +571,7 @@ export default function ListingDetail() {
             <button
               onClick={handleMessage}
               disabled={messaging}
-              className="w-full py-3.5 bg-white/[0.02] hover:bg-white/[0.05] border border-white/[0.06] text-white font-bold rounded-xl transition-all active:scale-[0.98] cursor-pointer"
+              className="w-full py-3.5 bg-white dark:bg-white/[0.02] hover:bg-white/[0.05] border border-slate-200 dark:border-white/[0.06] text-slate-900 dark:text-white font-bold rounded-xl transition-all active:scale-[0.98] cursor-pointer"
             >
               {messaging ? 'Opening chat...' : '💬 Message Seller'}
             </button>
@@ -594,7 +594,7 @@ export default function ListingDetail() {
                   <span className="text-2xl">⏳</span>
                   <div>
                     <div className="text-amber-400 font-bold text-sm">Reservation Pending</div>
-                    <div className="text-slate-400 text-xs">A buyer wants to purchase this item · Expires in {reservationTimeLeft()}</div>
+                    <div className="text-slate-500 dark:text-slate-400 text-xs">A buyer wants to purchase this item · Expires in {reservationTimeLeft()}</div>
                   </div>
                 </div>
                 <div className="flex gap-3">
@@ -627,7 +627,7 @@ export default function ListingDetail() {
             )}
             <button
               onClick={() => navigate('/edit/' + id)}
-              className="w-full py-3.5 bg-white/[0.02] hover:bg-white/[0.05] border border-white/[0.06] text-white font-bold rounded-xl transition-all active:scale-[0.98] cursor-pointer"
+              className="w-full py-3.5 bg-white dark:bg-white/[0.02] hover:bg-white/[0.05] border border-slate-200 dark:border-white/[0.06] text-slate-900 dark:text-white font-bold rounded-xl transition-all active:scale-[0.98] cursor-pointer"
             >
               Edit Listing
             </button>
