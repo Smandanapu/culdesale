@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
+import { compressImage } from '../lib/imageCompression'
 import Navbar from '../components/Navbar'
 
 const CATEGORIES = ['Furniture', 'Electronics', 'Sports', 'Kids', 'Tools', 'Appliances', 'Clothing', 'Books', 'Other']
@@ -81,19 +82,27 @@ export default function CreateListing() {
 
     const urls = []
     for (const file of files.slice(0, remaining)) {
-      const ext = file.name.split('.').pop()
-      const path = `${user.id}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
-      const { error } = await supabase.storage
-        .from('listing-photos')
-        .upload(path, file)
-
-      if (!error) {
-        const { data } = supabase.storage
+      try {
+        const compressedFile = await compressImage(file, 1200, 0.8)
+        const ext = compressedFile.name.split('.').pop()
+        const path = `${user.id}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
+        
+        const { error } = await supabase.storage
           .from('listing-photos')
-          .getPublicUrl(path)
-        urls.push(data.publicUrl)
+          .upload(path, compressedFile)
+
+        if (!error) {
+          const { data } = supabase.storage
+            .from('listing-photos')
+            .getPublicUrl(path)
+          urls.push(data.publicUrl)
+        }
+      } catch (err) {
+        console.error("Compression/upload failed", err)
       }
     }
+
+
 
     set('photos', [...form.photos, ...urls])
     setUploading(false)
@@ -244,12 +253,18 @@ export default function CreateListing() {
               </div>
 
               <div>
-                <label className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5 block">Description</label>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="text-xs font-semibold uppercase tracking-wider text-slate-400">Description</label>
+                  <span className={`text-[10px] font-bold tracking-wide ${form.description.length > 450 ? 'text-rose-400' : 'text-slate-500'}`}>
+                    {form.description.length}/500
+                  </span>
+                </div>
                 <textarea
                   value={form.description}
-                  onChange={e => set('description', e.target.value)}
+                  onChange={e => { if (e.target.value.length <= 500) set('description', e.target.value) }}
                   placeholder="Condition, age, dimensions, anything relevant..."
                   rows={3}
+                  maxLength={500}
                   className="w-full bg-white/[0.02] border border-white/[0.06] rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-orange-500/60 focus:bg-white/[0.04] focus:ring-1 focus:ring-orange-500/20 transition-all duration-300 shadow-inner resize-none"
                 />
               </div>

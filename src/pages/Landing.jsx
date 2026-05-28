@@ -15,6 +15,14 @@ const potentialBidders = [
   { name: "Ethan R.", sector: "Pine Rd", increment: 5, avatar: "E", color: "bg-teal-500" },
 ]
 
+const demoItems = [
+  { image: "https://images.unsplash.com/photo-1532298229144-0ec0c57515c7?auto=format&fit=crop&w=600&q=80", title: "1970s Vintage Rangefinder", seller: "Jane D.", start: "$10.00" },
+  { image: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=600&q=80", title: "Mid-Century Modern Sofa", seller: "Tom R.", start: "$75.00" },
+  { image: "https://images.unsplash.com/photo-1511994298241-608e28f14fde?auto=format&fit=crop&w=600&q=80", title: "Mountain Bike — 21 Speed", seller: "Carlos M.", start: "$40.00" },
+  { image: "https://images.unsplash.com/photo-1593642632559-0c6d3fc62b89?auto=format&fit=crop&w=600&q=80", title: "PS5 Controller Bundle", seller: "Priya S.", start: "$25.00" },
+  { image: "https://images.unsplash.com/photo-1564466809058-bf4114d55352?auto=format&fit=crop&w=600&q=80", title: "Vintage Record Player", seller: "Mike L.", start: "$30.00" },
+]
+
 export default function Landing() {
   const navigate = useNavigate()
   
@@ -23,6 +31,8 @@ export default function Landing() {
   const [secondsLeft, setSecondsLeft] = useState(8085)
   const [flashType, setFlashType] = useState(null)
   const [bidTrigger, setBidTrigger] = useState(false)
+  const [demoIndex, setDemoIndex] = useState(0)
+  const [demoFade, setDemoFade] = useState(true)
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -32,6 +42,18 @@ export default function Landing() {
       })
     }, 1000)
     return () => clearInterval(timer)
+  }, [])
+
+  // Rotate demo items every 10 seconds
+  useEffect(() => {
+    const rotator = setInterval(() => {
+      setDemoFade(false)
+      setTimeout(() => {
+        setDemoIndex(prev => (prev + 1) % demoItems.length)
+        setDemoFade(true)
+      }, 400)
+    }, 10000)
+    return () => clearInterval(rotator)
   }, [])
 
   const formatTime = (secs) => {
@@ -201,15 +223,15 @@ export default function Landing() {
                 <span className="px-2.5 py-0.5 rounded-full bg-white/[0.04] border border-white/[0.06] text-[10px] font-bold text-slate-400">📍 Sector B-12</span>
               </div>
               <div className="relative rounded-2xl overflow-hidden aspect-[4/3] mb-4 bg-zinc-900 border border-white/[0.06]">
-                <img src="https://images.unsplash.com/photo-1532298229144-0ec0c57515c7?auto=format&fit=crop&w=600&q=80" alt="Vintage Camera" className="w-full h-full object-cover opacity-90 hover:scale-105 transition-transform duration-500" />
+                <img src={demoItems[demoIndex].image} alt={demoItems[demoIndex].title} className={`w-full h-full object-cover hover:scale-105 transition-all duration-500 ${demoFade ? 'opacity-90' : 'opacity-0'}`} />
                 <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between px-3 py-2.5 rounded-xl bg-[#07090e]/85 backdrop-blur-md border border-white/[0.08]">
                   <div>
-                    <h4 className="text-xs font-bold text-white leading-tight">1970s Vintage Rangefinder</h4>
-                    <p className="text-[10px] text-slate-400 leading-tight">Offered by neighbor Jane D.</p>
+                    <h4 className={`text-xs font-bold text-white leading-tight transition-opacity duration-300 ${demoFade ? 'opacity-100' : 'opacity-0'}`}>{demoItems[demoIndex].title}</h4>
+                    <p className={`text-[10px] text-slate-400 leading-tight transition-opacity duration-300 ${demoFade ? 'opacity-100' : 'opacity-0'}`}>Offered by neighbor {demoItems[demoIndex].seller}</p>
                   </div>
                   <div className="text-right">
                     <p className="text-[8px] text-slate-500 uppercase tracking-widest font-bold">Start</p>
-                    <p className="text-xs font-bold text-slate-300">$10.00</p>
+                    <p className={`text-xs font-bold text-slate-300 transition-opacity duration-300 ${demoFade ? 'opacity-100' : 'opacity-0'}`}>{demoItems[demoIndex].start}</p>
                   </div>
                 </div>
               </div>
