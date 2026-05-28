@@ -22,6 +22,7 @@ export default function Profile() {
   const [listings, setListings] = useState([])
   const [bids, setBids] = useState([])
   const [favorites, setFavorites] = useState([])
+  const [reviews, setReviews] = useState([])
   const [loading, setLoading] = useState(true)
   const [editingUsername, setEditingUsername] = useState(false)
   const [newUsername, setNewUsername] = useState('')
@@ -32,6 +33,7 @@ export default function Profile() {
     fetchListings()
     fetchBids()
     fetchFavorites()
+    fetchReviews()
   }, [])
 
   const fetchListings = async () => {
@@ -71,6 +73,19 @@ export default function Profile() {
       console.error('Favorites fetch error:', err)
     }
   }
+
+  const fetchReviews = async () => {
+    const { data } = await supabase
+      .from('reviews')
+      .select('*, profiles!reviews_reviewer_id_fkey(username)')
+      .eq('seller_id', user.id)
+      .order('created_at', { ascending: false })
+    setReviews(data || [])
+  }
+
+  const averageRating = reviews.length > 0
+    ? (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1)
+    : null
 
   const handleUsernameUpdate = async () => {
     setUsernameError('')
@@ -184,11 +199,12 @@ export default function Profile() {
           )}
 
           {/* Stats */}
-          <div className="grid grid-cols-3 gap-4 pt-5 border-t border-slate-200 dark:border-white/[0.04]">
+          <div className="grid grid-cols-4 gap-4 pt-5 border-t border-slate-200 dark:border-white/[0.04]">
             {[
               ['Total Listed', listings.length],
               ['Active Items', activeListings.length],
               ['Sold Items', soldListings.length],
+              ['Rating', averageRating ? `${averageRating} ⭐` : 'N/A'],
             ].map(([label, value]) => (
               <div key={label} className="text-center">
                 <div className="text-2xl font-extrabold text-orange-400">{value}</div>
@@ -196,6 +212,11 @@ export default function Profile() {
               </div>
             ))}
           </div>
+          {reviews.length > 0 && (
+            <div className="text-center text-[10px] text-slate-500 dark:text-slate-400 mt-2">
+              Based on {reviews.length} review{reviews.length !== 1 ? 's' : ''}
+            </div>
+          )}
         </div>
 
         {/* Tabs */}
@@ -204,6 +225,7 @@ export default function Profile() {
             { id: 'listings', label: 'My Listings' },
             { id: 'bids', label: 'My Bids' },
             { id: 'favorites', label: 'Favorites' },
+            { id: 'reviews', label: `Reviews (${reviews.length})` },
           ].map(t => (
             <button
               key={t.id}
@@ -374,6 +396,46 @@ export default function Profile() {
                       @{fav.listings?.profiles?.username || 'neighbor'}
                     </div>
                   </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Reviews Tab */}
+        {!loading && tab === 'reviews' && (
+          <div className="flex flex-col gap-3">
+            {reviews.length === 0 && (
+              <div className="text-center py-16 bg-white/[0.01] border border-slate-200 dark:border-white/[0.04] rounded-2xl p-6">
+                <div className="text-4xl mb-3">⭐</div>
+                <div className="text-slate-500 dark:text-slate-400 text-sm mb-2">No reviews yet</div>
+                <div className="text-slate-500 dark:text-slate-400 text-xs">Reviews will appear here once buyers rate your sales</div>
+              </div>
+            )}
+
+            {reviews.map(rev => (
+              <div
+                key={rev.id}
+                className="card-gradient-border bg-white dark:bg-white/[0.015] border border-slate-200 dark:border-white/[0.04] rounded-2xl p-4"
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-xs font-bold text-white">
+                      {rev.profiles?.username?.[0]?.toUpperCase() || '?'}
+                    </div>
+                    <span className="text-sm font-bold text-slate-900 dark:text-white">@{rev.profiles?.username || 'neighbor'}</span>
+                  </div>
+                  <div className="flex gap-0.5">
+                    {[1,2,3,4,5].map(star => (
+                      <span key={star} className={`text-sm ${star <= rev.rating ? 'text-amber-400' : 'text-slate-600'}`}>★</span>
+                    ))}
+                  </div>
+                </div>
+                {rev.comment && (
+                  <p className="text-sm text-slate-600 dark:text-slate-300 ml-10">{rev.comment}</p>
+                )}
+                <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-2 ml-10">
+                  {new Date(rev.created_at).toLocaleDateString()}
                 </div>
               </div>
             ))}
