@@ -131,25 +131,27 @@ export default function Profile() {
             </div>
             <div className="flex-grow min-w-0">
               {editingUsername ? (
-                <div className="flex gap-2 items-center">
+                <div className="flex flex-col sm:flex-row gap-2 sm:items-center">
                   <input
                     value={newUsername}
                     onChange={e => setNewUsername(e.target.value.toLowerCase())}
                     placeholder={profile?.username}
                     className="bg-white/[0.02] border border-white/[0.06] rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-orange-500/60 focus:bg-white/[0.04] focus:ring-1 focus:ring-orange-500/20 transition-all duration-300 flex-1 shadow-inner"
                   />
-                  <button
-                    onClick={handleUsernameUpdate}
-                    className="px-4 py-2 bg-gradient-to-r from-orange-500 to-amber-500 text-white text-xs font-bold rounded-lg transition active:scale-95 cursor-pointer shadow shadow-orange-500/10"
-                  >
-                    Save
-                  </button>
-                  <button
-                    onClick={() => setEditingUsername(false)}
-                    className="px-4 py-2 bg-white/[0.02] border border-white/[0.06] text-slate-300 text-xs font-bold rounded-lg transition hover:bg-white/[0.05] active:scale-95 cursor-pointer"
-                  >
-                    Cancel
-                  </button>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={handleUsernameUpdate}
+                      className="flex-1 sm:flex-none px-4 py-2 bg-gradient-to-r from-orange-500 to-amber-500 text-white text-xs font-bold rounded-lg transition active:scale-95 cursor-pointer shadow shadow-orange-500/10"
+                    >
+                      Save
+                    </button>
+                    <button
+                      onClick={() => setEditingUsername(false)}
+                      className="flex-1 sm:flex-none px-4 py-2 bg-white/[0.02] border border-white/[0.06] text-slate-300 text-xs font-bold rounded-lg transition hover:bg-white/[0.05] active:scale-95 cursor-pointer"
+                    >
+                      Cancel
+                    </button>
+                  </div>
                 </div>
               ) : (
                 <div className="flex items-center gap-2">
