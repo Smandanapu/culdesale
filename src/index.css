@@ -60,6 +60,20 @@
   animation: marquee 35s linear infinite;
 }
 
+@keyframes text-shimmer {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.animate-text-shimmer {
+  background-size: 200% auto;
+  animation: text-shimmer 4s ease-in-out infinite;
+}
+
 .card-gradient-border {
   position: relative;
 }

@@ -114,34 +114,41 @@ export default function Inbox() {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-white">
+    <div className="min-h-screen bg-[#07090e] bg-grid-pattern text-slate-100 relative overflow-hidden">
+      {/* Floating Ambient Glow Orbs */}
+      <div className="absolute top-[10%] left-[-10%] w-[500px] h-[500px] rounded-full bg-orange-600/10 blur-[120px] pointer-events-none animate-float-slow z-0" />
+      <div className="absolute bottom-[10%] right-[-10%] w-[600px] h-[600px] rounded-full bg-indigo-600/10 blur-[140px] pointer-events-none animate-float-slower z-0" />
+
       <Navbar />
 
-      <div className="max-w-2xl mx-auto px-4 py-6">
-        <h1 className="text-2xl font-bold mb-6">💬 Inbox</h1>
+      <div className="max-w-2xl mx-auto px-4 py-8 relative z-10">
+        <h1 className="text-3xl font-extrabold text-white mb-8 tracking-tight">Messages Inbox</h1>
 
         {loading && (
-          <div className="text-center py-24 text-zinc-500">Loading...</div>
+          <div className="flex flex-col items-center justify-center py-32 text-slate-400 gap-3">
+            <div className="w-8 h-8 border-2 border-orange-500/20 border-t-orange-500 rounded-full animate-spin"></div>
+            <span className="text-sm font-medium tracking-wide">Loading conversations...</span>
+          </div>
         )}
 
         {!loading && conversations.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-24 text-center">
-            <div className="text-5xl mb-4">💬</div>
-            <h3 className="text-xl font-bold mb-2">No messages yet</h3>
-            <p className="text-zinc-400 text-sm">
-              When someone messages you about a listing it will appear here
+          <div className="flex flex-col items-center justify-center py-24 text-center bg-white/[0.015] border border-white/[0.04] rounded-2xl p-8 backdrop-blur-md max-w-md mx-auto">
+            <div className="text-5xl mb-4 animate-bounce">💬</div>
+            <h3 className="text-xl font-bold mb-2 text-white">No messages yet</h3>
+            <p className="text-slate-400 text-sm max-w-xs">
+              When neighbors message you about listings or bids, your chats will appear here
             </p>
           </div>
         )}
 
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-3">
           {conversations.map(conv => (
             <div
               key={conv.id}
               onClick={() => handleOpenConversation(conv.id)}
-              className="flex items-center gap-4 bg-zinc-900 border border-zinc-800 hover:border-orange-500/40 rounded-2xl p-4 cursor-pointer transition"
+              className="card-gradient-border bg-white/[0.015] border border-white/[0.04] rounded-2xl p-4 cursor-pointer hover:border-orange-500/40 hover:-translate-y-0.5 hover:bg-white/[0.03] transition-all duration-300 shadow-md flex items-center gap-4"
             >
-              <div className="w-14 h-14 rounded-xl bg-zinc-800 flex items-center justify-center overflow-hidden flex-shrink-0">
+              <div className="w-14 h-14 rounded-xl border border-white/[0.06] bg-white/[0.02] flex items-center justify-center overflow-hidden flex-shrink-0">
                 {conv.listings && conv.listings.photos && conv.listings.photos[0] ? (
                   <img
                     src={conv.listings.photos[0]}
@@ -154,19 +161,19 @@ export default function Inbox() {
 
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between mb-1">
-                  <span className="font-semibold truncate">
-                    {getOtherUser(conv)}
+                  <span className="font-bold text-white truncate text-base">
+                    @{getOtherUser(conv) || 'neighbor'}
                   </span>
                   {conv.lastMessage && (
-                    <span className="text-xs text-zinc-500 flex-shrink-0 ml-2">
+                    <span className="text-xs text-slate-500 flex-shrink-0 ml-2 font-medium">
                       {new Date(conv.lastMessage.created_at).toLocaleDateString()}
                     </span>
                   )}
                 </div>
-                <div className="text-xs text-zinc-500 truncate mb-1">
+                <div className="text-xs text-indigo-400 font-semibold tracking-wide truncate mb-1">
                   Re: {conv.listings && conv.listings.title}
                 </div>
-                <div className="text-sm text-zinc-400 truncate">
+                <div className="text-sm text-slate-400 truncate">
                   {conv.lastMessage ? conv.lastMessage.content : 'No messages yet'}
                 </div>
               </div>

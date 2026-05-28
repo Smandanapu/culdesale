@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 
 const initialBids = [
@@ -110,11 +110,12 @@ export default function Landing() {
       <nav className="sticky top-0 z-50 bg-[#07090e]/75 backdrop-blur-md border-b border-white/[0.06] px-6 py-4 flex items-center justify-between relative">
         <div className="flex items-center gap-2 cursor-pointer group" onClick={() => navigate('/')}>
           <span className="text-2xl transform group-hover:scale-110 transition duration-300">🏘️</span>
-          <span className="text-xl font-bold tracking-tight bg-gradient-to-r from-white via-slate-100 to-slate-300 bg-clip-text text-transparent">
+          <span className="text-xl font-bold tracking-tight animate-text-shimmer bg-gradient-to-r from-orange-400 via-rose-400 to-indigo-400 bg-clip-text text-transparent">
             CulDeSale
           </span>
         </div>
         <div className="flex items-center gap-4">
+          <a href="#safety" className="hidden sm:block px-4 py-2 text-sm text-slate-400 hover:text-white transition duration-200 font-medium cursor-pointer">Safety</a>
           <button onClick={() => navigate('/login')} className="px-4 py-2 text-sm text-slate-400 hover:text-white transition duration-200 font-medium cursor-pointer">Sign in</button>
           <button onClick={() => navigate('/register')} className="px-5 py-2.5 text-sm bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white rounded-xl transition duration-300 font-semibold shadow-md shadow-orange-500/10 hover:shadow-lg hover:shadow-orange-500/25 hover:scale-[1.02] active:scale-[0.98] cursor-pointer">Get Started</button>
         </div>
@@ -299,6 +300,36 @@ export default function Landing() {
         </div>
       </div>
 
+      <div id="safety" className="px-6 py-24 border-b border-white/[0.06] relative z-10 max-w-6xl mx-auto">
+        <div className="text-center mb-16">
+          <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-xs font-bold tracking-wider text-emerald-400 uppercase mb-4">
+            🛡️ Trust & Safety
+          </div>
+          <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight mb-4 text-white">
+            Your Safety is our <span className="bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">Top Priority</span>
+          </h2>
+          <p className="text-slate-400 text-sm md:text-base max-w-xl mx-auto">
+            CulDeSale is built exclusively for neighbors. We maintain a secure environment by following these core principles.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {[
+            { icon: "🚫", title: "No Online Payments", desc: "We never ask for credit cards or process payments in-app. All transactions are handled in-person via cash or Venmo to eliminate digital payment scams." },
+            { icon: "🕵️", title: "Scam Due Diligence", desc: "Always verify the item in person before handing over money. If a deal seems too good to be true, or a buyer asks to ship an item, report them immediately." },
+            { icon: "📍", title: "Public Meetups", desc: "Always arrange meetups in well-lit, crowded public places like the community clubhouse, local coffee shops, or designated safe exchange zones at police stations." },
+            { icon: "⚖️", title: "Legal & Liability", desc: "Users must be 18+ and reside in the local community. By using CulDeSale, you agree to our Terms of Service. Report suspicious behavior to local authorities." }
+          ].map((item, i) => (
+            <div key={i} className="card-gradient-border group relative flex flex-col p-6 rounded-3xl bg-white/[0.015] backdrop-blur-md transition-all duration-300 hover:bg-white/[0.03] hover:-translate-y-1">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+              <div className="text-3xl mb-4 relative z-10">{item.icon}</div>
+              <h3 className="text-lg font-bold mb-2 text-white relative z-10">{item.title}</h3>
+              <p className="text-slate-400 text-xs leading-relaxed relative z-10">{item.desc}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
       <div className="px-6 py-24 text-center relative z-10 max-w-4xl mx-auto overflow-hidden rounded-3xl my-16 border border-white/[0.06] bg-white/[0.01] backdrop-blur-sm shadow-2xl">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[350px] h-[350px] rounded-full bg-orange-500/5 blur-[80px] pointer-events-none" />
         <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight mb-4 relative z-10">
@@ -317,9 +348,9 @@ export default function Landing() {
         </div>
         <div>© 2026 CulDeSale · Built for connected neighborhoods</div>
         <div className="flex gap-4 text-xs font-medium">
-          <a href="#" className="hover:text-white transition duration-200">Privacy Policy</a>
+          <Link to="/privacy" className="hover:text-white transition duration-200">Privacy Policy</Link>
           <span>·</span>
-          <a href="#" className="hover:text-white transition duration-200">Terms of Service</a>
+          <Link to="/terms" className="hover:text-white transition duration-200">Terms of Service</Link>
         </div>
       </div>
     </div>
