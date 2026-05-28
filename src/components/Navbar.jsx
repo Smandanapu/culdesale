@@ -55,7 +55,7 @@ export default function Navbar() {
   }
 
   return (
-    <nav className="sticky top-0 z-50 bg-slate-50/75 dark:bg-slate-50 dark:bg-[#07090e]/75 backdrop-blur-md border-b border-slate-200 dark:border-slate-200 dark:border-white/[0.06] px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
+    <nav className="sticky top-0 z-50 bg-slate-50/75 dark:bg-[#07090e]/75 backdrop-blur-md border-b border-slate-200 dark:border-white/[0.06] px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
       <div
         className="flex items-center gap-2 cursor-pointer group"
         onClick={() => navigate('/feed')}
