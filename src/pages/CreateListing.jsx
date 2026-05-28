@@ -96,7 +96,7 @@ export default function CreateListing() {
     navigate('/feed')
   }
 
-  const canNext1 = form.title && form.category
+  const canNext1 = form.title && form.category && form.photos.length > 0
   const canNext2 = form.is_free || form.starting_price
 
   return (
@@ -135,7 +135,7 @@ export default function CreateListing() {
               {/* Photo Upload */}
               <div>
                 <label className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2 block">
-                  Photos ({form.photos.length}/5)
+                  Photos ({form.photos.length}/5) <span className="text-rose-400 ml-1 lowercase">*at least 1 required</span>
                 </label>
 
                 {/* Photo Grid */}
