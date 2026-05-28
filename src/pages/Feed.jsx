@@ -228,6 +228,15 @@ export default function Feed() {
                     </div>
                   )}
 
+                  {/* RESERVED Overlay */}
+                  {listing.status === 'reserved' && (
+                    <div className="absolute inset-0 bg-black/60 flex items-center justify-center z-10 backdrop-blur-[2px]">
+                      <div className="text-2xl font-extrabold text-amber-400 tracking-widest transform -rotate-12 border-4 border-amber-400 px-5 py-1.5 rounded-sm">
+                        RESERVED
+                      </div>
+                    </div>
+                  )}
+
                   {/* Status Badge */}
                   <div className="absolute top-3 right-3 z-20">
                     {listing.is_free ? (
@@ -236,11 +245,13 @@ export default function Feed() {
                       <span className={`text-xs font-semibold px-2.5 py-1 rounded-full backdrop-blur-md ${
                         listing.status === 'sold'
                           ? 'bg-zinc-500/10 border border-zinc-500/30 text-zinc-400'
+                          : listing.status === 'reserved'
+                          ? 'bg-amber-500/10 border border-amber-500/30 text-amber-400'
                           : timeLeft(listing.ends_at) === 'Ended'
                           ? 'bg-rose-500/10 border border-rose-500/25 text-rose-400'
                           : 'bg-emerald-500/10 border border-emerald-500/25 text-emerald-400'
                       }`}>
-                        {listing.status === 'sold' ? 'Sold' : timeLeft(listing.ends_at)}
+                        {listing.status === 'sold' ? 'Sold' : listing.status === 'reserved' ? 'Reserved' : timeLeft(listing.ends_at)}
                       </span>
                     )}
                   </div>
