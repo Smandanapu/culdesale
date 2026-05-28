@@ -244,12 +244,18 @@ export default function CreateListing() {
               </div>
 
               <div>
-                <label className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5 block">Description</label>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="text-xs font-semibold uppercase tracking-wider text-slate-400">Description</label>
+                  <span className={`text-[10px] font-bold tracking-wide ${form.description.length > 450 ? 'text-rose-400' : 'text-slate-500'}`}>
+                    {form.description.length}/500
+                  </span>
+                </div>
                 <textarea
                   value={form.description}
-                  onChange={e => set('description', e.target.value)}
+                  onChange={e => { if (e.target.value.length <= 500) set('description', e.target.value) }}
                   placeholder="Condition, age, dimensions, anything relevant..."
                   rows={3}
+                  maxLength={500}
                   className="w-full bg-white/[0.02] border border-white/[0.06] rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-orange-500/60 focus:bg-white/[0.04] focus:ring-1 focus:ring-orange-500/20 transition-all duration-300 shadow-inner resize-none"
                 />
               </div>
