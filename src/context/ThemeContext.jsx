@@ -9,10 +9,6 @@ export const ThemeProvider = ({ children }) => {
     if (savedTheme) {
       return savedTheme;
     }
-    // If no saved theme, check system preference
-    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
-      return 'light';
-    }
     // Default to dark since CulDeSale is dark-native
     return 'dark';
   });
