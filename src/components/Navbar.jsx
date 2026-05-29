@@ -136,10 +136,15 @@ export default function Navbar() {
         {user && (
           <button
             onClick={() => navigate('/dashboard')}
-            className="p-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:text-white transition cursor-pointer active:scale-95"
+            className="p-2 text-slate-500 dark:text-slate-400 hover:text-orange-500 dark:hover:text-orange-400 transition cursor-pointer active:scale-95 group"
             title="Seller Dashboard"
           >
-            <span className="text-xl">📊</span>
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 stroke-current group-hover:scale-110 transition-transform duration-300" fill="none" viewBox="0 0 24 24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M4 4h6v8H4z" />
+              <path d="M14 4h6v4h-6z" />
+              <path d="M14 12h6v8h-6z" />
+              <path d="M4 16h6v4H4z" />
+            </svg>
           </button>
         )}
 
