@@ -4,7 +4,7 @@ import { supabase } from '../../../lib/supabase'
 import { useAuth } from '../../../context/AuthContext'
 import GarageSaleNavbar from '../components/GarageSaleNavbar'
 import GarageSaleMap from '../components/GarageSaleMap'
-import { getSaleStatus, formatTime, formatDate } from '../components/GarageSaleCard'
+import { getSaleStatus, formatTime, formatDateRange } from '../components/GarageSaleCard'
 
 const CATEGORY_COLORS = {
   'Furniture': 'bg-amber-500/10 text-amber-600 dark:text-amber-400',
@@ -25,7 +25,6 @@ export default function GarageSaleDetail() {
   const [sale, setSale] = useState(null)
   const [seller, setSeller] = useState(null)
   const [loading, setLoading] = useState(true)
-  const [photoIndex, setPhotoIndex] = useState(0)
   const [showShare, setShowShare] = useState(false)
 
   useEffect(() => {
@@ -34,6 +33,10 @@ export default function GarageSaleDetail() {
 
   const fetchSale = async () => {
     setLoading(true)
+
+    // Increment view count
+    await supabase.rpc('increment_garage_sale_view', { sale_id: id })
+
     const { data, error } = await supabase
       .from('garage_sales')
       .select('*')
@@ -104,8 +107,7 @@ export default function GarageSaleDetail() {
 
   if (!sale) return null
 
-  const status = getSaleStatus(sale.sale_date, sale.start_time, sale.end_time)
-  const hasPhotos = sale.photos && sale.photos.length > 0
+  const status = getSaleStatus(sale.start_date, sale.end_date, sale.start_time, sale.end_time)
   const isOwner = user && user.id === sale.seller_id
 
   return (
@@ -121,33 +123,10 @@ export default function GarageSaleDetail() {
           ← Back to Garage Sales
         </button>
 
-        {/* Photo Hero */}
-        {hasPhotos && (
-          <div className="relative rounded-2xl overflow-hidden mb-6 border border-slate-200 dark:border-white/[0.06]">
-            <img
-              src={sale.photos[photoIndex]}
-              alt={sale.title}
-              className="w-full h-56 sm:h-80 object-cover"
-            />
-            {sale.photos.length > 1 && (
-              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
-                {sale.photos.map((_, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setPhotoIndex(i)}
-                    className={`w-2.5 h-2.5 rounded-full transition-all cursor-pointer ${i === photoIndex ? 'bg-white scale-125 shadow-md' : 'bg-white/50 hover:bg-white/75'}`}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-
-        {!hasPhotos && (
-          <div className="rounded-2xl overflow-hidden mb-6 h-40 sm:h-56 bg-gradient-to-br from-emerald-500/20 via-teal-500/20 to-cyan-500/20 dark:from-emerald-500/10 dark:via-teal-500/10 dark:to-cyan-500/10 flex items-center justify-center border border-slate-200 dark:border-white/[0.06]">
-            <span className="text-7xl opacity-30">🏷️</span>
-          </div>
-        )}
+        {/* Hero */}
+        <div className="rounded-2xl overflow-hidden mb-6 h-40 sm:h-56 bg-gradient-to-br from-emerald-500/20 via-teal-500/20 to-cyan-500/20 dark:from-emerald-500/10 dark:via-teal-500/10 dark:to-cyan-500/10 flex items-center justify-center border border-slate-200 dark:border-white/[0.06]">
+          <span className="text-7xl opacity-30">🏷️</span>
+        </div>
 
         {/* Title + Status */}
         <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
@@ -161,16 +140,19 @@ export default function GarageSaleDetail() {
         <div className="flex items-start gap-2 text-slate-600 dark:text-slate-300 mb-2">
           <span className="text-lg mt-0.5">📍</span>
           <div>
-            <div className="font-medium">{sale.address}</div>
-            <div className="text-sm text-slate-500 dark:text-slate-400">{sale.city}{sale.state ? `, ${sale.state}` : ''} {sale.zip_code}</div>
+            <div className="font-bold text-slate-800 dark:text-slate-200">{sale.neighborhood}</div>
+            <div className="font-medium mt-0.5">{sale.address}</div>
+            <div className="text-sm text-slate-500 dark:text-slate-400">{sale.city}, {sale.state} {sale.zip_code}</div>
           </div>
         </div>
 
         {/* Date & Time */}
-        <div className="flex items-center gap-4 text-sm text-slate-600 dark:text-slate-300 font-medium mb-6">
-          <span>📅 {formatDate(sale.sale_date)}</span>
+        <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-sm text-slate-600 dark:text-slate-300 font-medium mb-6">
+          <span>📅 {formatDateRange(sale.start_date, sale.end_date)}</span>
           <span className="text-slate-300 dark:text-slate-600">|</span>
           <span>🕐 {formatTime(sale.start_time)} – {formatTime(sale.end_time)}</span>
+          <span className="text-slate-300 dark:text-slate-600">|</span>
+          <span className="flex items-center gap-1.5 text-slate-500" title="Total Views">👁️ {sale.view_count || 0}</span>
         </div>
 
         {/* Action Buttons */}

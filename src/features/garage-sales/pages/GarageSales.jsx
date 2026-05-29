@@ -52,11 +52,11 @@ export default function GarageSales() {
       .from('garage_sales')
       .select('*')
       .in('status', ['upcoming', 'active'])
-      .gte('sale_date', today)
-      .order('sale_date', { ascending: true })
+      .gte('end_date', today)
+      .order('start_date', { ascending: true })
 
     if (search.trim()) {
-      query = query.or(`city.ilike.%${search}%,zip_code.ilike.%${search}%,title.ilike.%${search}%,address.ilike.%${search}%`)
+      query = query.or(`city.ilike.%${search}%,zip_code.ilike.%${search}%,title.ilike.%${search}%,address.ilike.%${search}%,neighborhood.ilike.%${search}%`)
     }
 
     if (selectedCategory !== 'All') {
@@ -120,7 +120,7 @@ export default function GarageSales() {
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search by city, zip code, or keyword..."
+                placeholder="Search by neighborhood, city, or keyword..."
                 className="w-full bg-white dark:bg-white/[0.03] border border-slate-200 dark:border-white/[0.08] rounded-xl pl-11 pr-4 py-3 text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-emerald-500/60 focus:ring-1 focus:ring-emerald-500/20 transition-all shadow-sm"
               />
             </div>
@@ -192,14 +192,14 @@ export default function GarageSales() {
       {/* Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 pb-12">
         {loading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
             {[...Array(6)].map((_, i) => (
-              <div key={i} className="bg-white dark:bg-white/[0.02] border border-slate-200 dark:border-white/[0.06] rounded-2xl overflow-hidden animate-pulse">
-                <div className="h-36 sm:h-44 bg-slate-200 dark:bg-white/[0.04]" />
-                <div className="p-4 space-y-3">
-                  <div className="h-4 bg-slate-200 dark:bg-white/[0.04] rounded w-3/4" />
-                  <div className="h-3 bg-slate-200 dark:bg-white/[0.04] rounded w-1/2" />
-                  <div className="h-3 bg-slate-200 dark:bg-white/[0.04] rounded w-2/3" />
+              <div key={i} className="bg-white dark:bg-white/[0.02] border border-slate-200 dark:border-white/[0.06] rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row gap-4 sm:gap-5 animate-pulse">
+                <div className="shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-slate-200 dark:bg-white/[0.04]" />
+                <div className="flex-1 space-y-3 py-1">
+                  <div className="h-5 bg-slate-200 dark:bg-white/[0.04] rounded w-3/4" />
+                  <div className="h-4 bg-slate-200 dark:bg-white/[0.04] rounded w-1/2" />
+                  <div className="h-4 bg-slate-200 dark:bg-white/[0.04] rounded w-2/3" />
                 </div>
               </div>
             ))}
@@ -228,7 +228,7 @@ export default function GarageSales() {
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
             {sales.map(sale => (
               <GarageSaleCard
                 key={sale.id}

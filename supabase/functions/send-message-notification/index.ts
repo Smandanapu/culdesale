@@ -81,7 +81,8 @@ serve(async (req) => {
 
     console.log("Unread count:", unreadCount)
 
-    // Send email
+    // Send email - DISABLED to conserve Resend API limits
+    /*
     const emailRes = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
@@ -92,50 +93,16 @@ serve(async (req) => {
         from: "CulDeSale <notifications@culdesale.com>",
         to: [recipientEmail],
         subject: `New message from ${senderName} on CulDeSale`,
-        html: `
-          <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; background: #0F1117; color: #F0F0F0; padding: 32px; border-radius: 16px;">
-            <div style="margin-bottom: 24px;">
-              <span style="font-size: 22px; font-weight: 800; color: #FF6B35;">🏘️ CulDeSale</span>
-            </div>
-
-            <h2 style="color: #F0F0F0; margin-bottom: 8px;">
-              Hey ${recipientName}, you have a new message!
-            </h2>
-
-            <p style="color: #8B8FA8; margin-bottom: 24px;">
-              <strong style="color: #FF6B35;">${senderName}</strong> sent you a message about 
-              <strong style="color: #F0F0F0;">${conv.listings?.title}</strong>
-            </p>
-
-            <div style="background: #1A1D27; border: 1px solid #2A2D3E; border-radius: 12px; padding: 16px; margin-bottom: 24px;">
-              <p style="color: #F0F0F0; margin: 0; font-size: 16px;">
-                "${record.content}"
-              </p>
-            </div>
-
-            ${unreadCount > 1 ? `
-            <p style="color: #8B8FA8; margin-bottom: 24px;">
-              You have <strong style="color: #FF6B35;">${unreadCount} unread messages</strong> in total.
-            </p>
-            ` : ""}
-
-            <a href="https://culdesale.com/inbox" 
-               style="display: inline-block; background: #FF6B35; color: white; padding: 12px 24px; border-radius: 10px; text-decoration: none; font-weight: 600; font-size: 15px;">
-              View Message →
-            </a>
-
-            <p style="color: #555870; font-size: 12px; margin-top: 32px;">
-              You received this because someone messaged you on CulDeSale.
-            </p>
-          </div>
-        `,
+        html: `...`,
       }),
     })
 
     const emailData = await emailRes.json()
     console.log("Resend response:", JSON.stringify(emailData))
+    */
 
-    return new Response(JSON.stringify(emailData), { status: 200 })
+    console.log("Email sending disabled for chat messages.")
+    return new Response(JSON.stringify({ message: "Email notifications disabled for chat messages to save quota" }), { status: 200 })
 
   } catch (error: any) {
     console.log("Fatal error:", error.message)

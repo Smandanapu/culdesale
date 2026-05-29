@@ -136,12 +136,6 @@ export default function Navbar() {
         {/* GARAGE-SALES-FEATURE */}
         <div className="hidden md:flex items-center gap-1.5 ml-2 border-l border-slate-200 dark:border-white/[0.08] pl-4">
           <button
-            onClick={() => navigate('/feed')}
-            className="px-3 py-1.5 text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-orange-500 dark:hover:text-orange-400 rounded-lg hover:bg-slate-100 dark:hover:bg-white/[0.04] transition cursor-pointer"
-          >
-            Marketplace
-          </button>
-          <button
             onClick={() => navigate('/garage-sales')}
             className="px-3 py-1.5 text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-orange-500 dark:hover:text-orange-400 rounded-lg hover:bg-slate-100 dark:hover:bg-white/[0.04] transition cursor-pointer flex items-center gap-1"
           >
