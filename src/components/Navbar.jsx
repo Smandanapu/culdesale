@@ -122,17 +122,43 @@ export default function Navbar() {
 
   return (
     <nav className="sticky top-0 z-50 bg-slate-50/75 dark:bg-[#07090e]/75 backdrop-blur-md border-b border-slate-200 dark:border-white/[0.06] px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
-      <div
-        className="flex items-center gap-2 cursor-pointer group"
-        onClick={() => navigate('/feed')}
-      >
-        <img src="/logo.png" alt="CulDeSale Logo" className="w-8 h-8 rounded-lg shadow-sm transition-transform group-hover:scale-110 duration-200" />
-        <span className="text-xl font-extrabold tracking-tight animate-text-shimmer bg-gradient-to-r from-orange-400 via-rose-400 to-indigo-400 bg-clip-text text-transparent group-hover:opacity-90 transition-opacity">
-          CulDeSale
-        </span>
+      <div className="flex items-center gap-3">
+        <div
+          className="flex items-center gap-2 cursor-pointer group"
+          onClick={() => navigate('/feed')}
+        >
+          <img src="/logo.png" alt="CulDeSale Logo" className="w-8 h-8 rounded-lg shadow-sm transition-transform group-hover:scale-110 duration-200" />
+          <span className="text-xl font-extrabold tracking-tight animate-text-shimmer bg-gradient-to-r from-orange-400 via-rose-400 to-indigo-400 bg-clip-text text-transparent group-hover:opacity-90 transition-opacity">
+            CulDeSale
+          </span>
+        </div>
+
+        {/* GARAGE-SALES-FEATURE */}
+        <div className="hidden md:flex items-center gap-1.5 ml-2 border-l border-slate-200 dark:border-white/[0.08] pl-4">
+          <button
+            onClick={() => navigate('/feed')}
+            className="px-3 py-1.5 text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-orange-500 dark:hover:text-orange-400 rounded-lg hover:bg-slate-100 dark:hover:bg-white/[0.04] transition cursor-pointer"
+          >
+            Marketplace
+          </button>
+          <button
+            onClick={() => navigate('/garage-sales')}
+            className="px-3 py-1.5 text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-orange-500 dark:hover:text-orange-400 rounded-lg hover:bg-slate-100 dark:hover:bg-white/[0.04] transition cursor-pointer flex items-center gap-1"
+          >
+            <span>🏷️</span> Garage Sales
+          </button>
+        </div>
       </div>
 
       <div className="flex items-center gap-2 sm:gap-3">
+        {/* GARAGE-SALES-FEATURE: Mobile-only button */}
+        <button
+          onClick={() => navigate('/garage-sales')}
+          className="md:hidden p-2 text-slate-500 dark:text-slate-400 hover:text-orange-500 dark:hover:text-orange-400 transition cursor-pointer active:scale-95 group"
+          title="Garage Sales"
+        >
+          <span className="text-xl group-hover:scale-110 transition-transform duration-300 inline-block">🏷️</span>
+        </button>
         {user && (
           <button
             onClick={() => navigate('/dashboard')}

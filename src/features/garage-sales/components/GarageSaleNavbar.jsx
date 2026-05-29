@@ -12,7 +12,7 @@ export default function GarageSaleNavbar() {
       <div className="flex items-center gap-3">
         <div
           className="flex items-center gap-2 cursor-pointer group"
-          onClick={() => navigate('/')}
+          onClick={() => navigate(user ? '/feed' : '/')}
         >
           <img src="/logo.png" alt="CulDeSale Logo" className="w-8 h-8 rounded-lg shadow-sm transition-transform group-hover:scale-110 duration-200" />
           <span className="text-xl font-extrabold tracking-tight animate-text-shimmer bg-gradient-to-r from-orange-400 via-rose-400 to-indigo-400 bg-clip-text text-transparent group-hover:opacity-90 transition-opacity">
@@ -22,7 +22,10 @@ export default function GarageSaleNavbar() {
         <div className="hidden sm:flex items-center gap-1 text-slate-400 dark:text-slate-500">
           <span>/</span>
         </div>
-        <span className="hidden sm:inline text-sm font-semibold text-slate-700 dark:text-slate-300">
+        <span 
+          onClick={() => navigate('/garage-sales')}
+          className="hidden sm:inline text-sm font-semibold text-slate-700 dark:text-slate-300 hover:text-emerald-500 dark:hover:text-emerald-400 transition cursor-pointer"
+        >
           🏷️ Garage Sales
         </span>
       </div>
