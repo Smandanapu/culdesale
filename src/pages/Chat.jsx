@@ -77,7 +77,7 @@ export default function Chat() {
   }
 
   const sendMessage = async () => {
-    if (!input.trim()) return
+    if (!input.trim() || !conversation) return
     setSending(true)
     const content = input.trim()
     setInput('')
@@ -88,6 +88,17 @@ export default function Chat() {
       content,
       is_read: false,
     })
+
+    const recipientId = user.id === conversation.seller_id ? conversation.buyer_id : conversation.seller_id
+    if (recipientId) {
+      await supabase.from('notifications').insert({
+        user_id: recipientId,
+        type: 'message',
+        title: 'New Message',
+        message: `New message regarding "${conversation.listings?.title || 'an item'}"`,
+        listing_id: conversation.listing_id
+      })
+    }
 
     setSending(false)
   }

@@ -100,6 +100,17 @@ serve(async (req) => {
     const emailData = await emailRes.json()
     console.log("Resend response:", JSON.stringify(emailData))
 
+    // Insert into notifications table
+    const { error: notifError } = await supabase.from('notifications').insert({
+      user_id: outbidUserId,
+      type: 'outbid',
+      title: 'You have been outbid!',
+      message: `Someone placed a higher bid of $${newBidAmount} on "${listingTitle}".`,
+      listing_id: listingId
+    })
+    
+    if (notifError) console.error("Failed to insert notification:", notifError.message)
+
     return new Response(JSON.stringify(emailData), { status: 200, headers: corsHeaders })
 
   } catch (error: any) {
