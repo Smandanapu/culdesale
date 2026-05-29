@@ -52,8 +52,8 @@ export default function GarageSales() {
       .from('garage_sales')
       .select('*')
       .in('status', ['upcoming', 'active'])
-      .gte('sale_date', today)
-      .order('sale_date', { ascending: true })
+      .gte('end_date', today)
+      .order('start_date', { ascending: true })
 
     if (search.trim()) {
       query = query.or(`city.ilike.%${search}%,zip_code.ilike.%${search}%,title.ilike.%${search}%,address.ilike.%${search}%`)

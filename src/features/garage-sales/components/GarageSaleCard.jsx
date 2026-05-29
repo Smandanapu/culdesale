@@ -12,20 +12,21 @@ const CATEGORY_COLORS = {
   'Other': 'bg-gray-500/10 text-gray-600 dark:text-gray-400',
 }
 
-function getSaleStatus(saleDate, startTime, endTime) {
+function getSaleStatus(startDate, endDate, startTime, endTime) {
   const now = new Date()
-  const saleDateObj = new Date(saleDate + 'T00:00:00')
   const today = new Date()
   today.setHours(0, 0, 0, 0)
-  saleDateObj.setHours(0, 0, 0, 0)
+  
+  const startObj = new Date(startDate + 'T00:00:00')
+  const endObj = new Date(endDate + 'T00:00:00')
 
-  if (saleDateObj > today) {
-    const diffDays = Math.ceil((saleDateObj - today) / (1000 * 60 * 60 * 24))
+  if (today < startObj) {
+    const diffDays = Math.ceil((startObj - today) / (1000 * 60 * 60 * 24))
     if (diffDays === 1) return { label: 'Tomorrow', color: 'bg-blue-500/10 text-blue-500', icon: '📅' }
-    return { label: `In ${diffDays} days`, color: 'bg-blue-500/10 text-blue-500', icon: '📅' }
+    return { label: `Starts in ${diffDays} days`, color: 'bg-blue-500/10 text-blue-500', icon: '📅' }
   }
 
-  if (saleDateObj.getTime() === today.getTime()) {
+  if (today >= startObj && today <= endObj) {
     const [startH, startM] = (startTime || '08:00').split(':').map(Number)
     const [endH, endM] = (endTime || '14:00').split(':').map(Number)
     const currentMinutes = now.getHours() * 60 + now.getMinutes()
@@ -37,10 +38,17 @@ function getSaleStatus(saleDate, startTime, endTime) {
       if (diff <= 60) return { label: `Starts in ${diff}m`, color: 'bg-amber-500/10 text-amber-500', icon: '⏰' }
       return { label: `Starts at ${formatTime(startTime)}`, color: 'bg-amber-500/10 text-amber-500', icon: '⏰' }
     }
+    
     if (currentMinutes >= startMinutes && currentMinutes <= endMinutes) {
       return { label: 'Happening Now!', color: 'bg-emerald-500/10 text-emerald-500', icon: '🟢' }
     }
-    return { label: 'Ended Today', color: 'bg-slate-500/10 text-slate-500', icon: '⏹️' }
+    
+    // It's past the end time for today.
+    if (today < endObj) {
+       return { label: 'Resumes Tomorrow', color: 'bg-blue-500/10 text-blue-500', icon: '📅' }
+    } else {
+       return { label: 'Ended', color: 'bg-slate-500/10 text-slate-500', icon: '⏹️' }
+    }
   }
 
   return { label: 'Past', color: 'bg-slate-500/10 text-slate-500', icon: '⏹️' }
@@ -59,9 +67,22 @@ function formatDate(dateStr) {
   return date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })
 }
 
+function formatDateRange(startDateStr, endDateStr) {
+  if (!startDateStr || !endDateStr) return ''
+  const start = new Date(startDateStr + 'T00:00:00')
+  const end = new Date(endDateStr + 'T00:00:00')
+  const options = { month: 'short', day: 'numeric' }
+  
+  if (startDateStr === endDateStr) {
+    return start.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })
+  }
+  
+  return `${start.toLocaleDateString('en-US', options)} - ${end.toLocaleDateString('en-US', options)}`
+}
+
 export default function GarageSaleCard({ sale, distance }) {
   const navigate = useNavigate()
-  const status = getSaleStatus(sale.sale_date, sale.start_time, sale.end_time)
+  const status = getSaleStatus(sale.start_date, sale.end_date, sale.start_time, sale.end_time)
 
   return (
     <div
@@ -100,7 +121,7 @@ export default function GarageSaleCard({ sale, distance }) {
         </div>
 
         <div className="flex items-center gap-3 text-xs text-slate-600 dark:text-slate-300 mb-3 font-medium">
-          <span>📅 {formatDate(sale.sale_date)}</span>
+          <span>📅 {formatDateRange(sale.start_date, sale.end_date)}</span>
           <span className="text-slate-300 dark:text-slate-600">|</span>
           <span>🕐 {formatTime(sale.start_time)} – {formatTime(sale.end_time)}</span>
         </div>
@@ -128,4 +149,4 @@ export default function GarageSaleCard({ sale, distance }) {
   )
 }
 
-export { getSaleStatus, formatTime, formatDate }
+export { getSaleStatus, formatTime, formatDate, formatDateRange }

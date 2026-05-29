@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import L from 'leaflet'
-import { formatTime, formatDate, getSaleStatus } from './GarageSaleCard'
+import { formatTime, formatDateRange, getSaleStatus } from './GarageSaleCard'
 
 // Custom marker icon
 const garageIcon = L.divIcon({
@@ -91,7 +91,7 @@ export default function GarageSaleMap({ sales, center, zoom = 12, className = ''
     const validSales = sales.filter(s => s.latitude && s.longitude)
 
     validSales.forEach(sale => {
-      const status = getSaleStatus(sale.sale_date, sale.start_time, sale.end_time)
+      const status = getSaleStatus(sale.start_date, sale.end_date, sale.start_time, sale.end_time)
       const isHappeningNow = status.label === 'Happening Now!'
       const icon = isHappeningNow ? activeIcon : garageIcon
 
@@ -103,7 +103,7 @@ export default function GarageSaleMap({ sales, center, zoom = 12, className = ''
           <div style="font-weight: 700; font-size: 14px; margin-bottom: 4px; color: #1e293b;">${sale.title}</div>
           <div style="font-size: 12px; color: #64748b; margin-bottom: 6px;">📍 ${sale.address}, ${sale.city}</div>
           <div style="font-size: 12px; color: #334155; margin-bottom: 8px;">
-            📅 ${formatDate(sale.sale_date)} · 🕐 ${formatTime(sale.start_time)} – ${formatTime(sale.end_time)}
+            📅 ${formatDateRange(sale.start_date, sale.end_date)} · 🕐 ${formatTime(sale.start_time)} – ${formatTime(sale.end_time)}
           </div>
           <div style="
             display: inline-block;

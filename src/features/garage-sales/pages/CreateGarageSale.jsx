@@ -24,7 +24,8 @@ export default function CreateGarageSale() {
     city: '',
     state: '',
     zip_code: '',
-    sale_date: '',
+    start_date: '',
+    end_date: '',
     start_time: '08:00',
     end_time: '14:00',
     categories: [],
@@ -61,7 +62,8 @@ export default function CreateGarageSale() {
     if (!form.city.trim()) return setError('Please enter the city.')
     if (!form.state.trim()) return setError('Please enter the state.')
     if (!form.zip_code.trim()) return setError('Please enter the zip code.')
-    if (!form.sale_date) return setError('Please select a date.')
+    if (!form.start_date) return setError('Please select a start date.')
+    if (!form.end_date) return setError('Please select an end date.')
 
     setLoading(true)
 
@@ -84,7 +86,8 @@ export default function CreateGarageSale() {
         zip_code: form.zip_code.trim(),
         latitude: coords?.lat || null,
         longitude: coords?.lng || null,
-        sale_date: form.sale_date,
+        start_date: form.start_date,
+        end_date: form.end_date,
         start_time: form.start_time,
         end_time: form.end_time,
         categories: form.categories,
@@ -239,7 +242,8 @@ export default function CreateGarageSale() {
                     title: form.title || 'Your Garage Sale',
                     address: form.address,
                     city: form.city,
-                    sale_date: form.sale_date || new Date().toISOString().split('T')[0],
+                    start_date: form.start_date || new Date().toISOString().split('T')[0],
+                    end_date: form.end_date || new Date().toISOString().split('T')[0],
                     start_time: form.start_time,
                     end_time: form.end_time,
                     latitude: geocodeResult.lat,
@@ -256,20 +260,38 @@ export default function CreateGarageSale() {
           {/* Date & Time */}
           <div className="bg-white dark:bg-white/[0.02] border border-slate-200 dark:border-white/[0.06] rounded-2xl p-5 sm:p-6 shadow-sm">
             <h2 className="font-bold text-base mb-4 flex items-center gap-2">📅 Date & Time</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
               <div>
-                <label className="text-sm font-medium text-slate-600 dark:text-slate-300 mb-1.5 block">Sale Date *</label>
+                <label className="text-sm font-medium text-slate-600 dark:text-slate-300 mb-1.5 block">Start Date *</label>
                 <input
                   type="date"
-                  value={form.sale_date}
-                  onChange={e => set('sale_date', e.target.value)}
+                  value={form.start_date}
+                  onChange={e => {
+                    set('start_date', e.target.value)
+                    if (!form.end_date || form.end_date < e.target.value) {
+                      set('end_date', e.target.value)
+                    }
+                  }}
                   min={today}
                   required
                   className="w-full bg-slate-50 dark:bg-white/[0.02] border border-slate-200 dark:border-white/[0.06] rounded-xl px-4 py-3 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500/60 focus:ring-1 focus:ring-emerald-500/20 transition-all"
                 />
               </div>
               <div>
-                <label className="text-sm font-medium text-slate-600 dark:text-slate-300 mb-1.5 block">Start Time</label>
+                <label className="text-sm font-medium text-slate-600 dark:text-slate-300 mb-1.5 block">End Date *</label>
+                <input
+                  type="date"
+                  value={form.end_date}
+                  onChange={e => set('end_date', e.target.value)}
+                  min={form.start_date || today}
+                  required
+                  className="w-full bg-slate-50 dark:bg-white/[0.02] border border-slate-200 dark:border-white/[0.06] rounded-xl px-4 py-3 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500/60 focus:ring-1 focus:ring-emerald-500/20 transition-all"
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="text-sm font-medium text-slate-600 dark:text-slate-300 mb-1.5 block">Daily Start Time</label>
                 <input
                   type="time"
                   value={form.start_time}
@@ -278,7 +300,7 @@ export default function CreateGarageSale() {
                 />
               </div>
               <div>
-                <label className="text-sm font-medium text-slate-600 dark:text-slate-300 mb-1.5 block">End Time</label>
+                <label className="text-sm font-medium text-slate-600 dark:text-slate-300 mb-1.5 block">Daily End Time</label>
                 <input
                   type="time"
                   value={form.end_time}

@@ -4,7 +4,7 @@ import { supabase } from '../../../lib/supabase'
 import { useAuth } from '../../../context/AuthContext'
 import GarageSaleNavbar from '../components/GarageSaleNavbar'
 import GarageSaleMap from '../components/GarageSaleMap'
-import { getSaleStatus, formatTime, formatDate } from '../components/GarageSaleCard'
+import { getSaleStatus, formatTime, formatDateRange } from '../components/GarageSaleCard'
 
 const CATEGORY_COLORS = {
   'Furniture': 'bg-amber-500/10 text-amber-600 dark:text-amber-400',
@@ -103,7 +103,7 @@ export default function GarageSaleDetail() {
 
   if (!sale) return null
 
-  const status = getSaleStatus(sale.sale_date, sale.start_time, sale.end_time)
+  const status = getSaleStatus(sale.start_date, sale.end_date, sale.start_time, sale.end_time)
   const isOwner = user && user.id === sale.seller_id
 
   return (
@@ -144,7 +144,7 @@ export default function GarageSaleDetail() {
 
         {/* Date & Time */}
         <div className="flex items-center gap-4 text-sm text-slate-600 dark:text-slate-300 font-medium mb-6">
-          <span>📅 {formatDate(sale.sale_date)}</span>
+          <span>📅 {formatDateRange(sale.start_date, sale.end_date)}</span>
           <span className="text-slate-300 dark:text-slate-600">|</span>
           <span>🕐 {formatTime(sale.start_time)} – {formatTime(sale.end_time)}</span>
         </div>
