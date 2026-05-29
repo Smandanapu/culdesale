@@ -131,7 +131,7 @@ export default function Landing() {
 
       <nav className="sticky top-0 z-50 bg-slate-50 dark:bg-[#07090e]/75 backdrop-blur-md border-b border-slate-200 dark:border-white/[0.06] px-6 py-4 flex items-center justify-between relative">
         <div className="flex items-center gap-2 cursor-pointer group" onClick={() => navigate('/')}>
-          <span className="text-2xl transform group-hover:scale-110 transition duration-300">🏘️</span>
+          <img src="/logo.png" alt="CulDeSale" className="w-8 h-8 rounded-lg shadow-sm transform group-hover:scale-110 transition duration-300" />
           <span className="text-xl font-bold tracking-tight animate-text-shimmer bg-gradient-to-r from-orange-400 via-rose-400 to-indigo-400 bg-clip-text text-transparent">
             CulDeSale
           </span>
@@ -365,7 +365,7 @@ export default function Landing() {
 
       <div className="px-6 py-8 border-t border-slate-200 dark:border-white/[0.04] relative z-10 flex flex-col md:flex-row items-center justify-between max-w-6xl mx-auto gap-4 text-slate-500 text-sm">
         <div className="flex items-center gap-2">
-          <span className="text-xl">🏘️</span>
+          <img src="/logo.png" alt="CulDeSale" className="w-6 h-6 rounded border border-white/10" />
           <span className="font-semibold text-slate-900 dark:text-white tracking-tight">CulDeSale</span>
         </div>
         <div>© 2026 CulDeSale · Built for connected neighborhoods</div>

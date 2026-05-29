@@ -52,7 +52,7 @@ export default function SetupUsername() {
       <div className="absolute bottom-[-10%] right-[-10%] w-[600px] h-[600px] rounded-full bg-indigo-600/10 blur-[140px] pointer-events-none animate-float-slower z-0" />
 
       <div className="flex items-center gap-2 mb-8 relative z-10 group">
-        <span className="text-3xl transition-transform group-hover:scale-110 duration-200">🏘️</span>
+        <img src="/logo.png" alt="CulDeSale" className="w-10 h-10 rounded-xl shadow-md transition-transform group-hover:scale-110 duration-200" />
         <span className="text-2xl font-extrabold tracking-tight animate-text-shimmer bg-gradient-to-r from-orange-400 via-rose-400 to-indigo-400 bg-clip-text text-transparent">CulDeSale</span>
       </div>
 
