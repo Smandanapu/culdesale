@@ -141,11 +141,13 @@ export default function Landing() {
       <nav className="sticky top-0 z-50 bg-slate-50 dark:bg-[#07090e]/75 backdrop-blur-md border-b border-slate-200 dark:border-white/[0.06] px-6 py-4 flex items-center justify-between relative">
         <div className="flex items-center gap-2 cursor-pointer group" onClick={() => navigate('/')}>
           <img src="/logo.png" alt="CulDeSale" className="w-8 h-8 rounded-lg shadow-sm transform group-hover:scale-110 transition duration-300" />
-          <span className="text-xl font-bold tracking-tight animate-text-shimmer bg-gradient-to-r from-orange-400 via-rose-400 to-indigo-400 bg-clip-text text-transparent">
+          <span className="hidden sm:block text-xl font-bold tracking-tight animate-text-shimmer bg-gradient-to-r from-orange-400 via-rose-400 to-indigo-400 bg-clip-text text-transparent">
             CulDeSale
           </span>
         </div>
-        <div className="flex items-center gap-2 sm:gap-4">
+        <div className="flex items-center gap-1 sm:gap-4">
+          <button onClick={() => navigate('/garage-sales')} className="sm:hidden px-1.5 text-xl hover:scale-110 transition duration-200 cursor-pointer" title="Garage Sales">🏷️</button>
+          <a href="#safety" className="sm:hidden px-1.5 text-xl hover:scale-110 transition duration-200 cursor-pointer" title="Safety">🛡️</a>
           <button onClick={() => navigate('/garage-sales')} className="hidden sm:flex items-center gap-1.5 px-4 py-2 text-sm text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:text-white transition duration-200 font-medium cursor-pointer">
             <span>🏷️</span> Garage Sales
           </button>
