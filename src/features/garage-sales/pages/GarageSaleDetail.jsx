@@ -5,6 +5,8 @@ import { useAuth } from '../../../context/AuthContext'
 import GarageSaleNavbar from '../components/GarageSaleNavbar'
 import GarageSaleMap from '../components/GarageSaleMap'
 import { getSaleStatus, formatTime, formatDateRange } from '../components/GarageSaleCard'
+import { downloadICS } from '../lib/calendar'
+import toast from 'react-hot-toast'
 
 const CATEGORY_COLORS = {
   'Furniture': 'bg-amber-500/10 text-amber-600 dark:text-amber-400',
@@ -84,8 +86,7 @@ export default function GarageSaleDetail() {
       } catch {}
     } else {
       await navigator.clipboard.writeText(window.location.href)
-      setShowShare(true)
-      setTimeout(() => setShowShare(false), 2000)
+      toast.success('Link copied to clipboard!')
     }
   }
 
@@ -164,15 +165,16 @@ export default function GarageSaleDetail() {
             📍 Get Directions
           </button>
           <button
+            onClick={() => { downloadICS(sale); toast.success('Calendar file downloaded!'); }}
+            className="flex-1 sm:flex-none px-6 py-3 bg-gradient-to-r from-indigo-500 to-blue-500 text-white rounded-xl font-semibold shadow-lg shadow-indigo-500/25 hover:opacity-90 active:scale-95 transition-all cursor-pointer text-sm"
+          >
+            📅 Add to Calendar
+          </button>
+          <button
             onClick={handleShare}
-            className="relative px-6 py-3 bg-white dark:bg-white/[0.03] border border-slate-200 dark:border-white/[0.08] rounded-xl font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/[0.06] active:scale-95 transition-all cursor-pointer text-sm shadow-sm"
+            className="px-6 py-3 bg-white dark:bg-white/[0.03] border border-slate-200 dark:border-white/[0.08] rounded-xl font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/[0.06] active:scale-95 transition-all cursor-pointer text-sm shadow-sm"
           >
             📤 Share
-            {showShare && (
-              <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-xs px-3 py-1 rounded-lg whitespace-nowrap">
-                Link copied!
-              </span>
-            )}
           </button>
           {isOwner && (
             <button

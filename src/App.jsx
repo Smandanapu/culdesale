@@ -1,5 +1,6 @@
 import 'leaflet/dist/leaflet.css'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { Toaster } from 'react-hot-toast'
 import { AuthProvider } from './context/AuthContext'
 import { ThemeProvider } from './context/ThemeContext'
 import ErrorBoundary from './components/ErrorBoundary'
@@ -33,6 +34,7 @@ export default function App() {
       <BrowserRouter>
         <AuthProvider>
           <ErrorBoundary>
+            <Toaster position="bottom-center" toastOptions={{ style: { background: '#333', color: '#fff', borderRadius: '12px' } }} />
             <PWABadge />
             <Routes>
               <Route path="/" element={<Landing />} />
