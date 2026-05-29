@@ -139,9 +139,9 @@ export default function Landing() {
       <div className="absolute top-0 left-0 right-0 h-[750px] bg-grid-pattern opacity-40 pointer-events-none z-0" />
 
       <nav className="sticky top-0 z-50 bg-slate-50 dark:bg-[#07090e]/75 backdrop-blur-md border-b border-slate-200 dark:border-white/[0.06] px-6 py-4 flex items-center justify-between relative">
-        <div className="flex items-center gap-2 cursor-pointer group" onClick={() => navigate('/')}>
-          <img src="/logo.png" alt="CulDeSale" className="w-8 h-8 rounded-lg shadow-sm transform group-hover:scale-110 transition duration-300" />
-          <span className="hidden sm:block text-xl font-bold tracking-tight animate-text-shimmer bg-gradient-to-r from-orange-400 via-rose-400 to-indigo-400 bg-clip-text text-transparent">
+        <div className="flex items-center gap-1.5 sm:gap-2 cursor-pointer group" onClick={() => navigate('/')}>
+          <img src="/logo.png" alt="CulDeSale" className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg shadow-sm transform group-hover:scale-110 transition duration-300" />
+          <span className="text-[17px] sm:text-xl font-bold tracking-tight animate-text-shimmer bg-gradient-to-r from-orange-400 via-rose-400 to-indigo-400 bg-clip-text text-transparent">
             CulDeSale
           </span>
         </div>
@@ -153,7 +153,7 @@ export default function Landing() {
           </button>
           <a href="#safety" className="hidden sm:block px-4 py-2 text-sm text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:text-white transition duration-200 font-medium cursor-pointer">Safety</a>
           <button onClick={() => navigate('/login')} className="px-3 sm:px-4 py-2 text-sm text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:text-white transition duration-200 font-medium cursor-pointer">Sign in</button>
-          <button onClick={() => navigate('/register')} className="px-4 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-900 dark:text-white rounded-xl transition duration-300 font-semibold shadow-md shadow-orange-500/10 hover:shadow-lg hover:shadow-orange-500/25 hover:scale-[1.02] active:scale-[0.98] cursor-pointer">Get Started</button>
+          <button onClick={() => navigate('/register')} className="hidden sm:block px-4 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-900 dark:text-white rounded-xl transition duration-300 font-semibold shadow-md shadow-orange-500/10 hover:shadow-lg hover:shadow-orange-500/25 hover:scale-[1.02] active:scale-[0.98] cursor-pointer">Get Started</button>
         </div>
       </nav>
 

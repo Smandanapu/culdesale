@@ -124,11 +124,11 @@ export default function Navbar() {
     <nav className="sticky top-0 z-50 bg-slate-50/75 dark:bg-[#07090e]/75 backdrop-blur-md border-b border-slate-200 dark:border-white/[0.06] px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
       <div className="flex items-center gap-3">
         <div
-          className="flex items-center gap-2 cursor-pointer group"
+          className="flex items-center gap-1.5 sm:gap-2 cursor-pointer group"
           onClick={() => navigate('/feed')}
         >
-          <img src="/logo.png" alt="CulDeSale Logo" className="w-8 h-8 rounded-lg shadow-sm transition-transform group-hover:scale-110 duration-200" />
-          <span className="text-xl font-extrabold tracking-tight animate-text-shimmer bg-gradient-to-r from-orange-400 via-rose-400 to-indigo-400 bg-clip-text text-transparent group-hover:opacity-90 transition-opacity">
+          <img src="/logo.png" alt="CulDeSale Logo" className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg shadow-sm transition-transform group-hover:scale-110 duration-200" />
+          <span className="text-[17px] sm:text-xl font-extrabold tracking-tight animate-text-shimmer bg-gradient-to-r from-orange-400 via-rose-400 to-indigo-400 bg-clip-text text-transparent group-hover:opacity-90 transition-opacity">
             CulDeSale
           </span>
         </div>
