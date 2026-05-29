@@ -192,14 +192,14 @@ export default function GarageSales() {
       {/* Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 pb-12">
         {loading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
             {[...Array(6)].map((_, i) => (
-              <div key={i} className="bg-white dark:bg-white/[0.02] border border-slate-200 dark:border-white/[0.06] rounded-2xl overflow-hidden animate-pulse">
-                <div className="h-36 sm:h-44 bg-slate-200 dark:bg-white/[0.04]" />
-                <div className="p-4 space-y-3">
-                  <div className="h-4 bg-slate-200 dark:bg-white/[0.04] rounded w-3/4" />
-                  <div className="h-3 bg-slate-200 dark:bg-white/[0.04] rounded w-1/2" />
-                  <div className="h-3 bg-slate-200 dark:bg-white/[0.04] rounded w-2/3" />
+              <div key={i} className="bg-white dark:bg-white/[0.02] border border-slate-200 dark:border-white/[0.06] rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row gap-4 sm:gap-5 animate-pulse">
+                <div className="shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-slate-200 dark:bg-white/[0.04]" />
+                <div className="flex-1 space-y-3 py-1">
+                  <div className="h-5 bg-slate-200 dark:bg-white/[0.04] rounded w-3/4" />
+                  <div className="h-4 bg-slate-200 dark:bg-white/[0.04] rounded w-1/2" />
+                  <div className="h-4 bg-slate-200 dark:bg-white/[0.04] rounded w-2/3" />
                 </div>
               </div>
             ))}
@@ -228,7 +228,7 @@ export default function GarageSales() {
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
             {sales.map(sale => (
               <GarageSaleCard
                 key={sale.id}
