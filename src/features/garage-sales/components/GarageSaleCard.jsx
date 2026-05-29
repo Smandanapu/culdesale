@@ -116,37 +116,35 @@ export default function GarageSaleCard({ sale, distance, onSaleDeleted }) {
         {/* Content */}
         <div className="flex-1 min-w-0 flex flex-col justify-center relative">
           
-          {/* Owner Actions (Top Right) */}
-          {isOwner && (
-            <div className="absolute -top-1 -right-1 flex items-center gap-1">
-              <button
-                onClick={(e) => {
-                  e.stopPropagation()
-                  navigate(`/edit-garage-sale/${sale.id}`)
-                }}
-                className="w-7 h-7 rounded-full bg-amber-50 dark:bg-amber-500/10 text-amber-500 hover:bg-amber-100 dark:hover:bg-amber-500/20 flex items-center justify-center transition-colors shadow-sm border border-amber-200/50 dark:border-amber-500/20"
-                title="Edit Sale"
-              >
-                ✏️
-              </button>
-              <button
-                onClick={async (e) => {
-                  e.stopPropagation()
-                  if (window.confirm('Are you sure you want to delete this garage sale?')) {
-                    await supabase.from('garage_sales').delete().eq('id', sale.id)
-                    toast.success('Sale deleted')
-                    if (onSaleDeleted) onSaleDeleted(sale.id)
-                  }
-                }}
-                className="w-7 h-7 rounded-full bg-rose-50 dark:bg-rose-500/10 text-rose-500 hover:bg-rose-100 dark:hover:bg-rose-500/20 flex items-center justify-center transition-colors shadow-sm border border-rose-200/50 dark:border-rose-500/20"
-                title="Delete Sale"
-              >
-                🗑️
-              </button>
-            </div>
-          )}
+          {/* Actions (Top Right) */}
+          <div className="absolute -top-1 -right-1 flex items-center gap-1">
+            <button
+              onClick={(e) => {
+                e.stopPropagation()
+                navigate(`/edit-garage-sale/${sale.id}`)
+              }}
+              className="w-7 h-7 rounded-full bg-amber-50 dark:bg-amber-500/10 text-amber-500 hover:bg-amber-100 dark:hover:bg-amber-500/20 flex items-center justify-center transition-colors shadow-sm border border-amber-200/50 dark:border-amber-500/20"
+              title="Edit Sale"
+            >
+              ✏️
+            </button>
+            <button
+              onClick={async (e) => {
+                e.stopPropagation()
+                if (window.confirm('Are you sure you want to delete this garage sale?')) {
+                  await supabase.from('garage_sales').delete().eq('id', sale.id)
+                  toast.success('Sale deleted')
+                  if (onSaleDeleted) onSaleDeleted(sale.id)
+                }
+              }}
+              className="w-7 h-7 rounded-full bg-rose-50 dark:bg-rose-500/10 text-rose-500 hover:bg-rose-100 dark:hover:bg-rose-500/20 flex items-center justify-center transition-colors shadow-sm border border-rose-200/50 dark:border-rose-500/20"
+              title="Delete Sale"
+            >
+              🗑️
+            </button>
+          </div>
 
-          <div className={`flex flex-col sm:flex-row sm:items-start sm:justify-between gap-1.5 sm:gap-3 mb-1.5 sm:mb-1 ${isOwner ? 'pr-16' : ''}`}>
+          <div className={`flex flex-col sm:flex-row sm:items-start sm:justify-between gap-1.5 sm:gap-3 mb-1.5 sm:mb-1 pr-16`}>
           <h3 className="font-bold text-slate-900 dark:text-white text-[15px] sm:text-lg leading-tight line-clamp-2 sm:line-clamp-1 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
             {sale.title}
           </h3>
