@@ -74,9 +74,7 @@ export default function GarageSaleDetail() {
   }
 
   const handleShare = async () => {
-    // If testing locally, generate a clean production URL for the share link
-    const isLocal = window.location.hostname === 'localhost' || window.location.hostname.startsWith('192.168') || window.location.hostname.startsWith('127.0')
-    const shareUrl = isLocal ? `https://culdesale.com/garage-sales/${sale.id}` : window.location.href
+    const shareUrl = window.location.href
 
     const shareData = {
       title: sale.title,
