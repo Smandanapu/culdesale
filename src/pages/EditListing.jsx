@@ -27,6 +27,7 @@ export default function EditListing() {
     buy_now_price: '',
     is_free: false,
     meetup_type: '',
+    zip_code: '',
   })
 
   const set = (key, val) => setForm(f => ({ ...f, [key]: val }))
@@ -62,6 +63,7 @@ export default function EditListing() {
       buy_now_price: data.buy_now_price || '',
       is_free: data.is_free || false,
       meetup_type: data.meetup_type || MEETUP_TYPES[0],
+      zip_code: data.zip_code || '',
     })
     setLoading(false)
   }
@@ -120,10 +122,31 @@ export default function EditListing() {
       setError('Starting price is required')
       return
     }
+    if (!form.zip_code || form.zip_code.length !== 5) {
+      setError('A valid 5-digit ZIP code is required')
+      return
+    }
 
     setSaving(true)
 
-    const { error } = await supabase
+    let lat = null
+    let lon = null
+    try {
+      if (form.zip_code && form.zip_code.length === 5) {
+        const res = await fetch(`https://api.zippopotam.us/us/${form.zip_code}`)
+        if (res.ok) {
+          const data = await res.json()
+          if (data.places && data.places.length > 0) {
+            lat = parseFloat(data.places[0].latitude)
+            lon = parseFloat(data.places[0].longitude)
+          }
+        }
+      }
+    } catch (e) {
+      console.error("ZIP lookup failed, inserting without coordinates", e)
+    }
+
+    const { error: updateError } = await supabase
       .from('listings')
       .update({
         title: form.title,
@@ -134,11 +157,14 @@ export default function EditListing() {
         buy_now_price: form.buy_now_price ? parseFloat(form.buy_now_price) : null,
         is_free: form.is_free,
         meetup_type: form.meetup_type,
+        zip_code: form.zip_code,
+        latitude: lat,
+        longitude: lon,
       })
       .eq('id', id)
 
-    if (error) {
-      setError(error.message)
+    if (updateError) {
+      setError(updateError.message)
       setSaving(false)
       return
     }
@@ -361,6 +387,24 @@ export default function EditListing() {
                 </div>
               ))}
             </div>
+          </div>
+
+          {/* ZIP Code */}
+          <div>
+            <label className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5 block">
+              ZIP Code <span className="text-rose-400 font-bold">*</span>
+            </label>
+            <input
+              type="text"
+              pattern="[0-9]*"
+              value={form.zip_code}
+              onChange={e => {
+                const clean = e.target.value.replace(/\D/g, '').slice(0, 5)
+                set('zip_code', clean)
+              }}
+              placeholder="e.g. 90210"
+              className="w-full bg-white dark:bg-white/[0.02] border border-slate-200 dark:border-white/[0.06] rounded-xl px-4 py-3 text-sm text-slate-900 dark:text-white placeholder-slate-500 focus:outline-none focus:border-orange-500/60 focus:bg-white dark:bg-white/[0.04] focus:ring-1 focus:ring-orange-500/20 transition-all duration-300 shadow-inner"
+            />
           </div>
 
           {/* Save Button */}
