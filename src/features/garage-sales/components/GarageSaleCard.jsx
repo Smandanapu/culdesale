@@ -1,4 +1,8 @@
 import { useNavigate } from 'react-router-dom'
+import { useRoute } from '../context/RouteContext'
+import { useAuth } from '../../../context/AuthContext'
+import { supabase } from '../../../lib/supabase'
+import toast from 'react-hot-toast'
 
 const CATEGORY_STYLES = {
   'Furniture': { emoji: '🛋️', bg: 'bg-amber-100 dark:bg-amber-500/20', tag: 'bg-amber-500/10 text-amber-600 dark:text-amber-400' },
@@ -80,11 +84,24 @@ function formatDateRange(startDateStr, endDateStr) {
   return `${start.toLocaleDateString('en-US', options)} - ${end.toLocaleDateString('en-US', options)}`
 }
 
-export default function GarageSaleCard({ sale, distance }) {
+export default function GarageSaleCard({ sale, distance, onSaleDeleted }) {
   const navigate = useNavigate()
+  const { user } = useAuth()
+  const { addSaleToRoute, removeSaleFromRoute, isInRoute } = useRoute()
   const status = getSaleStatus(sale.start_date, sale.end_date, sale.start_time, sale.end_time)
   const mainCat = sale.categories?.[0] || 'Other'
   const style = CATEGORY_STYLES[mainCat] || CATEGORY_STYLES['Other']
+  const inRoute = isInRoute(sale.id)
+  const isOwner = user && user.id === sale.seller_id
+
+  const handleRouteClick = (e) => {
+    e.stopPropagation()
+    if (inRoute) {
+      removeSaleFromRoute(sale.id)
+    } else {
+      addSaleToRoute(sale)
+    }
+  }
 
   return (
     <div
@@ -96,9 +113,40 @@ export default function GarageSaleCard({ sale, distance }) {
         <span className="text-2xl sm:text-4xl group-hover:scale-110 transition-transform duration-300">{style.emoji}</span>
       </div>
 
-      {/* Content */}
-      <div className="flex-1 min-w-0 flex flex-col justify-center">
-        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-1.5 sm:gap-3 mb-1.5 sm:mb-1">
+        {/* Content */}
+        <div className="flex-1 min-w-0 flex flex-col justify-center relative">
+          
+          {/* Owner Actions (Top Right) */}
+          {isOwner && (
+            <div className="absolute -top-1 -right-1 flex items-center gap-1">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation()
+                  navigate(`/edit-garage-sale/${sale.id}`)
+                }}
+                className="w-7 h-7 rounded-full bg-amber-50 dark:bg-amber-500/10 text-amber-500 hover:bg-amber-100 dark:hover:bg-amber-500/20 flex items-center justify-center transition-colors shadow-sm border border-amber-200/50 dark:border-amber-500/20"
+                title="Edit Sale"
+              >
+                ✏️
+              </button>
+              <button
+                onClick={async (e) => {
+                  e.stopPropagation()
+                  if (window.confirm('Are you sure you want to delete this garage sale?')) {
+                    await supabase.from('garage_sales').delete().eq('id', sale.id)
+                    toast.success('Sale deleted')
+                    if (onSaleDeleted) onSaleDeleted(sale.id)
+                  }
+                }}
+                className="w-7 h-7 rounded-full bg-rose-50 dark:bg-rose-500/10 text-rose-500 hover:bg-rose-100 dark:hover:bg-rose-500/20 flex items-center justify-center transition-colors shadow-sm border border-rose-200/50 dark:border-rose-500/20"
+                title="Delete Sale"
+              >
+                🗑️
+              </button>
+            </div>
+          )}
+
+          <div className={`flex flex-col sm:flex-row sm:items-start sm:justify-between gap-1.5 sm:gap-3 mb-1.5 sm:mb-1 ${isOwner ? 'pr-16' : ''}`}>
           <h3 className="font-bold text-slate-900 dark:text-white text-[15px] sm:text-lg leading-tight line-clamp-2 sm:line-clamp-1 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
             {sale.title}
           </h3>
@@ -125,24 +173,39 @@ export default function GarageSaleCard({ sale, distance }) {
           <span className="flex items-center gap-1 text-slate-500">👁️ {sale.view_count || 0}</span>
         </div>
 
-        {/* Categories */}
-        {sale.categories && sale.categories.length > 0 && (
-          <div className="flex flex-wrap gap-1.5">
-            {sale.categories.slice(0, 4).map(cat => (
-              <span
-                key={cat}
-                className={`px-2 py-0.5 rounded-md text-[10px] font-semibold ${CATEGORY_STYLES[cat]?.tag || CATEGORY_STYLES['Other'].tag}`}
-              >
-                {cat}
-              </span>
-            ))}
-            {sale.categories.length > 4 && (
-              <span className="px-2 py-0.5 rounded-md text-[10px] font-semibold bg-slate-100 dark:bg-white/[0.04] text-slate-500">
-                +{sale.categories.length - 4}
-              </span>
-            )}
-          </div>
-        )}
+        {/* Categories & Route Button */}
+        <div className="flex items-center justify-between mt-1">
+          {sale.categories && sale.categories.length > 0 ? (
+            <div className="flex flex-wrap gap-1.5">
+              {sale.categories.slice(0, 4).map(cat => (
+                <span
+                  key={cat}
+                  className={`px-2 py-0.5 rounded-md text-[10px] font-semibold ${CATEGORY_STYLES[cat]?.tag || CATEGORY_STYLES['Other'].tag}`}
+                >
+                  {cat}
+                </span>
+              ))}
+              {sale.categories.length > 4 && (
+                <span className="px-2 py-0.5 rounded-md text-[10px] font-semibold bg-slate-100 dark:bg-white/[0.04] text-slate-500">
+                  +{sale.categories.length - 4}
+                </span>
+              )}
+            </div>
+          ) : <div />}
+          
+          <button
+            onClick={handleRouteClick}
+            className={`shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+              inRoute 
+                ? 'bg-emerald-500 text-white shadow-md shadow-emerald-500/20 hover:bg-emerald-600' 
+                : 'bg-slate-100 dark:bg-white/[0.04] text-slate-500 hover:text-emerald-600 hover:bg-slate-200 dark:hover:bg-white/[0.08]'
+            }`}
+            title={inRoute ? "Remove from Route" : "Add to Route"}
+          >
+            <span className="text-[14px]">{inRoute ? '✓' : '🗺️'}</span>
+            <span className="hidden sm:inline">{inRoute ? 'In Route' : 'Add to Route'}</span>
+          </button>
+        </div>
       </div>
     </div>
   )

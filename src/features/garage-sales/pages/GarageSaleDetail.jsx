@@ -7,6 +7,7 @@ import GarageSaleMap from '../components/GarageSaleMap'
 import { getSaleStatus, formatTime, formatDateRange } from '../components/GarageSaleCard'
 import { downloadICS } from '../lib/calendar'
 import toast from 'react-hot-toast'
+import { useRoute } from '../context/RouteContext'
 
 const CATEGORY_COLORS = {
   'Furniture': 'bg-amber-500/10 text-amber-600 dark:text-amber-400',
@@ -28,6 +29,7 @@ export default function GarageSaleDetail() {
   const [seller, setSeller] = useState(null)
   const [loading, setLoading] = useState(true)
   const [showShare, setShowShare] = useState(false)
+  const { addSaleToRoute, removeSaleFromRoute, isInRoute } = useRoute()
 
   useEffect(() => {
     fetchSale()
@@ -114,6 +116,7 @@ export default function GarageSaleDetail() {
 
   const status = getSaleStatus(sale.start_date, sale.end_date, sale.start_time, sale.end_time)
   const isOwner = user && user.id === sale.seller_id
+  const inRoute = isInRoute(sale.id)
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#07090e] text-slate-900 dark:text-slate-100">
@@ -175,21 +178,43 @@ export default function GarageSaleDetail() {
             📅 Add to Calendar
           </button>
           <button
+            onClick={() => inRoute ? removeSaleFromRoute(sale.id) : addSaleToRoute(sale)}
+            className={`flex-1 sm:flex-none px-6 py-3 rounded-xl font-semibold shadow-lg active:scale-95 transition-all cursor-pointer text-sm ${
+              inRoute 
+                ? 'bg-rose-500 text-white shadow-rose-500/25 hover:bg-rose-600'
+                : 'bg-gradient-to-r from-orange-400 to-pink-500 text-white shadow-orange-500/25 hover:opacity-90'
+            }`}
+          >
+            {inRoute ? '✕ Remove from Route' : '🗺️ Add to Route'}
+          </button>
+          <button
             onClick={handleShare}
             className="px-6 py-3 bg-white dark:bg-white/[0.03] border border-slate-200 dark:border-white/[0.08] rounded-xl font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/[0.06] active:scale-95 transition-all cursor-pointer text-sm shadow-sm"
           >
             📤 Share
           </button>
+          {/* Action Buttons */}
           {isOwner && (
-            <button
-              onClick={async () => {
-                await supabase.from('garage_sales').update({ status: 'cancelled' }).eq('id', sale.id)
-                navigate('/garage-sales')
-              }}
-              className="px-6 py-3 bg-rose-500/10 border border-rose-500/25 rounded-xl font-semibold text-rose-500 hover:bg-rose-500/20 active:scale-95 transition-all cursor-pointer text-sm"
-            >
-              Cancel Sale
-            </button>
+            <>
+              <button
+                onClick={() => navigate(`/edit-garage-sale/${sale.id}`)}
+                className="px-6 py-3 bg-amber-500/10 border border-amber-500/25 rounded-xl font-semibold text-amber-500 hover:bg-amber-500/20 active:scale-95 transition-all cursor-pointer text-sm"
+              >
+                ✏️ Edit Sale
+              </button>
+              <button
+                onClick={async () => {
+                  if (window.confirm('Are you sure you want to delete this garage sale?')) {
+                    await supabase.from('garage_sales').delete().eq('id', sale.id)
+                    toast.success('Sale deleted successfully')
+                    navigate('/garage-sales')
+                  }
+                }}
+                className="px-6 py-3 bg-rose-500/10 border border-rose-500/25 rounded-xl font-semibold text-rose-500 hover:bg-rose-500/20 active:scale-95 transition-all cursor-pointer text-sm"
+              >
+                🗑️ Delete Sale
+              </button>
+            </>
           )}
         </div>
 

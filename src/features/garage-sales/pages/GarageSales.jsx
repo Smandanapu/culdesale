@@ -305,6 +305,9 @@ export default function GarageSales() {
                   key={sale.id}
                   sale={sale}
                   distance={getDistanceForSale(sale)}
+                  onSaleDeleted={(deletedId) => {
+                    setSales(prev => prev.filter(s => s.id !== deletedId))
+                  }}
                 />
               ))}
             </div>
