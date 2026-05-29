@@ -89,26 +89,26 @@ export default function GarageSaleCard({ sale, distance }) {
   return (
     <div
       onClick={() => navigate(`/garage-sales/${sale.id}`)}
-      className="group bg-white dark:bg-white/[0.02] border border-slate-200 dark:border-white/[0.06] rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row gap-4 sm:gap-5 shadow-sm hover:shadow-xl hover:border-slate-300 dark:hover:border-white/[0.12] transition-all duration-300 cursor-pointer hover:-translate-y-1 relative"
+      className="group bg-white dark:bg-white/[0.02] border border-slate-200 dark:border-white/[0.06] rounded-2xl p-3 sm:p-5 flex flex-row gap-3 sm:gap-5 shadow-sm hover:shadow-xl hover:border-slate-300 dark:hover:border-white/[0.12] transition-all duration-300 cursor-pointer hover:-translate-y-1 relative"
     >
       {/* Dynamic Icon */}
-      <div className={`shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded-2xl ${style.bg} flex items-center justify-center border border-white/50 dark:border-white/5`}>
-        <span className="text-3xl sm:text-4xl group-hover:scale-110 transition-transform duration-300">{style.emoji}</span>
+      <div className={`shrink-0 w-14 h-14 sm:w-20 sm:h-20 rounded-xl sm:rounded-2xl ${style.bg} flex items-center justify-center border border-white/50 dark:border-white/5`}>
+        <span className="text-2xl sm:text-4xl group-hover:scale-110 transition-transform duration-300">{style.emoji}</span>
       </div>
 
       {/* Content */}
       <div className="flex-1 min-w-0 flex flex-col justify-center">
-        <div className="flex items-start justify-between gap-3 mb-1">
-          <h3 className="font-bold text-slate-900 dark:text-white text-base sm:text-lg line-clamp-1 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-1.5 sm:gap-3 mb-1.5 sm:mb-1">
+          <h3 className="font-bold text-slate-900 dark:text-white text-[15px] sm:text-lg leading-tight line-clamp-2 sm:line-clamp-1 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
             {sale.title}
           </h3>
-          <div className={`shrink-0 ${status.color} px-2.5 py-1 rounded-lg text-xs font-bold flex items-center gap-1.5`}>
+          <div className={`shrink-0 self-start ${status.color} px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md sm:rounded-lg text-[10px] sm:text-xs font-bold flex items-center gap-1.5`}>
             <span>{status.icon}</span>
-            <span className="hidden sm:inline">{status.label}</span>
+            <span>{status.label}</span>
           </div>
         </div>
 
-        <div className="flex items-center gap-1.5 text-xs sm:text-sm text-slate-500 dark:text-slate-400 mb-2.5">
+        <div className="flex items-center gap-1.5 text-[11px] sm:text-sm text-slate-500 dark:text-slate-400 mb-2">
           <span>📍</span>
           <span className="line-clamp-1">
             <span className="font-semibold text-slate-700 dark:text-slate-300">{sale.neighborhood ? `${sale.neighborhood} • ` : ''}</span>
@@ -117,9 +117,9 @@ export default function GarageSaleCard({ sale, distance }) {
           </span>
         </div>
 
-        <div className="flex items-center gap-3 text-xs sm:text-sm text-slate-600 dark:text-slate-300 mb-3 font-medium">
+        <div className="flex flex-wrap items-center gap-x-2.5 sm:gap-x-3 gap-y-1 text-[11px] sm:text-sm text-slate-600 dark:text-slate-300 mb-2.5 sm:mb-3 font-medium">
           <span className="flex items-center gap-1.5">📅 {formatDateRange(sale.start_date, sale.end_date)}</span>
-          <span className="text-slate-300 dark:text-slate-600">|</span>
+          <span className="hidden sm:inline text-slate-300 dark:text-slate-600">|</span>
           <span className="flex items-center gap-1.5">🕐 {formatTime(sale.start_time)} – {formatTime(sale.end_time)}</span>
         </div>
 
