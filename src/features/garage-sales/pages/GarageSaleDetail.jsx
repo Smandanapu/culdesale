@@ -74,10 +74,14 @@ export default function GarageSaleDetail() {
   }
 
   const handleShare = async () => {
+    // If testing locally, generate a clean production URL for the share link
+    const isLocal = window.location.hostname === 'localhost' || window.location.hostname.startsWith('192.168') || window.location.hostname.startsWith('127.0')
+    const shareUrl = isLocal ? `https://culdesale.com/garage-sales/${sale.id}` : window.location.href
+
     const shareData = {
       title: sale.title,
       text: `Check out this garage sale: ${sale.title} at ${sale.address}, ${sale.city}`,
-      url: window.location.href,
+      url: shareUrl,
     }
 
     if (navigator.share) {
@@ -85,7 +89,7 @@ export default function GarageSaleDetail() {
         await navigator.share(shareData)
       } catch {}
     } else {
-      await navigator.clipboard.writeText(window.location.href)
+      await navigator.clipboard.writeText(shareUrl)
       toast.success('Link copied to clipboard!')
     }
   }
