@@ -151,7 +151,7 @@ export default function Profile() {
                     value={newUsername}
                     onChange={e => setNewUsername(e.target.value.toLowerCase())}
                     placeholder={profile?.username}
-                    className="bg-white dark:bg-white/[0.02] border border-slate-200 dark:border-white/[0.06] rounded-xl px-3 py-2 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-orange-500/60 focus:bg-white dark:bg-white/[0.04] focus:ring-1 focus:ring-orange-500/20 transition-all duration-300 flex-1 shadow-inner"
+                    className="bg-white dark:bg-white/[0.02] border border-slate-200 dark:border-white/[0.06] rounded-xl px-3 py-2 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-orange-500/60 focus:bg-white dark:focus:bg-white/[0.04] focus:ring-1 focus:ring-orange-500/20 transition-all duration-300 flex-1 shadow-inner"
                   />
                   <div className="flex gap-2">
                     <button
