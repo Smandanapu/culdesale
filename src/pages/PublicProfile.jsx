@@ -266,7 +266,7 @@ export default function PublicProfile() {
                   </div>
                 </div>
                 {rev.comment && (
-                  <p className="text-sm text-slate-600 dark:text-slate-300 ml-13 leading-relaxed">{rev.comment}</p>
+                  <p className="text-sm text-slate-600 dark:text-slate-300 ml-14 leading-relaxed">{rev.comment}</p>
                 )}
               </div>
             ))}
