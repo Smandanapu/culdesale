@@ -36,9 +36,15 @@ export default defineConfig({
           }
         ]
       },
+      workbox: {
+        maximumFileSizeToCacheInBytes: 40000000 // 40MB limit for WASM files
+      },
       devOptions: {
         enabled: true
       }
     })
   ],
+  build: {
+    chunkSizeWarningLimit: 30000,
+  }
 })
