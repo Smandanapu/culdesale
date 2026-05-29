@@ -242,7 +242,7 @@ export default function Chat() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-[#07090e] bg-grid-pattern text-slate-900 dark:text-slate-100 flex flex-col relative overflow-hidden">
+    <div className="h-[100dvh] bg-slate-50 dark:bg-[#07090e] bg-grid-pattern text-slate-900 dark:text-slate-100 flex flex-col relative overflow-hidden">
       <div className="absolute top-[10%] left-[-10%] w-[500px] h-[500px] rounded-full bg-orange-600/5 blur-[120px] pointer-events-none animate-float-slow z-0" />
       <div className="absolute bottom-[10%] right-[-10%] w-[600px] h-[600px] rounded-full bg-indigo-600/5 blur-[140px] pointer-events-none animate-float-slower z-0" />
 
@@ -344,31 +344,31 @@ export default function Chat() {
         <div ref={bottomRef} />
       </div>
 
-      <div className="border-t border-slate-200 dark:border-white/[0.06] px-4 sm:px-6 py-3 sm:py-4 flex flex-col gap-2 bg-slate-50 dark:bg-[#07090e]/90 backdrop-blur-md relative z-10">
+      <div className="border-t border-slate-200 dark:border-white/[0.06] px-2 sm:px-6 py-2 sm:py-4 flex flex-col gap-2 bg-slate-50 dark:bg-[#07090e]/90 backdrop-blur-md relative z-10 pb-safe">
         
         {showOfferInput && (
-          <div className="flex gap-2 mb-2 p-3 bg-white dark:bg-white/[0.02] border border-orange-500/30 rounded-xl items-center animate-in slide-in-from-bottom-4 shadow-sm">
-            <span className="font-bold text-orange-500 text-lg">$</span>
+          <div className="flex gap-1 sm:gap-2 mb-2 p-2 sm:p-3 bg-white dark:bg-white/[0.02] border border-orange-500/30 rounded-xl items-center animate-in slide-in-from-bottom-4 shadow-sm">
+            <span className="font-bold text-orange-500 text-lg sm:text-xl">$</span>
             <input 
               type="number"
               value={offerAmount}
               onChange={e => setOfferAmount(e.target.value)}
               onKeyDown={handleKey}
-              placeholder="Enter offer amount..."
-              className="flex-1 bg-transparent border-none outline-none text-slate-900 dark:text-white font-bold"
+              placeholder="Enter amount..."
+              className="flex-1 bg-transparent border-none outline-none text-slate-900 dark:text-white font-bold w-16 sm:w-auto"
               autoFocus
             />
-            <button onClick={() => setShowOfferInput(false)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xs font-bold mr-2 cursor-pointer transition-colors">Cancel</button>
-            <button onClick={sendOffer} disabled={sendingOffer || !offerAmount} className="bg-gradient-to-r from-orange-500 to-amber-500 text-white px-4 py-1.5 rounded-lg font-bold disabled:opacity-50 text-sm cursor-pointer hover:opacity-90 transition-opacity">Send Offer</button>
+            <button onClick={() => setShowOfferInput(false)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xs font-bold mr-1 sm:mr-2 cursor-pointer transition-colors">Cancel</button>
+            <button onClick={sendOffer} disabled={sendingOffer || !offerAmount} className="bg-gradient-to-r from-orange-500 to-amber-500 text-white px-3 py-1.5 sm:px-4 sm:py-1.5 rounded-lg font-bold disabled:opacity-50 text-xs sm:text-sm cursor-pointer hover:opacity-90 transition-opacity whitespace-nowrap">Send Offer</button>
           </div>
         )}
 
-        <div className="flex gap-2 sm:gap-3 items-center">
+        <div className="flex gap-1.5 sm:gap-3 items-center">
           <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleImageUpload} />
           <button 
             onClick={() => fileInputRef.current.click()}
             disabled={uploadingImage}
-            className="p-3 bg-white dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.06] hover:bg-slate-100 dark:hover:bg-white/[0.08] text-slate-500 dark:text-slate-400 rounded-xl transition-colors disabled:opacity-50 cursor-pointer shadow-inner"
+            className="p-2.5 sm:p-3 bg-white dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.06] hover:bg-slate-100 dark:hover:bg-white/[0.08] text-slate-500 dark:text-slate-400 rounded-xl transition-colors disabled:opacity-50 cursor-pointer shadow-inner shrink-0"
             title="Send Photo"
           >
             {uploadingImage ? '⏳' : '📷'}
@@ -377,7 +377,7 @@ export default function Chat() {
           {conversation && user.id === conversation.buyer_id && (
              <button 
                onClick={() => setShowOfferInput(!showOfferInput)}
-               className="p-3 bg-white dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.06] hover:bg-slate-100 dark:hover:bg-white/[0.08] text-slate-500 dark:text-slate-400 rounded-xl transition-colors cursor-pointer shadow-inner"
+               className="p-2.5 sm:p-3 bg-white dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.06] hover:bg-slate-100 dark:hover:bg-white/[0.08] text-slate-500 dark:text-slate-400 rounded-xl transition-colors cursor-pointer shadow-inner shrink-0"
                title="Make Offer"
              >
                🤝
@@ -388,13 +388,13 @@ export default function Chat() {
             value={input}
             onChange={e => setInput(e.target.value)}
             onKeyDown={handleKey}
-            placeholder="Type a message to your neighbor..."
-            className="flex-1 bg-white dark:bg-white/[0.02] border border-slate-200 dark:border-white/[0.06] rounded-xl px-4 py-3 text-sm text-slate-900 dark:text-white placeholder-slate-500 focus:outline-none focus:border-orange-500/60 focus:bg-white dark:focus:bg-white/[0.04] focus:ring-1 focus:ring-orange-500/20 transition-all duration-300 shadow-inner"
+            placeholder="Message..."
+            className="flex-1 min-w-0 bg-white dark:bg-white/[0.02] border border-slate-200 dark:border-white/[0.06] rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 text-sm text-slate-900 dark:text-white placeholder-slate-500 focus:outline-none focus:border-orange-500/60 focus:bg-white dark:focus:bg-white/[0.04] focus:ring-1 focus:ring-orange-500/20 transition-all duration-300 shadow-inner"
           />
           <button
             onClick={sendMessage}
             disabled={sending || !input.trim()}
-            className="px-6 py-3 bg-gradient-to-r from-orange-500 to-amber-500 hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed text-slate-900 dark:text-white font-bold rounded-xl transition-all active:scale-95 cursor-pointer shadow-lg shadow-orange-500/20"
+            className="px-4 py-2.5 sm:px-6 sm:py-3 bg-gradient-to-r from-orange-500 to-amber-500 hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed text-slate-900 dark:text-white font-bold rounded-xl transition-all active:scale-95 cursor-pointer shadow-lg shadow-orange-500/20 shrink-0"
           >
             Send
           </button>
