@@ -540,6 +540,12 @@ export default function ListingDetail() {
             )}
             <span>·</span>
             <span className="bg-white dark:bg-white/[0.03] border border-slate-200 dark:border-white/[0.06] text-slate-600 dark:text-slate-300 px-2 py-0.5 rounded-md text-xs font-semibold">{listing.meetup_type}</span>
+            {listing.zip_code && (
+              <>
+                <span>·</span>
+                <span className="bg-white dark:bg-white/[0.03] border border-slate-200 dark:border-white/[0.06] text-slate-600 dark:text-slate-300 px-2 py-0.5 rounded-md text-xs font-semibold">Zip:{listing.zip_code}</span>
+              </>
+            )}
           </div>
         </div>
 

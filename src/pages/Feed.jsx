@@ -6,6 +6,19 @@ import Navbar from '../components/Navbar'
 
 const CATEGORIES = ['All', 'Furniture', 'Electronics', 'Sports', 'Kids', 'Tools', 'Appliances', 'Clothing', 'Books', 'Other']
 
+function getDistance(lat1, lon1, lat2, lon2) {
+  if (!lat1 || !lon1 || !lat2 || !lon2) return null
+  const R = 3958.8; // Radius of Earth in miles
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a = 
+    Math.sin(dLat/2) * Math.sin(dLat/2) +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+    Math.sin(dLon/2) * Math.sin(dLon/2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  return R * c;
+}
+
 function timeLeft(endsAt) {
   if (!endsAt) return 'No expiry'
   const diff = new Date(endsAt) - new Date()
@@ -22,6 +35,9 @@ export default function Feed() {
   const { user } = useAuth()
   const [search, setSearch] = useState('')
   const [zipSearch, setZipSearch] = useState('')
+  const [radius, setRadius] = useState('All')
+  const RADIUS_OPTIONS = ['All', '5 miles', '10 miles', '15 miles', '20 miles', '25 miles', '50 miles']
+  const [searchCoords, setSearchCoords] = useState(null)
 
   const [listings, setListings] = useState([])
   const [category, setCategory] = useState('All')
@@ -52,7 +68,20 @@ const [sortOption, setSortOption] = useState('Newest')
     }
 
     if (zipSearch && zipSearch.length === 5) {
-      query = query.eq('zip_code', zipSearch)
+      if (radius === 'All' || !searchCoords) {
+        query = query.eq('zip_code', zipSearch)
+      } else {
+        const maxDist = parseInt(radius.split(' ')[0])
+        const latDiff = maxDist / 69.0
+        const lonDiff = Math.abs(maxDist / (69.0 * Math.cos(searchCoords.lat * Math.PI / 180)))
+        
+        const minLat = searchCoords.lat - latDiff
+        const maxLat = searchCoords.lat + latDiff
+        const minLon = searchCoords.lon - lonDiff
+        const maxLon = searchCoords.lon + lonDiff
+        
+        query = query.or(`zip_code.eq.${zipSearch},and(latitude.gte.${minLat},latitude.lte.${maxLat},longitude.gte.${minLon},longitude.lte.${maxLon})`)
+      }
     }
 
     if (sortOption === 'Newest') {
@@ -85,7 +114,7 @@ const [sortOption, setSortOption] = useState('Newest')
     
     setLoading(false)
     setLoadingMore(false)
-  }, [category, search, zipSearch, sortOption])
+  }, [category, search, zipSearch, radius, sortOption, searchCoords])
 
   const fetchFavorites = useCallback(async () => {
     if (!user) return
@@ -131,6 +160,26 @@ const [sortOption, setSortOption] = useState('Newest')
       document.removeEventListener('visibilitychange', handleVisibility)
     }
   }, [fetchListings, fetchFavorites])
+
+  useEffect(() => {
+    if (zipSearch.length === 5) {
+      fetch(`https://api.zippopotam.us/us/${zipSearch}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.places && data.places.length > 0) {
+            setSearchCoords({
+              lat: parseFloat(data.places[0].latitude),
+              lon: parseFloat(data.places[0].longitude)
+            })
+          } else {
+            setSearchCoords(null)
+          }
+        })
+        .catch(() => setSearchCoords(null))
+    } else {
+      setSearchCoords(null)
+    }
+  }, [zipSearch])
 
   // Fetch ratings for all unique sellers on the current feed
   useEffect(() => {
@@ -191,6 +240,20 @@ const [sortOption, setSortOption] = useState('Newest')
     }
   }
 
+  const listingsWithDistance = listings.map(l => {
+    if (searchCoords && l.latitude && l.longitude) {
+      return { ...l, computedDistance: getDistance(searchCoords.lat, searchCoords.lon, l.latitude, l.longitude) }
+    }
+    return l;
+  });
+
+  const filteredListings = listingsWithDistance.filter(l => {
+    if (radius === 'All' || !searchCoords) return true;
+    if (l.zip_code === zipSearch) return true; // Always include exact ZIP match
+    const maxDist = parseInt(radius.split(' ')[0]);
+    return l.computedDistance !== undefined && l.computedDistance !== null && l.computedDistance <= maxDist;
+  });
+
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#07090e] bg-grid-pattern text-slate-900 dark:text-slate-100 relative overflow-hidden">
       {/* Floating Ambient Glow Orbs */}
@@ -241,6 +304,22 @@ const [sortOption, setSortOption] = useState('Newest')
               </button>
             )}
           </div>
+
+          <div className="relative w-full sm:w-40 group">
+            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400 group-focus-within:text-orange-400 transition-colors">🎯</span>
+            <select
+              value={radius}
+              onChange={e => setRadius(e.target.value)}
+              className="w-full bg-white dark:bg-white/[0.02] border border-slate-200 dark:border-white/[0.06] hover:border-orange-500/40 hover:bg-white dark:bg-white/[0.04] rounded-xl pl-10 pr-8 py-3 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-orange-500/50 transition-all cursor-pointer appearance-none shadow-sm"
+            >
+              {RADIUS_OPTIONS.map(r => (
+                <option key={r} value={r} className="bg-slate-50 dark:bg-[#07090e] text-slate-600 dark:text-slate-300">{r === 'All' ? 'Any distance' : r}</option>
+              ))}
+            </select>
+            <div className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400 pointer-events-none group-hover:text-orange-400 transition-colors">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+            </div>
+          </div>
         </div>
 
         {/* Categories and Sort */}
@@ -290,7 +369,7 @@ const [sortOption, setSortOption] = useState('Newest')
           </div>
         )}
 
-        {!loading && listings.length === 0 && (
+        {!loading && filteredListings.length === 0 && (
           <div className="flex flex-col items-center justify-center py-24 text-center bg-white/[0.01] border border-slate-200 dark:border-white/[0.04] rounded-2xl p-8 backdrop-blur-md max-w-lg mx-auto">
             <div className="text-5xl mb-4 animate-bounce">📦</div>
             <h3 className="text-xl font-bold mb-2 text-slate-900 dark:text-white">No listings found</h3>
@@ -304,9 +383,9 @@ const [sortOption, setSortOption] = useState('Newest')
           </div>
         )}
 
-        {!loading && listings.length > 0 && (
+        {!loading && filteredListings.length > 0 && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {listings.map(listing => (
+            {filteredListings.map(listing => (
               <div
                 key={listing.id}
                 onClick={() => navigate('/listing/' + listing.id)}
@@ -373,9 +452,25 @@ const [sortOption, setSortOption] = useState('Newest')
                 </div>
 
                 {/* Info */}
-                <div className="p-5 flex flex-col flex-grow justify-between">
+                <div className="p-5 flex flex-col flex-grow justify-between relative">
                   <div>
-                    <div className="text-xs text-indigo-400 font-semibold uppercase tracking-wider mb-1.5">{listing.category}</div>
+                    <div className="flex justify-between items-start mb-1.5">
+                      <div className="flex items-center gap-2">
+                        <div className="text-xs text-indigo-400 font-semibold uppercase tracking-wider">{listing.category}</div>
+                        {listing.zip_code && (
+                          <div className="text-[10px] text-slate-500 font-bold bg-slate-100 dark:bg-white/[0.05] border border-slate-200 dark:border-white/[0.05] px-1.5 py-0.5 rounded-md">
+                            Zip:{listing.zip_code}
+                          </div>
+                        )}
+                      </div>
+                      
+                      {listing.computedDistance !== undefined && listing.computedDistance !== null && (
+                        <div className="flex items-center gap-1 text-[11px] font-bold text-amber-500 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-full whitespace-nowrap">
+                          <span>📍</span>
+                          {listing.computedDistance.toFixed(1)} mi away
+                        </div>
+                      )}
+                    </div>
                     <h3 className="font-bold text-lg text-slate-900 dark:text-white mb-1 truncate group-hover:text-orange-400 transition-colors duration-200">{listing.title}</h3>
                     <p className="text-slate-500 dark:text-slate-400 text-sm line-clamp-2 mb-4 h-10">{listing.description}</p>
                   </div>
@@ -429,7 +524,7 @@ const [sortOption, setSortOption] = useState('Newest')
         )}
 
         {/* Load More Button */}
-        {!loading && hasMore && listings.length > 0 && (
+        {!loading && hasMore && filteredListings.length > 0 && (
           <div className="flex justify-center mt-10 mb-4">
             <button
               onClick={() => fetchListings(true)}

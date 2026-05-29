@@ -120,6 +120,23 @@ export default function CreateListing() {
     const endsAt = new Date()
     endsAt.setHours(endsAt.getHours() + form.duration.hours)
 
+    let lat = null
+    let lon = null
+    try {
+      if (form.zip_code && form.zip_code.length === 5) {
+        const res = await fetch(`https://api.zippopotam.us/us/${form.zip_code}`)
+        if (res.ok) {
+          const data = await res.json()
+          if (data.places && data.places.length > 0) {
+            lat = parseFloat(data.places[0].latitude)
+            lon = parseFloat(data.places[0].longitude)
+          }
+        }
+      }
+    } catch (e) {
+      console.error("ZIP lookup failed, inserting without coordinates", e)
+    }
+
     const { error } = await supabase.from('listings').insert({
       seller_id: user.id,
       title: form.title,
@@ -134,6 +151,8 @@ export default function CreateListing() {
       ends_at: endsAt.toISOString(),
       status: 'active',
       zip_code: form.zip_code,
+      latitude: lat,
+      longitude: lon,
     })
 
     if (error) {

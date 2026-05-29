@@ -129,7 +129,24 @@ export default function EditListing() {
 
     setSaving(true)
 
-    const { error } = await supabase
+    let lat = null
+    let lon = null
+    try {
+      if (form.zip_code && form.zip_code.length === 5) {
+        const res = await fetch(`https://api.zippopotam.us/us/${form.zip_code}`)
+        if (res.ok) {
+          const data = await res.json()
+          if (data.places && data.places.length > 0) {
+            lat = parseFloat(data.places[0].latitude)
+            lon = parseFloat(data.places[0].longitude)
+          }
+        }
+      }
+    } catch (e) {
+      console.error("ZIP lookup failed, inserting without coordinates", e)
+    }
+
+    const { error: updateError } = await supabase
       .from('listings')
       .update({
         title: form.title,
@@ -141,11 +158,13 @@ export default function EditListing() {
         is_free: form.is_free,
         meetup_type: form.meetup_type,
         zip_code: form.zip_code,
+        latitude: lat,
+        longitude: lon,
       })
       .eq('id', id)
 
-    if (error) {
-      setError(error.message)
+    if (updateError) {
+      setError(updateError.message)
       setSaving(false)
       return
     }
