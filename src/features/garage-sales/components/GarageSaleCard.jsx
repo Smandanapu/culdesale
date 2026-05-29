@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom'
+import { useRoute } from '../context/RouteContext'
 
 const CATEGORY_STYLES = {
   'Furniture': { emoji: '🛋️', bg: 'bg-amber-100 dark:bg-amber-500/20', tag: 'bg-amber-500/10 text-amber-600 dark:text-amber-400' },
@@ -82,9 +83,20 @@ function formatDateRange(startDateStr, endDateStr) {
 
 export default function GarageSaleCard({ sale, distance }) {
   const navigate = useNavigate()
+  const { addSaleToRoute, removeSaleFromRoute, isInRoute } = useRoute()
   const status = getSaleStatus(sale.start_date, sale.end_date, sale.start_time, sale.end_time)
   const mainCat = sale.categories?.[0] || 'Other'
   const style = CATEGORY_STYLES[mainCat] || CATEGORY_STYLES['Other']
+  const inRoute = isInRoute(sale.id)
+
+  const handleRouteClick = (e) => {
+    e.stopPropagation()
+    if (inRoute) {
+      removeSaleFromRoute(sale.id)
+    } else {
+      addSaleToRoute(sale)
+    }
+  }
 
   return (
     <div
@@ -125,24 +137,38 @@ export default function GarageSaleCard({ sale, distance }) {
           <span className="flex items-center gap-1 text-slate-500">👁️ {sale.view_count || 0}</span>
         </div>
 
-        {/* Categories */}
-        {sale.categories && sale.categories.length > 0 && (
-          <div className="flex flex-wrap gap-1.5">
-            {sale.categories.slice(0, 4).map(cat => (
-              <span
-                key={cat}
-                className={`px-2 py-0.5 rounded-md text-[10px] font-semibold ${CATEGORY_STYLES[cat]?.tag || CATEGORY_STYLES['Other'].tag}`}
-              >
-                {cat}
-              </span>
-            ))}
-            {sale.categories.length > 4 && (
-              <span className="px-2 py-0.5 rounded-md text-[10px] font-semibold bg-slate-100 dark:bg-white/[0.04] text-slate-500">
-                +{sale.categories.length - 4}
-              </span>
-            )}
-          </div>
-        )}
+        {/* Categories & Route Button */}
+        <div className="flex items-center justify-between mt-1">
+          {sale.categories && sale.categories.length > 0 ? (
+            <div className="flex flex-wrap gap-1.5">
+              {sale.categories.slice(0, 4).map(cat => (
+                <span
+                  key={cat}
+                  className={`px-2 py-0.5 rounded-md text-[10px] font-semibold ${CATEGORY_STYLES[cat]?.tag || CATEGORY_STYLES['Other'].tag}`}
+                >
+                  {cat}
+                </span>
+              ))}
+              {sale.categories.length > 4 && (
+                <span className="px-2 py-0.5 rounded-md text-[10px] font-semibold bg-slate-100 dark:bg-white/[0.04] text-slate-500">
+                  +{sale.categories.length - 4}
+                </span>
+              )}
+            </div>
+          ) : <div />}
+          
+          <button
+            onClick={handleRouteClick}
+            className={`shrink-0 flex items-center justify-center w-8 h-8 rounded-full transition-all ${
+              inRoute 
+                ? 'bg-emerald-500 text-white shadow-md shadow-emerald-500/20 hover:bg-emerald-600' 
+                : 'bg-slate-100 dark:bg-white/[0.04] text-slate-400 hover:text-emerald-500 hover:bg-slate-200 dark:hover:bg-white/[0.08]'
+            }`}
+            title={inRoute ? "Remove from Route" : "Add to Route"}
+          >
+            {inRoute ? '✓' : '🗺️'}
+          </button>
+        </div>
       </div>
     </div>
   )

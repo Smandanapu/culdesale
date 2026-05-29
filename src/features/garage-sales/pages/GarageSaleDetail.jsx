@@ -7,6 +7,7 @@ import GarageSaleMap from '../components/GarageSaleMap'
 import { getSaleStatus, formatTime, formatDateRange } from '../components/GarageSaleCard'
 import { downloadICS } from '../lib/calendar'
 import toast from 'react-hot-toast'
+import { useRoute } from '../context/RouteContext'
 
 const CATEGORY_COLORS = {
   'Furniture': 'bg-amber-500/10 text-amber-600 dark:text-amber-400',
@@ -28,6 +29,7 @@ export default function GarageSaleDetail() {
   const [seller, setSeller] = useState(null)
   const [loading, setLoading] = useState(true)
   const [showShare, setShowShare] = useState(false)
+  const { addSaleToRoute, removeSaleFromRoute, isInRoute } = useRoute()
 
   useEffect(() => {
     fetchSale()
@@ -114,6 +116,7 @@ export default function GarageSaleDetail() {
 
   const status = getSaleStatus(sale.start_date, sale.end_date, sale.start_time, sale.end_time)
   const isOwner = user && user.id === sale.seller_id
+  const inRoute = isInRoute(sale.id)
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#07090e] text-slate-900 dark:text-slate-100">
@@ -173,6 +176,16 @@ export default function GarageSaleDetail() {
             className="flex-1 sm:flex-none px-6 py-3 bg-gradient-to-r from-indigo-500 to-blue-500 text-white rounded-xl font-semibold shadow-lg shadow-indigo-500/25 hover:opacity-90 active:scale-95 transition-all cursor-pointer text-sm"
           >
             📅 Add to Calendar
+          </button>
+          <button
+            onClick={() => inRoute ? removeSaleFromRoute(sale.id) : addSaleToRoute(sale)}
+            className={`flex-1 sm:flex-none px-6 py-3 rounded-xl font-semibold shadow-lg active:scale-95 transition-all cursor-pointer text-sm ${
+              inRoute 
+                ? 'bg-rose-500 text-white shadow-rose-500/25 hover:bg-rose-600'
+                : 'bg-gradient-to-r from-orange-400 to-pink-500 text-white shadow-orange-500/25 hover:opacity-90'
+            }`}
+          >
+            {inRoute ? '✕ Remove from Route' : '🗺️ Add to Route'}
           </button>
           <button
             onClick={handleShare}

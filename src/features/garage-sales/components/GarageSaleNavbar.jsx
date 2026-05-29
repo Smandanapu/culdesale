@@ -1,14 +1,21 @@
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../../context/AuthContext'
 import { useTheme } from '../../../context/ThemeContext'
+import { useRoute } from '../context/RouteContext'
+import RouteDrawer from './RouteDrawer'
+import { useState } from 'react'
 
 export default function GarageSaleNavbar() {
   const navigate = useNavigate()
   const { user } = useAuth()
   const { theme, toggleTheme } = useTheme()
+  const { route } = useRoute()
+  const [drawerOpen, setDrawerOpen] = useState(false)
 
   return (
-    <nav className="sticky top-0 z-50 bg-slate-50/75 dark:bg-[#07090e]/75 backdrop-blur-md border-b border-slate-200 dark:border-white/[0.06] px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
+    <>
+      <RouteDrawer isOpen={drawerOpen} onClose={() => setDrawerOpen(false)} />
+      <nav className="sticky top-0 z-50 bg-slate-50/75 dark:bg-[#07090e]/75 backdrop-blur-md border-b border-slate-200 dark:border-white/[0.06] px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
       <div className="flex items-center gap-3">
         <div
           className="flex items-center gap-2 cursor-pointer group"
@@ -31,6 +38,19 @@ export default function GarageSaleNavbar() {
       </div>
 
       <div className="flex items-center gap-2 sm:gap-3">
+        <button
+          onClick={() => setDrawerOpen(true)}
+          className="relative px-3 sm:px-4 py-2 text-sm bg-white dark:bg-white/[0.03] border border-slate-200 dark:border-white/[0.08] hover:bg-slate-50 dark:hover:bg-white/[0.06] text-slate-700 dark:text-slate-300 rounded-lg transition-all font-semibold shadow-sm active:scale-95 cursor-pointer flex items-center gap-1.5"
+        >
+          <span>🗺️</span>
+          <span className="hidden sm:inline">My Route</span>
+          {route.length > 0 && (
+            <span className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-rose-500 text-white text-xs rounded-full flex items-center justify-center font-bold shadow-md shadow-rose-500/30">
+              {route.length}
+            </span>
+          )}
+        </button>
+
         <button
           onClick={() => user ? navigate('/create-garage-sale') : navigate('/login')}
           className="px-3 sm:px-4 py-2 text-sm bg-gradient-to-r from-emerald-500 to-teal-500 hover:opacity-90 text-white rounded-lg transition-all font-semibold shadow-lg shadow-emerald-500/25 active:scale-95 cursor-pointer"
@@ -64,5 +84,6 @@ export default function GarageSaleNavbar() {
         )}
       </div>
     </nav>
+    </>
   )
 }
