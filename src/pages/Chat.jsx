@@ -77,7 +77,7 @@ export default function Chat() {
   }
 
   const sendMessage = async () => {
-    if (!input.trim()) return
+    if (!input.trim() || !conversation) return
     setSending(true)
     const content = input.trim()
     setInput('')
@@ -88,6 +88,17 @@ export default function Chat() {
       content,
       is_read: false,
     })
+
+    const recipientId = user.id === conversation.seller_id ? conversation.buyer_id : conversation.seller_id
+    if (recipientId) {
+      await supabase.from('notifications').insert({
+        user_id: recipientId,
+        type: 'message',
+        title: 'New Message',
+        message: `New message regarding "${conversation.listings?.title || 'an item'}"`,
+        listing_id: conversation.listing_id
+      })
+    }
 
     setSending(false)
   }
@@ -202,7 +213,7 @@ export default function Chat() {
           onChange={e => setInput(e.target.value)}
           onKeyDown={handleKey}
           placeholder="Type a message to your neighbor..."
-          className="flex-1 bg-white dark:bg-white/[0.02] border border-slate-200 dark:border-white/[0.06] rounded-xl px-4 py-3 text-sm text-slate-900 dark:text-white placeholder-slate-500 focus:outline-none focus:border-orange-500/60 focus:bg-white dark:bg-white/[0.04] focus:ring-1 focus:ring-orange-500/20 transition-all duration-300 shadow-inner"
+          className="flex-1 bg-white dark:bg-white/[0.02] border border-slate-200 dark:border-white/[0.06] rounded-xl px-4 py-3 text-sm text-slate-900 dark:text-white placeholder-slate-500 focus:outline-none focus:border-orange-500/60 focus:bg-white dark:focus:bg-white/[0.04] focus:ring-1 focus:ring-orange-500/20 transition-all duration-300 shadow-inner"
         />
         <button
           onClick={sendMessage}

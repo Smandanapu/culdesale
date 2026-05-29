@@ -272,7 +272,7 @@ const [sortOption, setSortOption] = useState('Newest')
               value={search}
               onChange={e => setSearch(e.target.value)}
               placeholder="Search listings in your neighborhood..."
-              className="w-full bg-white dark:bg-white/[0.02] border border-slate-200 dark:border-white/[0.06] rounded-xl pl-11 pr-10 py-3 text-sm text-slate-900 dark:text-white placeholder-slate-500 focus:outline-none focus:border-orange-500/60 focus:bg-white dark:bg-white/[0.04] focus:ring-1 focus:ring-orange-500/20 backdrop-blur-md transition-all duration-300 shadow-inner"
+              className="w-full bg-white dark:bg-white/[0.02] border border-slate-200 dark:border-white/[0.06] rounded-xl pl-11 pr-10 py-3 text-sm text-slate-900 dark:text-white placeholder-slate-500 focus:outline-none focus:border-orange-500/60 focus:bg-white dark:focus:bg-white/[0.04] focus:ring-1 focus:ring-orange-500/20 backdrop-blur-md transition-all duration-300 shadow-inner"
             />
             {search && (
               <button
@@ -293,7 +293,7 @@ const [sortOption, setSortOption] = useState('Newest')
                 setZipSearch(val)
               }}
               placeholder="ZIP Code"
-              className="w-full bg-white dark:bg-white/[0.02] border border-slate-200 dark:border-white/[0.06] rounded-xl pl-10 pr-4 py-3 text-sm text-slate-900 dark:text-white placeholder-slate-500 focus:outline-none focus:border-orange-500/60 focus:bg-white dark:bg-white/[0.04] focus:ring-1 focus:ring-orange-500/20 backdrop-blur-md transition-all duration-300 shadow-inner"
+              className="w-full bg-white dark:bg-white/[0.02] border border-slate-200 dark:border-white/[0.06] rounded-xl pl-10 pr-4 py-3 text-sm text-slate-900 dark:text-white placeholder-slate-500 focus:outline-none focus:border-orange-500/60 focus:bg-white dark:focus:bg-white/[0.04] focus:ring-1 focus:ring-orange-500/20 backdrop-blur-md transition-all duration-300 shadow-inner"
             />
             {zipSearch && (
               <button

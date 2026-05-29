@@ -138,6 +138,19 @@ serve(async (req) => {
     const emailData = await emailRes.json()
     console.log("Resend response:", JSON.stringify(emailData))
 
+    // Insert into notifications table
+    const { error: notifError } = await supabase.from('notifications').insert({
+      user_id: record.seller_id,
+      type: isReserved ? 'reserved' : 'sold',
+      title: isReserved ? 'Item Reserved' : 'Item Sold',
+      message: isReserved 
+        ? `A buyer reserved "${record.title}". Confirm sale within 24 hours.`
+        : `"${record.title}" was sold for $${record.buy_now_price}.`,
+      listing_id: record.id
+    })
+    
+    if (notifError) console.error("Failed to insert notification:", notifError.message)
+
     return new Response(JSON.stringify(emailData), { 
       status: 200,
       headers: { ...corsHeaders, "Content-Type": "application/json" }

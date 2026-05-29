@@ -9,10 +9,14 @@ export default function Navbar() {
   const { user } = useAuth()
   const { theme, toggleTheme } = useTheme()
   const [unread, setUnread] = useState(0)
+  const [unreadNotifs, setUnreadNotifs] = useState(0)
+  const [notifications, setNotifications] = useState([])
+  const [showNotifs, setShowNotifs] = useState(false)
 
   useEffect(() => {
     if (!user) return
     fetchUnread()
+    fetchUnreadNotifs()
 
     const channel = supabase
       .channel('navbar-unread-' + user.id)
@@ -28,7 +32,32 @@ export default function Navbar() {
       }, () => fetchUnread())
       .subscribe()
 
-    return () => supabase.removeChannel(channel)
+    const notifChannel = supabase
+      .channel('navbar-notifs-' + user.id)
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'notifications',
+        filter: 'user_id=eq.' + user.id
+      }, payload => {
+        setNotifications(prev => [payload.new, ...prev].slice(0, 5))
+        setUnreadNotifs(prev => prev + 1)
+      })
+      .on('postgres_changes', {
+        event: 'UPDATE',
+        schema: 'public',
+        table: 'notifications',
+        filter: 'user_id=eq.' + user.id
+      }, payload => {
+        setNotifications(prev => prev.map(n => n.id === payload.new.id ? payload.new : n))
+        fetchUnreadNotifs()
+      })
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+      supabase.removeChannel(notifChannel)
+    }
   }, [user])
 
   const fetchUnread = async () => {
@@ -52,6 +81,43 @@ export default function Navbar() {
       .neq('sender_id', user.id)
 
     setUnread(count || 0)
+  }
+
+  const fetchUnreadNotifs = async () => {
+    const { count } = await supabase
+      .from('notifications')
+      .select('id', { count: 'exact' })
+      .eq('user_id', user.id)
+      .eq('is_read', false)
+    setUnreadNotifs(count || 0)
+
+    const { data } = await supabase
+      .from('notifications')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+      .limit(5)
+    if (data) setNotifications(data)
+  }
+
+  const handleNotifClick = async (notif) => {
+    setShowNotifs(false)
+    if (!notif.is_read) {
+      await supabase.from('notifications').update({ is_read: true }).eq('id', notif.id)
+      setUnreadNotifs(prev => Math.max(0, prev - 1))
+      setNotifications(prev => prev.map(n => n.id === notif.id ? { ...n, is_read: true } : n))
+    }
+    if (notif.type === 'message') {
+      navigate('/inbox')
+    } else if (notif.listing_id) {
+      navigate('/listing/' + notif.listing_id)
+    }
+  }
+
+  const handleMarkAllRead = async () => {
+    await supabase.from('notifications').update({ is_read: true }).eq('user_id', user.id).eq('is_read', false)
+    setUnreadNotifs(0)
+    setNotifications(prev => prev.map(n => ({ ...n, is_read: true })))
   }
 
   return (
@@ -84,6 +150,55 @@ export default function Navbar() {
           <span className="sm:hidden">+</span>
           <span className="hidden sm:inline">+ List Item</span>
         </button>
+
+        {user && (
+          <div className="relative">
+            <button
+              onClick={() => setShowNotifs(!showNotifs)}
+              className="relative p-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:text-white transition cursor-pointer active:scale-95"
+            >
+              <span className="text-xl">🔔</span>
+              {unreadNotifs > 0 && (
+                <span className="absolute -top-1 -right-1 bg-rose-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold shadow-md shadow-rose-500/30">
+                  {unreadNotifs > 9 ? '9+' : unreadNotifs}
+                </span>
+              )}
+            </button>
+            
+            {showNotifs && (
+              <>
+                <div className="fixed inset-0 z-40" onClick={() => setShowNotifs(false)} />
+                <div className="absolute right-0 mt-2 w-80 bg-white dark:bg-[#151821] border border-slate-200 dark:border-white/[0.08] rounded-2xl shadow-2xl z-50 overflow-hidden backdrop-blur-xl flex flex-col">
+                  <div className="p-4 border-b border-slate-200 dark:border-white/[0.08] flex justify-between items-center bg-slate-50 dark:bg-[#07090e]">
+                    <h3 className="font-bold text-slate-900 dark:text-white">Notifications</h3>
+                    {unreadNotifs > 0 && (
+                      <button onClick={handleMarkAllRead} className="text-xs font-semibold text-orange-500 hover:text-orange-400 cursor-pointer">Mark all as read</button>
+                    )}
+                  </div>
+                  <div className="max-h-96 overflow-y-auto">
+                    {notifications.length === 0 ? (
+                      <div className="p-8 text-center text-slate-500 dark:text-slate-400 text-sm">No new notifications</div>
+                    ) : (
+                      notifications.map(n => (
+                        <div 
+                          key={n.id} 
+                          onClick={() => handleNotifClick(n)}
+                          className={`p-4 border-b border-slate-100 dark:border-white/[0.04] last:border-0 cursor-pointer hover:bg-slate-50 dark:hover:bg-white/[0.02] transition-colors ${n.is_read ? 'opacity-70' : 'bg-orange-500/5'}`}
+                        >
+                          <div className="flex justify-between items-start mb-1">
+                            <div className={`text-sm font-bold ${n.is_read ? 'text-slate-700 dark:text-slate-300' : 'text-slate-900 dark:text-white'}`}>{n.title}</div>
+                            {!n.is_read && <div className="w-2 h-2 rounded-full bg-orange-500 mt-1.5 shrink-0" />}
+                          </div>
+                          <div className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2">{n.message}</div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+        )}
 
         <button
           onClick={() => navigate('/inbox')}
