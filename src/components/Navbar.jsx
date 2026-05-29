@@ -67,6 +67,16 @@ export default function Navbar() {
       </div>
 
       <div className="flex items-center gap-2 sm:gap-3">
+        {user && (
+          <button
+            onClick={() => navigate('/dashboard')}
+            className="p-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:text-white transition cursor-pointer active:scale-95"
+            title="Seller Dashboard"
+          >
+            <span className="text-xl">📊</span>
+          </button>
+        )}
+
         <button
           onClick={() => navigate('/create')}
           className="px-3 sm:px-4 py-2 text-sm bg-gradient-to-r from-orange-500 to-amber-500 hover:opacity-90 text-slate-900 dark:text-white rounded-lg transition-all font-semibold shadow-lg shadow-orange-500/25 active:scale-95 cursor-pointer"
