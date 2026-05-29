@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import Navbar from '../components/Navbar'
+import NeighborhoodMap from '../components/NeighborhoodMap'
 
 function timeLeft(endsAt) {
   if (!endsAt) return 'No expiry'
@@ -552,6 +553,7 @@ export default function ListingDetail() {
                 <img
                   key={i}
                   src={url}
+                  loading="lazy"
                   onClick={() => setPhoto(i)}
                   className={`w-16 h-16 object-cover rounded-xl cursor-pointer border-2 transition-all duration-200 hover:scale-105 ${
                     photo === i ? 'border-orange-500 shadow-md shadow-orange-500/20' : 'border-slate-200 dark:border-white/[0.08] hover:border-white/30'
@@ -567,7 +569,12 @@ export default function ListingDetail() {
           <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white mb-3 tracking-tight">{listing.title}</h1>
           <p className="text-slate-600 dark:text-slate-300 leading-relaxed mb-4 text-base">{listing.description}</p>
           <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 border-t border-slate-200 dark:border-white/[0.04] pt-4">
-            <span className="font-semibold text-slate-900 dark:text-white/95">@{listing.profiles?.username || 'neighbor'}</span>
+            <span 
+              onClick={() => { if (listing.profiles?.username) navigate(`/user/${listing.profiles.username}`) }}
+              className={`font-semibold ${listing.profiles?.username ? "text-slate-900 dark:text-white/95 hover:text-orange-500 hover:underline cursor-pointer transition-colors" : "text-slate-900 dark:text-white/95"}`}
+            >
+              @{listing.profiles?.username || 'neighbor'}
+            </span>
             {sellerRating && (
               <span className="flex items-center gap-1 bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-bold px-2 py-0.5 rounded-full">
                 ★ {sellerRating.avg}
@@ -583,6 +590,11 @@ export default function ListingDetail() {
               </>
             )}
           </div>
+          {listing.latitude && listing.longitude && (
+            <div className="mt-6 border border-slate-200 dark:border-white/[0.04] rounded-2xl overflow-hidden shadow-sm h-48 sm:h-64">
+              <NeighborhoodMap latitude={listing.latitude} longitude={listing.longitude} />
+            </div>
+          )}
         </div>
 
         {/* Pricing Dashboard */}
@@ -615,7 +627,12 @@ export default function ListingDetail() {
             <div className="flex flex-col gap-3">
               {bids.slice(0, 5).map((bid) => (
                 <div key={bid.id} className="flex justify-between items-center py-2.5 border-b border-slate-200 dark:border-white/[0.04] last:border-0 text-sm">
-                  <span className="text-slate-600 dark:text-slate-300 font-medium">@{bid.profiles?.username || 'neighbor'}</span>
+                  <span 
+                    onClick={() => { if (bid.profiles?.username) navigate(`/user/${bid.profiles.username}`) }}
+                    className={`font-medium ${bid.profiles?.username ? "text-slate-600 dark:text-slate-300 hover:text-orange-500 hover:underline cursor-pointer transition-colors" : "text-slate-600 dark:text-slate-300"}`}
+                  >
+                    @{bid.profiles?.username || 'neighbor'}
+                  </span>
                   <div className="flex items-center gap-3">
                     <span className="text-orange-400 font-extrabold">${bid.amount}</span>
                     <span className="text-slate-500 text-xs font-semibold">
@@ -898,7 +915,7 @@ export default function ListingDetail() {
                     photo === i ? 'ring-2 ring-orange-500 scale-110 opacity-100 z-10' : 'opacity-40 hover:opacity-100 border border-white/20 hover:scale-105'
                   }`}
                 >
-                  <img src={url} className="w-full h-full object-cover" />
+                  <img src={url} loading="lazy" className="w-full h-full object-cover" />
                 </button>
               ))}
             </div>

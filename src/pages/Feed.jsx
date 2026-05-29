@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import Navbar from '../components/Navbar'
-
+import SkeletonCard from '../components/SkeletonCard'
 const CATEGORIES = ['All', 'Furniture', 'Electronics', 'Sports', 'Kids', 'Tools', 'Appliances', 'Clothing', 'Books', 'Other']
 
 function getDistance(lat1, lon1, lat2, lon2) {
@@ -49,6 +49,7 @@ const [sortOption, setSortOption] = useState('Newest')
   const [hasMore, setHasMore] = useState(true)
   const [loadingMore, setLoadingMore] = useState(false)
   const pageRef = useRef(0)
+  const observerTarget = useRef(null)
   const PAGE_SIZE = 12
   const [sellerRatings, setSellerRatings] = useState({})
 
@@ -209,6 +210,20 @@ const [sortOption, setSortOption] = useState('Newest')
       })
   }, [listings])
 
+  // Intersection Observer for Infinite Scroll
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      entries => {
+        if (entries[0].isIntersecting && hasMore && !loadingMore && !loading) {
+          fetchListings(true)
+        }
+      },
+      { rootMargin: '100px' }
+    )
+    if (observerTarget.current) observer.observe(observerTarget.current)
+    return () => observer.disconnect()
+  }, [hasMore, loadingMore, loading, fetchListings])
+
 
   // Removed in-memory filtering since it's now handled by the database
 
@@ -363,9 +378,10 @@ const [sortOption, setSortOption] = useState('Newest')
         </div>
 
         {loading && (
-          <div className="flex flex-col items-center justify-center py-32 text-slate-500 dark:text-slate-400 gap-3">
-            <div className="w-8 h-8 border-2 border-orange-500/20 border-t-orange-500 rounded-full animate-spin"></div>
-            <span className="text-sm font-medium tracking-wide">Loading neighborhood listings...</span>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <SkeletonCard key={`skeleton-${i}`} />
+            ))}
           </div>
         )}
 
@@ -398,6 +414,8 @@ const [sortOption, setSortOption] = useState('Newest')
                       <img
                         src={listing.photos[0]}
                         alt={listing.title}
+                        loading="lazy"
+                        decoding="async"
                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                       />
                       {listing.photos.length > 1 && (
@@ -500,7 +518,15 @@ const [sortOption, setSortOption] = useState('Newest')
                       </div>
                       <div className="text-xs text-slate-500 dark:text-slate-400 text-right">
                         <div className="flex items-center justify-end gap-1.5 font-semibold text-slate-900 dark:text-white/95">
-                          <span>@{listing.profiles?.username || 'neighbor'}</span>
+                          <span 
+                            onClick={(e) => { 
+                              e.stopPropagation(); 
+                              if (listing.profiles?.username) navigate(`/user/${listing.profiles.username}`); 
+                            }}
+                            className={listing.profiles?.username ? "hover:text-orange-500 hover:underline cursor-pointer transition-colors" : ""}
+                          >
+                            @{listing.profiles?.username || 'neighbor'}
+                          </span>
                           {sellerRatings[listing.seller_id] && (
                             <span className="text-amber-400 font-extrabold text-[11px] flex items-center gap-0.5 bg-amber-500/10 border border-amber-500/20 px-1.5 py-0.5 rounded-full">
                               ★{sellerRatings[listing.seller_id].avg}
@@ -530,23 +556,15 @@ const [sortOption, setSortOption] = useState('Newest')
           </div>
         )}
 
-        {/* Load More Button */}
+        {/* Infinite Scroll Target */}
         {!loading && hasMore && filteredListings.length > 0 && (
-          <div className="flex justify-center mt-10 mb-4">
-            <button
-              onClick={() => fetchListings(true)}
-              disabled={loadingMore}
-              className="px-8 py-3 bg-white dark:bg-white/[0.02] hover:bg-white/[0.06] border border-slate-200 dark:border-white/[0.08] text-slate-900 dark:text-white rounded-xl font-semibold transition-all active:scale-95 disabled:opacity-50 flex items-center gap-2 cursor-pointer shadow-lg"
-            >
-              {loadingMore ? (
-                <>
-                  <div className="w-4 h-4 border-2 border-orange-500/20 border-t-orange-500 rounded-full animate-spin"></div>
-                  Loading...
-                </>
-              ) : (
-                'Load More Listings'
-              )}
-            </button>
+          <div ref={observerTarget} className="flex justify-center mt-10 mb-10 h-10">
+            {loadingMore && (
+              <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 font-semibold">
+                <div className="w-5 h-5 border-2 border-orange-500/20 border-t-orange-500 rounded-full animate-spin"></div>
+                Loading more...
+              </div>
+            )}
           </div>
         )}
       </div>
