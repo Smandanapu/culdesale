@@ -503,6 +503,11 @@ export default function ListingDetail() {
                     <span>🔍</span> Expand Image
                   </div>
                 </div>
+                {listing.photos.length > 1 && (
+                  <div className="absolute bottom-3 right-3 z-20 flex items-center gap-1.5 bg-black/50 backdrop-blur-md border border-white/10 text-white text-[10px] font-bold px-2.5 py-1 rounded-lg pointer-events-none shadow-md">
+                    <span>📸</span> {photo + 1} / {listing.photos.length}
+                  </div>
+                )}
               </div>
             ) : (
               <span className="text-7xl">📦</span>

@@ -394,11 +394,18 @@ const [sortOption, setSortOption] = useState('Newest')
                 {/* Image */}
                 <div className="h-48 bg-white dark:bg-white/[0.02] flex items-center justify-center relative overflow-hidden border-b border-slate-200 dark:border-white/[0.04]">
                   {listing.photos && listing.photos[0] ? (
-                    <img
-                      src={listing.photos[0]}
-                      alt={listing.title}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
+                    <>
+                      <img
+                        src={listing.photos[0]}
+                        alt={listing.title}
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                      {listing.photos.length > 1 && (
+                        <div className="absolute bottom-3 right-3 z-20 flex items-center gap-1.5 bg-black/50 backdrop-blur-md border border-white/10 text-white text-[10px] font-bold px-2 py-1 rounded-lg pointer-events-none shadow-md">
+                          <span>📸</span> {listing.photos.length}
+                        </div>
+                      )}
+                    </>
                   ) : (
                     <span className="text-5xl transition-transform duration-500 group-hover:scale-110">📦</span>
                   )}
