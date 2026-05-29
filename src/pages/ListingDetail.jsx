@@ -37,7 +37,28 @@ export default function ListingDetail() {
   const [reviewComment, setReviewComment] = useState('')
   const [submittingReview, setSubmittingReview] = useState(false)
   const [sellerRating, setSellerRating] = useState(null)
+  const [showLightbox, setShowLightbox] = useState(false)
 
+  const nextPhoto = useCallback(() => {
+    if (!listing || !listing.photos) return
+    setPhoto(p => (p + 1) % listing.photos.length)
+  }, [listing])
+
+  const prevPhoto = useCallback(() => {
+    if (!listing || !listing.photos) return
+    setPhoto(p => (p - 1 + listing.photos.length) % listing.photos.length)
+  }, [listing])
+
+  useEffect(() => {
+    if (!showLightbox) return
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') setShowLightbox(false)
+      if (e.key === 'ArrowRight') nextPhoto()
+      if (e.key === 'ArrowLeft') prevPhoto()
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [showLightbox, nextPhoto, prevPhoto])
   const fetchListing = useCallback(async () => {
     const { data } = await supabase
       .from('listings')
@@ -468,11 +489,21 @@ export default function ListingDetail() {
         <div className="card-gradient-border bg-white dark:bg-white/[0.015] backdrop-blur-md border border-slate-200 dark:border-white/[0.04] rounded-2xl overflow-hidden mb-6 shadow-2xl">
           <div className="h-56 sm:h-80 bg-white dark:bg-white/[0.02] flex items-center justify-center relative border-b border-slate-200 dark:border-white/[0.04]">
             {listing.photos && listing.photos.length > 0 ? (
-              <img
-                src={listing.photos[photo]}
-                alt={listing.title}
-                className="w-full h-full object-cover transition-transform duration-500"
-              />
+              <div 
+                className="w-full h-full relative cursor-pointer group"
+                onClick={() => setShowLightbox(true)}
+              >
+                <img
+                  src={listing.photos[photo]}
+                  alt={listing.title}
+                  className="w-full h-full object-cover transition-transform duration-500"
+                />
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+                  <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-black/60 text-white px-4 py-2 rounded-full backdrop-blur-md flex items-center gap-2 font-semibold">
+                    <span>🔍</span> Expand Image
+                  </div>
+                </div>
+              </div>
             ) : (
               <span className="text-7xl">📦</span>
             )}
@@ -802,6 +833,73 @@ export default function ListingDetail() {
         )}
 
       </div>
+
+      {/* Lightbox Overlay */}
+      {showLightbox && listing.photos && listing.photos.length > 0 && (
+        <div className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-xl flex flex-col items-center justify-center animate-in fade-in duration-300">
+          
+          {/* Close Button */}
+          <button 
+            onClick={() => setShowLightbox(false)}
+            className="absolute top-4 right-4 sm:top-6 sm:right-6 text-white/70 hover:text-white bg-white/10 hover:bg-white/20 p-3 rounded-full transition-all cursor-pointer z-50"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+
+          {/* Navigation - Left */}
+          {listing.photos.length > 1 && (
+            <button 
+              onClick={(e) => { e.stopPropagation(); prevPhoto(); }}
+              className="absolute left-2 sm:left-8 top-1/2 -translate-y-1/2 text-white/50 hover:text-white bg-white/5 hover:bg-white/10 p-3 sm:p-5 rounded-full transition-all cursor-pointer z-50 hover:scale-110 active:scale-95"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 sm:h-10 sm:w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+          )}
+
+          {/* Main Image View */}
+          <div className="w-full h-full flex items-center justify-center p-4 sm:p-12 mb-20" onClick={() => setShowLightbox(false)}>
+            <img 
+              src={listing.photos[photo]} 
+              alt={listing.title}
+              className="max-w-full max-h-full object-contain drop-shadow-2xl select-none"
+              onClick={(e) => e.stopPropagation()}
+            />
+          </div>
+
+          {/* Navigation - Right */}
+          {listing.photos.length > 1 && (
+            <button 
+              onClick={(e) => { e.stopPropagation(); nextPhoto(); }}
+              className="absolute right-2 sm:right-8 top-1/2 -translate-y-1/2 text-white/50 hover:text-white bg-white/5 hover:bg-white/10 p-3 sm:p-5 rounded-full transition-all cursor-pointer z-50 hover:scale-110 active:scale-95"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 sm:h-10 sm:w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          )}
+
+          {/* Thumbnail Strip */}
+          {listing.photos.length > 1 && (
+            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 sm:gap-3 p-3 bg-white/5 backdrop-blur-md rounded-2xl border border-white/10 overflow-x-auto max-w-[90vw]">
+              {listing.photos.map((url, i) => (
+                <button
+                  key={i}
+                  onClick={() => setPhoto(i)}
+                  className={`relative flex-shrink-0 w-12 h-12 sm:w-16 sm:h-16 rounded-xl overflow-hidden transition-all duration-300 cursor-pointer ${
+                    photo === i ? 'ring-2 ring-orange-500 scale-110 opacity-100 z-10' : 'opacity-40 hover:opacity-100 border border-white/20 hover:scale-105'
+                  }`}
+                >
+                  <img src={url} className="w-full h-full object-cover" />
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   )
 }
