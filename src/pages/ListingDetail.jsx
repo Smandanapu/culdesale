@@ -76,6 +76,23 @@ export default function ListingDetail() {
     return () => supabase.removeChannel(channel)
   }, [id, fetchListing, fetchBids])
 
+  // Increment listing views count once per session for non-sellers
+  useEffect(() => {
+    if (!listing || !user || listing.seller_id === user.id) return
+    
+    const sessionKey = `viewed_listing_${listing.id}`
+    if (sessionStorage.getItem(sessionKey)) return
+
+    sessionStorage.setItem(sessionKey, 'true')
+    supabase
+      .from('listings')
+      .update({ views_count: (listing.views_count || 0) + 1 })
+      .eq('id', listing.id)
+      .then(() => {
+        setListing(prev => prev ? { ...prev, views_count: (prev.views_count || 0) + 1 } : null)
+      })
+  }, [listing?.id, user?.id])
+
   // Fetch existing review for this listing
   useEffect(() => {
     if (!user || !listing) return
