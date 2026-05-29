@@ -124,11 +124,17 @@ export default function EditGarageSale() {
       })
       .eq('id', id)
       .select()
-      .single()
 
     if (updateError) {
       toast.error(updateError.message)
       setError(updateError.message)
+      setLoading(false)
+      return
+    }
+
+    if (!data || data.length === 0) {
+      toast.error('You do not have permission to edit this sale.')
+      setError('You do not have permission to edit this sale.')
       setLoading(false)
       return
     }

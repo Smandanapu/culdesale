@@ -194,24 +194,28 @@ export default function GarageSaleDetail() {
             📤 Share
           </button>
           {/* Action Buttons */}
-          <button
-            onClick={() => navigate(`/edit-garage-sale/${sale.id}`)}
-            className="px-6 py-3 bg-amber-500/10 border border-amber-500/25 rounded-xl font-semibold text-amber-500 hover:bg-amber-500/20 active:scale-95 transition-all cursor-pointer text-sm"
-          >
-            ✏️ Edit Sale
-          </button>
-          <button
-            onClick={async () => {
-              if (window.confirm('Are you sure you want to delete this garage sale?')) {
-                await supabase.from('garage_sales').delete().eq('id', sale.id)
-                toast.success('Sale deleted successfully')
-                navigate('/garage-sales')
-              }
-            }}
-            className="px-6 py-3 bg-rose-500/10 border border-rose-500/25 rounded-xl font-semibold text-rose-500 hover:bg-rose-500/20 active:scale-95 transition-all cursor-pointer text-sm"
-          >
-            🗑️ Delete Sale
-          </button>
+          {isOwner && (
+            <>
+              <button
+                onClick={() => navigate(`/edit-garage-sale/${sale.id}`)}
+                className="px-6 py-3 bg-amber-500/10 border border-amber-500/25 rounded-xl font-semibold text-amber-500 hover:bg-amber-500/20 active:scale-95 transition-all cursor-pointer text-sm"
+              >
+                ✏️ Edit Sale
+              </button>
+              <button
+                onClick={async () => {
+                  if (window.confirm('Are you sure you want to delete this garage sale?')) {
+                    await supabase.from('garage_sales').delete().eq('id', sale.id)
+                    toast.success('Sale deleted successfully')
+                    navigate('/garage-sales')
+                  }
+                }}
+                className="px-6 py-3 bg-rose-500/10 border border-rose-500/25 rounded-xl font-semibold text-rose-500 hover:bg-rose-500/20 active:scale-95 transition-all cursor-pointer text-sm"
+              >
+                🗑️ Delete Sale
+              </button>
+            </>
+          )}
         </div>
 
         {/* Description */}
