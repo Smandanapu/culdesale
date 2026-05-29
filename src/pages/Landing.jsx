@@ -1,5 +1,6 @@
 import { useNavigate, Link } from 'react-router-dom'
 import { useState, useEffect } from 'react'
+import { useAuth } from '../context/AuthContext'
 
 const initialBids = [
   { id: 1, name: "Sophia K.", sector: "Oak St", amount: 45, time: "2m ago", avatar: "S", color: "bg-indigo-500" },
@@ -25,6 +26,14 @@ const demoItems = [
 
 export default function Landing() {
   const navigate = useNavigate()
+  const { user, needsUsername, loading } = useAuth()
+  
+  useEffect(() => {
+    if (!loading && user) {
+      if (needsUsername) navigate('/setup')
+      else navigate('/feed')
+    }
+  }, [user, needsUsername, loading, navigate])
   
   const [bids, setBids] = useState(initialBids)
   const [currentBid, setCurrentBid] = useState(45)
