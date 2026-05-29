@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import Navbar from '../components/Navbar'
+import NeighborhoodMap from '../components/NeighborhoodMap'
 
 function timeLeft(endsAt) {
   if (!endsAt) return 'No expiry'
@@ -589,6 +590,11 @@ export default function ListingDetail() {
               </>
             )}
           </div>
+          {listing.latitude && listing.longitude && (
+            <div className="mt-6 border border-slate-200 dark:border-white/[0.04] rounded-2xl overflow-hidden shadow-sm h-48 sm:h-64">
+              <NeighborhoodMap latitude={listing.latitude} longitude={listing.longitude} />
+            </div>
+          )}
         </div>
 
         {/* Pricing Dashboard */}
