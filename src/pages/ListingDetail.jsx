@@ -490,7 +490,7 @@ export default function ListingDetail() {
           <div className="h-56 sm:h-80 bg-white dark:bg-white/[0.02] flex items-center justify-center relative border-b border-slate-200 dark:border-white/[0.04]">
             {listing.photos && listing.photos.length > 0 ? (
               <div 
-                className="w-full h-full relative cursor-pointer group"
+                className="w-full h-full relative cursor-pointer group fluid-border"
                 onClick={() => setShowLightbox(true)}
               >
                 <img
