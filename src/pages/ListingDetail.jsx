@@ -552,6 +552,7 @@ export default function ListingDetail() {
                 <img
                   key={i}
                   src={url}
+                  loading="lazy"
                   onClick={() => setPhoto(i)}
                   className={`w-16 h-16 object-cover rounded-xl cursor-pointer border-2 transition-all duration-200 hover:scale-105 ${
                     photo === i ? 'border-orange-500 shadow-md shadow-orange-500/20' : 'border-slate-200 dark:border-white/[0.08] hover:border-white/30'
@@ -898,7 +899,7 @@ export default function ListingDetail() {
                     photo === i ? 'ring-2 ring-orange-500 scale-110 opacity-100 z-10' : 'opacity-40 hover:opacity-100 border border-white/20 hover:scale-105'
                   }`}
                 >
-                  <img src={url} className="w-full h-full object-cover" />
+                  <img src={url} loading="lazy" className="w-full h-full object-cover" />
                 </button>
               ))}
             </div>
