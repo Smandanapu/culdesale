@@ -152,9 +152,7 @@ export default function PWABadge() {
             >
               ×
             </button>
-            <div className="w-14 h-14 bg-gradient-to-tr from-orange-500 to-indigo-500 rounded-2xl shadow-lg mb-3 flex items-center justify-center text-white text-3xl font-extrabold border-2 border-white/20">
-              C
-            </div>
+            <img src="/logo.png" alt="CulDeSale" className="w-16 h-16 rounded-2xl shadow-lg mb-3 border border-slate-200 dark:border-white/10" />
             <h3 className="font-bold text-slate-900 dark:text-white mb-1">Install CulDeSale</h3>
             <p className="text-sm text-slate-500 dark:text-slate-400 mb-4 px-2">
               Install this application on your home screen for quick and easy access when you're on the go.
