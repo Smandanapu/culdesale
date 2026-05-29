@@ -74,7 +74,9 @@ export default function GarageSaleDetail() {
   }
 
   const handleShare = async () => {
-    const shareUrl = window.location.href
+    // If testing locally, generate a clean production URL for the share link
+    const isLocal = window.location.hostname === 'localhost' || window.location.hostname.startsWith('192.168') || window.location.hostname.startsWith('127.0')
+    const shareUrl = isLocal ? `https://culdesale.com/garage-sales/${sale.id}` : window.location.href
 
     const shareData = {
       title: sale.title,
@@ -85,7 +87,7 @@ export default function GarageSaleDetail() {
     if (navigator.share) {
       try {
         await navigator.share(shareData)
-      } catch {}
+      } catch { }
     } else {
       await navigator.clipboard.writeText(shareUrl)
       toast.success('Link copied to clipboard!')
