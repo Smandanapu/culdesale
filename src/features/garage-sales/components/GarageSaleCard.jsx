@@ -62,26 +62,17 @@ function formatDate(dateStr) {
 export default function GarageSaleCard({ sale, distance }) {
   const navigate = useNavigate()
   const status = getSaleStatus(sale.sale_date, sale.start_time, sale.end_time)
-  const hasPhoto = sale.photos && sale.photos.length > 0
 
   return (
     <div
       onClick={() => navigate(`/garage-sales/${sale.id}`)}
       className="group bg-white dark:bg-white/[0.02] border border-slate-200 dark:border-white/[0.06] rounded-2xl overflow-hidden shadow-sm hover:shadow-xl hover:border-slate-300 dark:hover:border-white/[0.12] transition-all duration-300 cursor-pointer hover:-translate-y-1"
     >
-      {/* Photo or Gradient Placeholder */}
+      {/* Header Placeholder */}
       <div className="relative h-36 sm:h-44 overflow-hidden">
-        {hasPhoto ? (
-          <img
-            src={sale.photos[0]}
-            alt={sale.title}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-          />
-        ) : (
-          <div className="w-full h-full bg-gradient-to-br from-emerald-500/20 via-teal-500/20 to-cyan-500/20 dark:from-emerald-500/10 dark:via-teal-500/10 dark:to-cyan-500/10 flex items-center justify-center">
-            <span className="text-5xl opacity-40">🏷️</span>
-          </div>
-        )}
+        <div className="w-full h-full bg-gradient-to-br from-emerald-500/20 via-teal-500/20 to-cyan-500/20 dark:from-emerald-500/10 dark:via-teal-500/10 dark:to-cyan-500/10 flex items-center justify-center">
+          <span className="text-5xl opacity-40">🏷️</span>
+        </div>
 
         {/* Status Badge */}
         <div className={`absolute top-3 left-3 ${status.color} backdrop-blur-md px-2.5 py-1 rounded-lg text-xs font-bold flex items-center gap-1.5`}>
@@ -105,7 +96,7 @@ export default function GarageSaleCard({ sale, distance }) {
 
         <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 mb-2">
           <span>📍</span>
-          <span className="line-clamp-1">{sale.address}, {sale.city}{sale.state ? `, ${sale.state}` : ''}</span>
+          <span className="line-clamp-1">{sale.neighborhood ? `${sale.neighborhood} • ` : ''}{sale.city}, {sale.state}</span>
         </div>
 
         <div className="flex items-center gap-3 text-xs text-slate-600 dark:text-slate-300 mb-3 font-medium">

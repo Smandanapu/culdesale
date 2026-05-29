@@ -15,12 +15,12 @@ export default function CreateGarageSale() {
   const [error, setError] = useState('')
   const [geocoding, setGeocoding] = useState(false)
   const [geocodeResult, setGeocodeResult] = useState(null)
-  const [uploading, setUploading] = useState(false)
 
   const [form, setForm] = useState({
     title: '',
     description: '',
     address: '',
+    neighborhood: '',
     city: '',
     state: '',
     zip_code: '',
@@ -28,7 +28,6 @@ export default function CreateGarageSale() {
     start_time: '08:00',
     end_time: '14:00',
     categories: [],
-    photos: [],
   })
 
   const set = (key, val) => setForm(f => ({ ...f, [key]: val }))
@@ -51,37 +50,6 @@ export default function CreateGarageSale() {
     setGeocoding(false)
   }
 
-  // Photo upload
-  const handlePhotos = async (e) => {
-    const files = Array.from(e.target.files)
-    if (!files.length) return
-    const remaining = 5 - form.photos.length
-    if (remaining <= 0) return
-    setUploading(true)
-
-    const newPhotos = []
-    for (const file of files.slice(0, remaining)) {
-      const ext = file.name.split('.').pop()
-      const fileName = `garage-sales/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
-      const { error: uploadError } = await supabase.storage
-        .from('listing-images')
-        .upload(fileName, file, { cacheControl: '3600', upsert: false })
-
-      if (!uploadError) {
-        const { data: urlData } = supabase.storage
-          .from('listing-images')
-          .getPublicUrl(fileName)
-        newPhotos.push(urlData.publicUrl)
-      }
-    }
-
-    set('photos', [...form.photos, ...newPhotos])
-    setUploading(false)
-  }
-
-  const removePhoto = (index) => {
-    set('photos', form.photos.filter((_, i) => i !== index))
-  }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -89,7 +57,10 @@ export default function CreateGarageSale() {
 
     if (!form.title.trim()) return setError('Please enter a title for your garage sale.')
     if (!form.address.trim()) return setError('Please enter the street address.')
+    if (!form.neighborhood.trim()) return setError('Please enter your neighborhood.')
     if (!form.city.trim()) return setError('Please enter the city.')
+    if (!form.state.trim()) return setError('Please enter the state.')
+    if (!form.zip_code.trim()) return setError('Please enter the zip code.')
     if (!form.sale_date) return setError('Please select a date.')
 
     setLoading(true)
@@ -107,6 +78,7 @@ export default function CreateGarageSale() {
         title: form.title.trim(),
         description: form.description.trim(),
         address: form.address.trim(),
+        neighborhood: form.neighborhood.trim(),
         city: form.city.trim(),
         state: form.state.trim(),
         zip_code: form.zip_code.trim(),
@@ -116,7 +88,6 @@ export default function CreateGarageSale() {
         start_time: form.start_time,
         end_time: form.end_time,
         categories: form.categories,
-        photos: form.photos,
         status: 'upcoming',
       })
       .select()
@@ -188,20 +159,33 @@ export default function CreateGarageSale() {
           <div className="bg-white dark:bg-white/[0.02] border border-slate-200 dark:border-white/[0.06] rounded-2xl p-5 sm:p-6 shadow-sm">
             <h2 className="font-bold text-base mb-4 flex items-center gap-2">📍 Location</h2>
             <div className="space-y-4">
-              <div>
-                <label className="text-sm font-medium text-slate-600 dark:text-slate-300 mb-1.5 block">Street Address *</label>
-                <input
-                  type="text"
-                  value={form.address}
-                  onChange={e => set('address', e.target.value)}
-                  onBlur={handleGeocode}
-                  placeholder="123 Oak Street"
-                  required
-                  className="w-full bg-slate-50 dark:bg-white/[0.02] border border-slate-200 dark:border-white/[0.06] rounded-xl px-4 py-3 text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-emerald-500/60 focus:ring-1 focus:ring-emerald-500/20 transition-all"
-                />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium text-slate-600 dark:text-slate-300 mb-1.5 block">Street Address *</label>
+                  <input
+                    type="text"
+                    value={form.address}
+                    onChange={e => set('address', e.target.value)}
+                    onBlur={handleGeocode}
+                    placeholder="123 Oak Street"
+                    required
+                    className="w-full bg-slate-50 dark:bg-white/[0.02] border border-slate-200 dark:border-white/[0.06] rounded-xl px-4 py-3 text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-emerald-500/60 focus:ring-1 focus:ring-emerald-500/20 transition-all"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-slate-600 dark:text-slate-300 mb-1.5 block">Neighborhood *</label>
+                  <input
+                    type="text"
+                    value={form.neighborhood}
+                    onChange={e => set('neighborhood', e.target.value)}
+                    placeholder="e.g. Harvest"
+                    required
+                    className="w-full bg-slate-50 dark:bg-white/[0.02] border border-slate-200 dark:border-white/[0.06] rounded-xl px-4 py-3 text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-emerald-500/60 focus:ring-1 focus:ring-emerald-500/20 transition-all"
+                  />
+                </div>
               </div>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                <div className="col-span-2 sm:col-span-1">
+              <div className="grid grid-cols-3 sm:grid-cols-3 gap-3">
+                <div>
                   <label className="text-sm font-medium text-slate-600 dark:text-slate-300 mb-1.5 block">City *</label>
                   <input
                     type="text"
@@ -214,24 +198,26 @@ export default function CreateGarageSale() {
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-slate-600 dark:text-slate-300 mb-1.5 block">State</label>
+                  <label className="text-sm font-medium text-slate-600 dark:text-slate-300 mb-1.5 block">State *</label>
                   <input
                     type="text"
                     value={form.state}
                     onChange={e => set('state', e.target.value)}
                     placeholder="TX"
                     maxLength={2}
+                    required
                     className="w-full bg-slate-50 dark:bg-white/[0.02] border border-slate-200 dark:border-white/[0.06] rounded-xl px-4 py-3 text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-emerald-500/60 focus:ring-1 focus:ring-emerald-500/20 transition-all uppercase"
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-slate-600 dark:text-slate-300 mb-1.5 block">Zip Code</label>
+                  <label className="text-sm font-medium text-slate-600 dark:text-slate-300 mb-1.5 block">Zip Code *</label>
                   <input
                     type="text"
                     value={form.zip_code}
                     onChange={e => set('zip_code', e.target.value)}
                     placeholder="75001"
                     maxLength={10}
+                    required
                     className="w-full bg-slate-50 dark:bg-white/[0.02] border border-slate-200 dark:border-white/[0.06] rounded-xl px-4 py-3 text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-emerald-500/60 focus:ring-1 focus:ring-emerald-500/20 transition-all"
                   />
                 </div>
@@ -324,42 +310,7 @@ export default function CreateGarageSale() {
             </div>
           </div>
 
-          {/* Photos */}
-          <div className="bg-white dark:bg-white/[0.02] border border-slate-200 dark:border-white/[0.06] rounded-2xl p-5 sm:p-6 shadow-sm">
-            <h2 className="font-bold text-base mb-1 flex items-center gap-2">📸 Preview Photos</h2>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mb-4">Optional — show visitors what to expect (up to 5 photos)</p>
 
-            {form.photos.length > 0 && (
-              <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 mb-4">
-                {form.photos.map((url, i) => (
-                  <div key={i} className="relative group rounded-xl overflow-hidden border border-slate-200 dark:border-white/[0.06]">
-                    <img src={url} alt="" className="w-full h-20 sm:h-24 object-cover" />
-                    <button
-                      type="button"
-                      onClick={() => removePhoto(i)}
-                      className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
-                    >
-                      ×
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {form.photos.length < 5 && (
-              <label className="flex items-center justify-center gap-2 border-2 border-dashed border-slate-300 dark:border-white/[0.08] rounded-xl py-6 cursor-pointer hover:border-emerald-500/50 transition-colors">
-                <span className="text-slate-400 text-sm">{uploading ? '⏳ Uploading...' : '📁 Tap to add photos'}</span>
-                <input
-                  type="file"
-                  multiple
-                  accept="image/*"
-                  onChange={handlePhotos}
-                  disabled={uploading}
-                  className="hidden"
-                />
-              </label>
-            )}
-          </div>
 
           {/* Submit */}
           <button
