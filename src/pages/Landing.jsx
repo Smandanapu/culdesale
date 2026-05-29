@@ -146,6 +146,9 @@ export default function Landing() {
           </span>
         </div>
         <div className="flex items-center gap-2 sm:gap-4">
+          <button onClick={() => navigate('/garage-sales')} className="sm:hidden px-2 text-xl hover:scale-110 transition duration-200 cursor-pointer" title="Garage Sales">
+            🏷️
+          </button>
           <button onClick={() => navigate('/garage-sales')} className="hidden sm:flex items-center gap-1.5 px-4 py-2 text-sm text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:text-white transition duration-200 font-medium cursor-pointer">
             <span>🏷️</span> Garage Sales
           </button>
