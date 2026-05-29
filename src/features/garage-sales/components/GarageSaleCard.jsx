@@ -159,14 +159,15 @@ export default function GarageSaleCard({ sale, distance }) {
           
           <button
             onClick={handleRouteClick}
-            className={`shrink-0 flex items-center justify-center w-8 h-8 rounded-full transition-all ${
+            className={`shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
               inRoute 
                 ? 'bg-emerald-500 text-white shadow-md shadow-emerald-500/20 hover:bg-emerald-600' 
-                : 'bg-slate-100 dark:bg-white/[0.04] text-slate-400 hover:text-emerald-500 hover:bg-slate-200 dark:hover:bg-white/[0.08]'
+                : 'bg-slate-100 dark:bg-white/[0.04] text-slate-500 hover:text-emerald-600 hover:bg-slate-200 dark:hover:bg-white/[0.08]'
             }`}
             title={inRoute ? "Remove from Route" : "Add to Route"}
           >
-            {inRoute ? '✓' : '🗺️'}
+            <span className="text-[14px]">{inRoute ? '✓' : '🗺️'}</span>
+            <span className="hidden sm:inline">{inRoute ? 'In Route' : 'Add to Route'}</span>
           </button>
         </div>
       </div>
