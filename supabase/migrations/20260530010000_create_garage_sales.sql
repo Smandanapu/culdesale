@@ -23,17 +23,20 @@ CREATE TABLE IF NOT EXISTS garage_sales (
 ALTER TABLE garage_sales ENABLE ROW LEVEL SECURITY;
 
 -- Public read access (no auth required)
+DROP POLICY IF EXISTS "Anyone can view garage sales" ON garage_sales;
 CREATE POLICY "Anyone can view garage sales"
   ON garage_sales FOR SELECT
   USING (true);
 
 -- Only authenticated users can create
+DROP POLICY IF EXISTS "Authenticated users can create garage sales" ON garage_sales;
 CREATE POLICY "Authenticated users can create garage sales"
   ON garage_sales FOR INSERT
   TO authenticated
   WITH CHECK (auth.uid() = seller_id);
 
 -- Only the seller can update their own sale
+DROP POLICY IF EXISTS "Sellers can update their own garage sales" ON garage_sales;
 CREATE POLICY "Sellers can update their own garage sales"
   ON garage_sales FOR UPDATE
   TO authenticated
@@ -41,14 +44,15 @@ CREATE POLICY "Sellers can update their own garage sales"
   WITH CHECK (auth.uid() = seller_id);
 
 -- Only the seller can delete their own sale
+DROP POLICY IF EXISTS "Sellers can delete their own garage sales" ON garage_sales;
 CREATE POLICY "Sellers can delete their own garage sales"
   ON garage_sales FOR DELETE
   TO authenticated
   USING (auth.uid() = seller_id);
 
 -- Indexes for performance
-CREATE INDEX idx_garage_sales_seller_id ON garage_sales(seller_id);
-CREATE INDEX idx_garage_sales_sale_date ON garage_sales(sale_date);
-CREATE INDEX idx_garage_sales_status ON garage_sales(status);
-CREATE INDEX idx_garage_sales_zip_code ON garage_sales(zip_code);
-CREATE INDEX idx_garage_sales_coords ON garage_sales(latitude, longitude);
+CREATE INDEX IF NOT EXISTS idx_garage_sales_seller_id ON garage_sales(seller_id);
+-- sale_date index skipped to avoid errors on already migrated remote databases
+CREATE INDEX IF NOT EXISTS idx_garage_sales_status ON garage_sales(status);
+CREATE INDEX IF NOT EXISTS idx_garage_sales_zip_code ON garage_sales(zip_code);
+CREATE INDEX IF NOT EXISTS idx_garage_sales_coords ON garage_sales(latitude, longitude);

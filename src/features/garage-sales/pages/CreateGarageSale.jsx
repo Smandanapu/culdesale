@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { supabase } from '../../../lib/supabase'
 import { useAuth } from '../../../context/AuthContext'
 import GarageSaleNavbar from '../components/GarageSaleNavbar'
+import toast from 'react-hot-toast'
 import GarageSaleMap from '../components/GarageSaleMap'
 import { geocodeAddress } from '../lib/geocode'
 
@@ -97,11 +98,13 @@ export default function CreateGarageSale() {
       .single()
 
     if (insertError) {
+      toast.error(insertError.message)
       setError(insertError.message)
       setLoading(false)
       return
     }
 
+    toast.success('Garage sale posted successfully! 🎉')
     navigate(`/garage-sales/${data.id}`)
   }
 

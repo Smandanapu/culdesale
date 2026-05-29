@@ -12,6 +12,7 @@ export default function Navbar() {
   const [unreadNotifs, setUnreadNotifs] = useState(0)
   const [notifications, setNotifications] = useState([])
   const [showNotifs, setShowNotifs] = useState(false)
+  const [showProfileMenu, setShowProfileMenu] = useState(false)
 
   useEffect(() => {
     if (!user) return
@@ -124,11 +125,11 @@ export default function Navbar() {
     <nav className="sticky top-0 z-50 bg-slate-50/75 dark:bg-[#07090e]/75 backdrop-blur-md border-b border-slate-200 dark:border-white/[0.06] px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
       <div className="flex items-center gap-3">
         <div
-          className="flex items-center gap-2 cursor-pointer group"
+          className="flex items-center gap-1.5 sm:gap-2 cursor-pointer group"
           onClick={() => navigate('/feed')}
         >
-          <img src="/logo.png" alt="CulDeSale Logo" className="w-8 h-8 rounded-lg shadow-sm transition-transform group-hover:scale-110 duration-200" />
-          <span className="text-xl font-extrabold tracking-tight animate-text-shimmer bg-gradient-to-r from-orange-400 via-rose-400 to-indigo-400 bg-clip-text text-transparent group-hover:opacity-90 transition-opacity">
+          <img src="/logo.png" alt="CulDeSale Logo" className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg shadow-sm transition-transform group-hover:scale-110 duration-200" />
+          <span className="text-[17px] sm:text-xl font-extrabold tracking-tight animate-text-shimmer bg-gradient-to-r from-orange-400 via-rose-400 to-indigo-400 bg-clip-text text-transparent group-hover:opacity-90 transition-opacity">
             CulDeSale
           </span>
         </div>
@@ -153,20 +154,7 @@ export default function Navbar() {
         >
           <span className="text-xl group-hover:scale-110 transition-transform duration-300 inline-block">🏷️</span>
         </button>
-        {user && (
-          <button
-            onClick={() => navigate('/dashboard')}
-            className="p-2 text-slate-500 dark:text-slate-400 hover:text-orange-500 dark:hover:text-orange-400 transition cursor-pointer active:scale-95 group"
-            title="Seller Dashboard"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 stroke-current group-hover:scale-110 transition-transform duration-300" fill="none" viewBox="0 0 24 24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M4 4h6v8H4z" />
-              <path d="M14 4h6v4h-6z" />
-              <path d="M14 12h6v8h-6z" />
-              <path d="M4 16h6v4H4z" />
-            </svg>
-          </button>
-        )}
+
 
         <button
           onClick={() => navigate('/create')}
@@ -225,17 +213,6 @@ export default function Navbar() {
           </div>
         )}
 
-        <button
-          onClick={() => navigate('/inbox')}
-          className="relative p-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:text-white transition cursor-pointer active:scale-95"
-        >
-          <span className="text-xl">💬</span>
-          {unread > 0 && (
-            <span className="absolute -top-1 -right-1 bg-orange-500 text-slate-900 dark:text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold shadow-md shadow-orange-500/30">
-              {unread > 9 ? '9+' : unread}
-            </span>
-          )}
-        </button>
 
         <button
           onClick={toggleTheme}
@@ -245,12 +222,40 @@ export default function Navbar() {
           <span className="text-xl">{theme === 'dark' ? '☀️' : '🌙'}</span>
         </button>
 
-        <button
-          onClick={() => navigate('/profile')}
-          className="w-8 h-8 rounded-full bg-orange-500/20 border border-orange-500/40 flex items-center justify-center text-orange-500 font-bold text-sm hover:bg-orange-500/30 transition cursor-pointer active:scale-95"
-        >
-          {user && user.email ? user.email[0].toUpperCase() : '?'}
-        </button>
+        <div className="relative">
+          <button
+            onClick={() => setShowProfileMenu(!showProfileMenu)}
+            className="w-8 h-8 rounded-full bg-orange-500/20 border border-orange-500/40 flex items-center justify-center text-orange-500 font-bold text-sm hover:bg-orange-500/30 transition cursor-pointer active:scale-95"
+          >
+            {user && user.email ? user.email[0].toUpperCase() : '?'}
+          </button>
+          
+          {showProfileMenu && (
+            <>
+              <div className="fixed inset-0 z-40" onClick={() => setShowProfileMenu(false)} />
+              <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-[#151821] border border-slate-200 dark:border-white/[0.08] rounded-xl shadow-2xl z-50 overflow-hidden backdrop-blur-xl flex flex-col py-1">
+                <button 
+                  onClick={() => { setShowProfileMenu(false); navigate('/profile'); }}
+                  className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/[0.02] hover:text-slate-900 dark:hover:text-white transition cursor-pointer"
+                >
+                  <span className="text-lg">👤</span> My Profile
+                </button>
+                <button 
+                  onClick={() => { setShowProfileMenu(false); navigate('/dashboard'); }}
+                  className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/[0.02] hover:text-slate-900 dark:hover:text-white transition cursor-pointer"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 ml-0.5 stroke-current" fill="none" viewBox="0 0 24 24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M4 4h6v8H4z" />
+                    <path d="M14 4h6v4h-6z" />
+                    <path d="M14 12h6v8h-6z" />
+                    <path d="M4 16h6v4H4z" />
+                  </svg>
+                  Dashboard
+                </button>
+              </div>
+            </>
+          )}
+        </div>
       </div>
     </nav>
   )

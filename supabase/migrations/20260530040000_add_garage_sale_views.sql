@@ -1,5 +1,5 @@
 -- Add view_count column
-ALTER TABLE garage_sales ADD COLUMN view_count INTEGER DEFAULT 0 NOT NULL;
+ALTER TABLE garage_sales ADD COLUMN IF NOT EXISTS view_count INTEGER DEFAULT 0 NOT NULL;
 
 -- Create RPC function to safely increment view_count
 CREATE OR REPLACE FUNCTION increment_garage_sale_view(sale_id UUID)

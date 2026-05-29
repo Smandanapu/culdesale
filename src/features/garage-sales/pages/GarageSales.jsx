@@ -7,7 +7,8 @@ import GarageSaleCard from '../components/GarageSaleCard'
 import GarageSaleMap from '../components/GarageSaleMap'
 
 const CATEGORIES = ['Furniture', 'Electronics', 'Sports', 'Kids', 'Tools', 'Appliances', 'Clothing', 'Books', 'Other']
-const SORT_OPTIONS = ['Soonest', 'Newest', 'Nearest']
+const SORT_OPTIONS = ['Soonest', 'Newest', 'Nearest', 'Most Viewed']
+const TIME_FILTERS = ['All Upcoming', 'Active Now', 'This Weekend']
 
 function getDistance(lat1, lon1, lat2, lon2) {
   if (!lat1 || !lon1 || !lat2 || !lon2) return null
@@ -31,8 +32,13 @@ export default function GarageSales() {
   const [search, setSearch] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('All')
   const [sortBy, setSortBy] = useState('Soonest')
+  const [timeFilter, setTimeFilter] = useState('All Upcoming')
   const [userLocation, setUserLocation] = useState(null)
   const [showFilters, setShowFilters] = useState(false)
+  
+  const ITEMS_PER_PAGE = 20
+  const [page, setPage] = useState(0)
+  const [hasMore, setHasMore] = useState(true)
 
   // Get user location
   useEffect(() => {
@@ -44,16 +50,26 @@ export default function GarageSales() {
     }
   }, [])
 
-  const fetchSales = useCallback(async () => {
-    setLoading(true)
+  const fetchSales = useCallback(async (isLoadMore = false) => {
+    if (!isLoadMore) {
+      setLoading(true)
+      setPage(0)
+    }
+    
+    const currentPage = isLoadMore ? page + 1 : 0
     const today = new Date().toISOString().split('T')[0]
+    const nowTime = new Date().toTimeString().split(' ')[0].substring(0, 5)
 
     let query = supabase
       .from('garage_sales')
       .select('*')
       .in('status', ['upcoming', 'active'])
-      .gte('end_date', today)
-      .order('start_date', { ascending: true })
+
+    if (timeFilter === 'Active Now') {
+      query = query.lte('start_date', today).gte('end_date', today).lte('start_time', nowTime).gte('end_time', nowTime)
+    } else {
+      query = query.gte('end_date', today)
+    }
 
     if (search.trim()) {
       query = query.or(`city.ilike.%${search}%,zip_code.ilike.%${search}%,title.ilike.%${search}%,address.ilike.%${search}%,neighborhood.ilike.%${search}%`)
@@ -63,17 +79,35 @@ export default function GarageSales() {
       query = query.contains('categories', [selectedCategory])
     }
 
+    if (sortBy === 'Soonest') {
+      query = query.order('start_date', { ascending: true })
+    } else if (sortBy === 'Newest') {
+      query = query.order('created_at', { ascending: false })
+    } else if (sortBy === 'Most Viewed') {
+      query = query.order('view_count', { ascending: false })
+    }
+
+    query = query.range(currentPage * ITEMS_PER_PAGE, (currentPage + 1) * ITEMS_PER_PAGE - 1)
+
     const { data, error } = await query
 
     if (error) {
       console.error('Error fetching garage sales:', error)
-      setSales([])
+      if (!isLoadMore) setSales([])
     } else {
-      let sorted = data || []
+      let results = data || []
 
-      if (sortBy === 'Newest') {
-        sorted = sorted.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
-      } else if (sortBy === 'Nearest' && userLocation) {
+      if (timeFilter === 'This Weekend') {
+        results = results.filter(sale => {
+          const d = new Date(sale.start_date)
+          const day = d.getDay()
+          return day === 5 || day === 6 || day === 0 || day === 4 // Include Friday-Sunday (4 is rough due to timezone shift from GMT)
+        })
+      }
+
+      let sorted = results
+      
+      if (sortBy === 'Nearest' && userLocation) {
         sorted = sorted.sort((a, b) => {
           const distA = getDistance(userLocation.lat, userLocation.lng, a.latitude, a.longitude)
           const distB = getDistance(userLocation.lat, userLocation.lng, b.latitude, b.longitude)
@@ -81,14 +115,20 @@ export default function GarageSales() {
         })
       }
 
-      setSales(sorted)
+      if (isLoadMore) {
+        setSales(prev => [...prev, ...sorted])
+        setPage(currentPage)
+      } else {
+        setSales(sorted)
+      }
+      setHasMore(data.length === ITEMS_PER_PAGE)
     }
     setLoading(false)
-  }, [search, selectedCategory, sortBy, userLocation])
+  }, [search, selectedCategory, sortBy, userLocation, timeFilter, page])
 
   useEffect(() => {
-    fetchSales()
-  }, [fetchSales])
+    fetchSales(false)
+  }, [search, selectedCategory, sortBy, userLocation, timeFilter])
 
   const getDistanceForSale = (sale) => {
     if (!userLocation || !sale.latitude || !sale.longitude) return null
@@ -163,10 +203,27 @@ export default function GarageSales() {
             </div>
           </div>
 
-          {/* Category Filter Pills */}
+          {/* Category & Time Filters */}
           {showFilters && (
-            <div className="max-w-2xl mx-auto mt-4 p-4 bg-white dark:bg-white/[0.02] border border-slate-200 dark:border-white/[0.06] rounded-2xl shadow-sm animate-fade-in-up">
-              <div className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2 uppercase tracking-wider">Categories</div>
+            <div className="max-w-2xl mx-auto mt-4 p-4 bg-white dark:bg-white/[0.02] border border-slate-200 dark:border-white/[0.06] rounded-2xl shadow-sm animate-fade-in-up space-y-5">
+              
+              <div>
+                <div className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2 uppercase tracking-wider">When</div>
+                <div className="flex flex-wrap gap-2">
+                  {TIME_FILTERS.map(tf => (
+                    <button
+                      key={tf}
+                      onClick={() => setTimeFilter(tf)}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${timeFilter === tf ? 'bg-emerald-500 text-white shadow-md shadow-emerald-500/20' : 'bg-slate-100 dark:bg-white/[0.04] text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-white/[0.08]'}`}
+                    >
+                      {tf === 'Active Now' ? '🟢 ' : ''}{tf}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <div className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2 uppercase tracking-wider">Categories</div>
               <div className="flex flex-wrap gap-2">
                 <button
                   onClick={() => setSelectedCategory('All')}
@@ -184,6 +241,7 @@ export default function GarageSales() {
                   </button>
                 ))}
               </div>
+            </div>
             </div>
           )}
         </div>
@@ -212,31 +270,55 @@ export default function GarageSales() {
             className="h-[calc(100vh-280px)] sm:h-[600px]"
           />
         ) : sales.length === 0 ? (
-          <div className="text-center py-20">
-            <div className="text-6xl mb-4 opacity-30">🏷️</div>
-            <h2 className="text-xl font-bold text-slate-700 dark:text-slate-300 mb-2">No Garage Sales Found</h2>
-            <p className="text-sm text-slate-500 dark:text-slate-400 mb-6 max-w-md mx-auto">
-              {search || selectedCategory !== 'All'
-                ? 'Try adjusting your search or filters to find more results.'
-                : 'Be the first to post a garage sale in your neighborhood!'}
+          <div className="text-center py-20 bg-white dark:bg-white/[0.02] border border-slate-200 dark:border-white/[0.06] rounded-3xl max-w-2xl mx-auto shadow-sm">
+            <div className="w-24 h-24 mx-auto mb-6 bg-emerald-500/10 rounded-full flex items-center justify-center animate-pulse">
+              <span className="text-5xl">🔭</span>
+            </div>
+            <h2 className="text-2xl font-extrabold text-slate-800 dark:text-slate-200 mb-3">No Garage Sales Found</h2>
+            <p className="text-slate-500 dark:text-slate-400 mb-8 max-w-sm mx-auto leading-relaxed">
+              {search || selectedCategory !== 'All' || timeFilter !== 'All Upcoming'
+                ? "We couldn't find any garage sales matching your exact filters. Try broadening your search!"
+                : "Looks like it's quiet in your neighborhood. Be the first to host a garage sale this weekend!"}
             </p>
-            <button
-              onClick={() => user ? navigate('/create-garage-sale') : navigate('/login')}
-              className="px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-xl font-semibold shadow-lg shadow-emerald-500/25 hover:opacity-90 active:scale-95 transition-all cursor-pointer"
-            >
-              + Post a Garage Sale
-            </button>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+              {(search || selectedCategory !== 'All' || timeFilter !== 'All Upcoming') && (
+                <button
+                  onClick={() => { setSearch(''); setSelectedCategory('All'); setTimeFilter('All Upcoming'); }}
+                  className="px-6 py-3 bg-slate-100 dark:bg-white/[0.05] text-slate-700 dark:text-slate-300 rounded-xl font-semibold hover:bg-slate-200 dark:hover:bg-white/[0.1] active:scale-95 transition-all w-full sm:w-auto"
+                >
+                  Clear Filters
+                </button>
+              )}
+              <button
+                onClick={() => user ? navigate('/create-garage-sale') : navigate('/login')}
+                className="px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-xl font-semibold shadow-lg shadow-emerald-500/25 hover:opacity-90 active:scale-95 transition-all w-full sm:w-auto"
+              >
+                + Post a Sale
+              </button>
+            </div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-            {sales.map(sale => (
-              <GarageSaleCard
-                key={sale.id}
-                sale={sale}
-                distance={getDistanceForSale(sale)}
-              />
-            ))}
-          </div>
+          <>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+              {sales.map(sale => (
+                <GarageSaleCard
+                  key={sale.id}
+                  sale={sale}
+                  distance={getDistanceForSale(sale)}
+                />
+              ))}
+            </div>
+            {hasMore && view !== 'map' && (
+              <div className="mt-10 text-center">
+                <button
+                  onClick={() => fetchSales(true)}
+                  className="px-8 py-3 bg-white dark:bg-white/[0.03] border border-slate-200 dark:border-white/[0.08] text-slate-700 dark:text-slate-300 rounded-xl font-bold shadow-sm hover:bg-slate-50 dark:hover:bg-white/[0.06] active:scale-95 transition-all"
+                >
+                  Load More Garage Sales
+                </button>
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>
