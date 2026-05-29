@@ -23,6 +23,9 @@ import PrivacyPolicy from './pages/PrivacyPolicy'
 import TermsOfService from './pages/TermsOfService'
 import Contact from './pages/Contact'
 import Dashboard from './pages/Dashboard'
+import GarageSales from './features/garage-sales/pages/GarageSales'             /* GARAGE-SALES-FEATURE */
+import GarageSaleDetail from './features/garage-sales/pages/GarageSaleDetail'   /* GARAGE-SALES-FEATURE */
+import CreateGarageSale from './features/garage-sales/pages/CreateGarageSale'   /* GARAGE-SALES-FEATURE */
 
 export default function App() {
   return (
@@ -40,6 +43,9 @@ export default function App() {
               <Route path="/privacy" element={<PrivacyPolicy />} />
               <Route path="/terms" element={<TermsOfService />} />
               <Route path="/contact" element={<Contact />} />
+              <Route path="/garage-sales" element={<GarageSales />} />                                                    {/* GARAGE-SALES-FEATURE */}
+              <Route path="/garage-sales/:id" element={<GarageSaleDetail />} />                                            {/* GARAGE-SALES-FEATURE */}
+              <Route path="/create-garage-sale" element={<ProtectedRoute><CreateGarageSale /></ProtectedRoute>} />          {/* GARAGE-SALES-FEATURE */}
               <Route path="/feed" element={<ProtectedRoute><Feed /></ProtectedRoute>} />
               <Route path="/listing/:id" element={<ProtectedRoute><ListingDetail /></ProtectedRoute>} />
               <Route path="/create" element={<ProtectedRoute><CreateListing /></ProtectedRoute>} />
