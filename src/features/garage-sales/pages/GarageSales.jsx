@@ -56,7 +56,7 @@ export default function GarageSales() {
       .order('start_date', { ascending: true })
 
     if (search.trim()) {
-      query = query.or(`city.ilike.%${search}%,zip_code.ilike.%${search}%,title.ilike.%${search}%,address.ilike.%${search}%`)
+      query = query.or(`city.ilike.%${search}%,zip_code.ilike.%${search}%,title.ilike.%${search}%,address.ilike.%${search}%,neighborhood.ilike.%${search}%`)
     }
 
     if (selectedCategory !== 'All') {
@@ -120,7 +120,7 @@ export default function GarageSales() {
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search by city, zip code, or keyword..."
+                placeholder="Search by neighborhood, city, or keyword..."
                 className="w-full bg-white dark:bg-white/[0.03] border border-slate-200 dark:border-white/[0.08] rounded-xl pl-11 pr-4 py-3 text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-emerald-500/60 focus:ring-1 focus:ring-emerald-500/20 transition-all shadow-sm"
               />
             </div>
