@@ -33,6 +33,10 @@ export default function GarageSaleDetail() {
 
   const fetchSale = async () => {
     setLoading(true)
+
+    // Increment view count
+    await supabase.rpc('increment_garage_sale_view', { sale_id: id })
+
     const { data, error } = await supabase
       .from('garage_sales')
       .select('*')
@@ -143,10 +147,12 @@ export default function GarageSaleDetail() {
         </div>
 
         {/* Date & Time */}
-        <div className="flex items-center gap-4 text-sm text-slate-600 dark:text-slate-300 font-medium mb-6">
+        <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-sm text-slate-600 dark:text-slate-300 font-medium mb-6">
           <span>📅 {formatDateRange(sale.start_date, sale.end_date)}</span>
           <span className="text-slate-300 dark:text-slate-600">|</span>
           <span>🕐 {formatTime(sale.start_time)} – {formatTime(sale.end_time)}</span>
+          <span className="text-slate-300 dark:text-slate-600">|</span>
+          <span className="flex items-center gap-1.5 text-slate-500" title="Total Views">👁️ {sale.view_count || 0}</span>
         </div>
 
         {/* Action Buttons */}

@@ -121,6 +121,8 @@ export default function GarageSaleCard({ sale, distance }) {
           <span className="flex items-center gap-1.5">📅 {formatDateRange(sale.start_date, sale.end_date)}</span>
           <span className="hidden sm:inline text-slate-300 dark:text-slate-600">|</span>
           <span className="flex items-center gap-1.5">🕐 {formatTime(sale.start_time)} – {formatTime(sale.end_time)}</span>
+          <span className="hidden sm:inline text-slate-300 dark:text-slate-600">|</span>
+          <span className="flex items-center gap-1 text-slate-500">👁️ {sale.view_count || 0}</span>
         </div>
 
         {/* Categories */}
