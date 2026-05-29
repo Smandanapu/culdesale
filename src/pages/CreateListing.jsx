@@ -57,6 +57,7 @@ export default function CreateListing() {
     is_free: false,
     duration: DURATIONS[1],
     meetup_type: MEETUP_TYPES[0],
+    zip_code: '',
   })
 
   const set = (key, val) => setForm(f => ({ ...f, [key]: val }))
@@ -132,6 +133,7 @@ export default function CreateListing() {
       meetup_type: form.meetup_type,
       ends_at: endsAt.toISOString(),
       status: 'active',
+      zip_code: form.zip_code,
     })
 
     if (error) {
@@ -376,6 +378,23 @@ export default function CreateListing() {
                 ))}
               </div>
 
+              <div>
+                <label className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5 block">
+                  ZIP Code <span className="text-rose-400 font-bold">*</span>
+                </label>
+                <input
+                  type="text"
+                  pattern="[0-9]*"
+                  value={form.zip_code}
+                  onChange={e => {
+                    const clean = e.target.value.replace(/\D/g, '').slice(0, 5)
+                    set('zip_code', clean)
+                  }}
+                  placeholder="e.g. 90210"
+                  className="w-full bg-white dark:bg-white/[0.02] border border-slate-200 dark:border-white/[0.06] rounded-xl px-4 py-3 text-sm text-slate-900 dark:text-white placeholder-slate-500 focus:outline-none focus:border-orange-500/60 focus:bg-white dark:bg-white/[0.04] focus:ring-1 focus:ring-orange-500/20 transition-all duration-300 shadow-inner"
+                />
+              </div>
+
               <div className="mt-4 bg-white/[0.01] border border-slate-200 dark:border-white/[0.04] rounded-xl p-4">
                 <div className="text-sm font-bold mb-3 text-slate-900 dark:text-white">Review Summary</div>
                 <div className="flex flex-col gap-2.5">
@@ -386,6 +405,7 @@ export default function CreateListing() {
                     ['Pricing', form.is_free ? 'Freebie' : `$${form.starting_price}`],
                     ['Auction Length', form.duration.label],
                     ['Meetup Preference', form.meetup_type],
+                    ['ZIP Code', form.zip_code || 'Not set'],
                   ].map(([k, v]) => (
                     <div key={k} className="flex justify-between py-1 text-xs border-b border-slate-200 dark:border-white/[0.04] last:border-0">
                       <span className="text-slate-500 font-semibold">{k}</span>
@@ -417,7 +437,7 @@ export default function CreateListing() {
             ) : (
               <button
                 onClick={handleSubmit}
-                disabled={loading}
+                disabled={loading || !form.zip_code || form.zip_code.length !== 5}
                 className="flex-1 py-3 bg-gradient-to-r from-orange-500 to-amber-500 hover:opacity-90 disabled:opacity-40 text-slate-900 dark:text-white rounded-xl font-bold transition-all active:scale-[0.98] cursor-pointer shadow-lg shadow-orange-500/25"
               >
                 {loading ? 'Publishing...' : 'Go Live!'}

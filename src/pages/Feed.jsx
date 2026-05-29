@@ -21,6 +21,7 @@ export default function Feed() {
   const navigate = useNavigate()
   const { user } = useAuth()
   const [search, setSearch] = useState('')
+  const [zipSearch, setZipSearch] = useState('')
 
   const [listings, setListings] = useState([])
   const [category, setCategory] = useState('All')
@@ -48,6 +49,10 @@ const [sortOption, setSortOption] = useState('Newest')
     
     if (search) {
       query = query.or(`title.ilike.%${search}%,description.ilike.%${search}%`)
+    }
+
+    if (zipSearch && zipSearch.length === 5) {
+      query = query.eq('zip_code', zipSearch)
     }
 
     if (sortOption === 'Newest') {
@@ -80,7 +85,7 @@ const [sortOption, setSortOption] = useState('Newest')
     
     setLoading(false)
     setLoadingMore(false)
-  }, [category, search, sortOption])
+  }, [category, search, zipSearch, sortOption])
 
   const fetchFavorites = useCallback(async () => {
     if (!user) return
@@ -196,7 +201,7 @@ const [sortOption, setSortOption] = useState('Newest')
 
       <div className="max-w-6xl mx-auto px-4 py-6 relative z-10">
 
-        {/* Search & Sort */}
+        {/* Search & Sort & ZIP Code */}
         <div className="flex flex-col sm:flex-row gap-4 mb-4">
           <div className="relative flex-1 group">
             <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400 group-focus-within:text-orange-400 transition-colors">🔍</span>
@@ -216,7 +221,26 @@ const [sortOption, setSortOption] = useState('Newest')
             )}
           </div>
 
-
+          <div className="relative w-full sm:w-40 group">
+            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400 group-focus-within:text-orange-400 transition-colors">📍</span>
+            <input
+              value={zipSearch}
+              onChange={e => {
+                const val = e.target.value.replace(/\D/g, '').slice(0, 5)
+                setZipSearch(val)
+              }}
+              placeholder="ZIP Code"
+              className="w-full bg-white dark:bg-white/[0.02] border border-slate-200 dark:border-white/[0.06] rounded-xl pl-10 pr-4 py-3 text-sm text-slate-900 dark:text-white placeholder-slate-500 focus:outline-none focus:border-orange-500/60 focus:bg-white dark:bg-white/[0.04] focus:ring-1 focus:ring-orange-500/20 backdrop-blur-md transition-all duration-300 shadow-inner"
+            />
+            {zipSearch && (
+              <button
+                onClick={() => setZipSearch('')}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:text-white transition cursor-pointer"
+              >
+                ✕
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Categories and Sort */}
