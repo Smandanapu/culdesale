@@ -16,6 +16,7 @@ import Inbox from './pages/Inbox'
 import Chat from './pages/Chat'
 import SetupUsername from './pages/SetupUsername'
 import Profile from './pages/Profile'
+import PublicProfile from './pages/PublicProfile'
 import PrivacyPolicy from './pages/PrivacyPolicy'
 import TermsOfService from './pages/TermsOfService'
 import Contact from './pages/Contact'
@@ -43,6 +44,7 @@ export default function App() {
               <Route path="/inbox" element={<ProtectedRoute><Inbox /></ProtectedRoute>} />
               <Route path="/inbox/:conversationId" element={<ProtectedRoute><Chat /></ProtectedRoute>} />
               <Route path="*" element={<Navigate to="/" replace />} />
+              <Route path="/user/:username" element={<ProtectedRoute><PublicProfile /></ProtectedRoute>} />
               <Route path="/setup" element={<ProtectedRoute><SetupUsername /></ProtectedRoute>} />
               <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
               <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />

@@ -518,7 +518,15 @@ const [sortOption, setSortOption] = useState('Newest')
                       </div>
                       <div className="text-xs text-slate-500 dark:text-slate-400 text-right">
                         <div className="flex items-center justify-end gap-1.5 font-semibold text-slate-900 dark:text-white/95">
-                          <span>@{listing.profiles?.username || 'neighbor'}</span>
+                          <span 
+                            onClick={(e) => { 
+                              e.stopPropagation(); 
+                              if (listing.profiles?.username) navigate(`/user/${listing.profiles.username}`); 
+                            }}
+                            className={listing.profiles?.username ? "hover:text-orange-500 hover:underline cursor-pointer transition-colors" : ""}
+                          >
+                            @{listing.profiles?.username || 'neighbor'}
+                          </span>
                           {sellerRatings[listing.seller_id] && (
                             <span className="text-amber-400 font-extrabold text-[11px] flex items-center gap-0.5 bg-amber-500/10 border border-amber-500/20 px-1.5 py-0.5 rounded-full">
                               ★{sellerRatings[listing.seller_id].avg}
