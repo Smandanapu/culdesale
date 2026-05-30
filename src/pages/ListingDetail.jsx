@@ -4,6 +4,8 @@ import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import Navbar from '../components/Navbar'
 import NeighborhoodMap from '../components/NeighborhoodMap'
+import { CAR_DIMENSIONS } from '../lib/carDimensions'
+import { canItFit } from '../lib/fitCalculator'
 
 function timeLeft(endsAt) {
   if (!endsAt) return 'No expiry'
@@ -39,6 +41,8 @@ export default function ListingDetail() {
   const [submittingReview, setSubmittingReview] = useState(false)
   const [sellerRating, setSellerRating] = useState(null)
   const [showLightbox, setShowLightbox] = useState(false)
+  const [selectedCarId, setSelectedCarId] = useState('')
+  const [showFitCalculator, setShowFitCalculator] = useState(false)
 
   const nextPhoto = useCallback(() => {
     if (!listing || !listing.photos) return
@@ -590,6 +594,78 @@ export default function ListingDetail() {
               </>
             )}
           </div>
+
+          {/* Will It Fit Calculator */}
+          {listing.dim_length && listing.dim_width && listing.dim_height && (
+            <div className="mt-6 bg-slate-100 dark:bg-white/[0.02] border border-slate-200 dark:border-white/[0.06] rounded-2xl p-5 shadow-sm">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h3 className="font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                    🚗 Will it fit in my car?
+                  </h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                    Item Dimensions: {listing.dim_length}"L x {listing.dim_width}"W x {listing.dim_height}"H
+                  </p>
+                </div>
+                <button
+                  onClick={() => setShowFitCalculator(!showFitCalculator)}
+                  className="px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white text-xs font-bold rounded-xl transition-colors shadow-md shadow-indigo-500/20"
+                >
+                  {showFitCalculator ? 'Hide' : 'Check Fit'}
+                </button>
+              </div>
+
+              {showFitCalculator && (
+                <div className="mt-4 pt-4 border-t border-slate-200 dark:border-white/[0.06] animate-fade-in-up">
+                  <label className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2 block">
+                    Select your vehicle
+                  </label>
+                  <select
+                    value={selectedCarId}
+                    onChange={(e) => setSelectedCarId(e.target.value)}
+                    className="w-full bg-white dark:bg-[#0b0e14] border border-slate-200 dark:border-white/[0.1] rounded-xl px-4 py-3 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500/60 focus:ring-1 focus:ring-indigo-500/20 mb-4 cursor-pointer"
+                  >
+                    <option value="">-- Choose a vehicle --</option>
+                    {CAR_DIMENSIONS.map(car => (
+                      <option key={car.id} value={car.id}>
+                        {car.icon} {car.make} {car.model}
+                      </option>
+                    ))}
+                  </select>
+
+                  {selectedCarId && (
+                    <div className="bg-white dark:bg-black/20 rounded-xl p-4 border border-slate-200 dark:border-white/[0.04] flex items-center gap-4">
+                      {(() => {
+                        const car = CAR_DIMENSIONS.find(c => c.id === selectedCarId)
+                        const fits = canItFit(
+                          [listing.dim_length, listing.dim_width, listing.dim_height],
+                          car.dimensions
+                        )
+                        return (
+                          <>
+                            <div className={`w-14 h-14 shrink-0 rounded-full flex items-center justify-center text-2xl ${fits ? 'bg-emerald-500/20 text-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.3)]' : 'bg-rose-500/20 text-rose-500 shadow-[0_0_15px_rgba(244,63,94,0.3)]'}`}>
+                              {fits ? '✅' : '❌'}
+                            </div>
+                            <div>
+                              <h4 className={`font-bold ${fits ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>
+                                {fits ? 'Yes, it fits!' : 'No, it\'s too big.'}
+                              </h4>
+                              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                                {fits 
+                                  ? 'Based on the dimensions, you can fit this item in your cargo area (you may need to rotate it).'
+                                  : 'This item is too large for your cargo area in any orientation.'}
+                              </p>
+                            </div>
+                          </>
+                        )
+                      })()}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+
           {listing.latitude && listing.longitude && (
             <div className="mt-6 border border-slate-200 dark:border-white/[0.04] rounded-2xl overflow-hidden shadow-sm h-48 sm:h-64">
               <NeighborhoodMap latitude={listing.latitude} longitude={listing.longitude} />
