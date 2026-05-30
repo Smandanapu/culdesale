@@ -655,6 +655,11 @@ export default function ListingDetail() {
                                   ? 'Based on the dimensions, you can fit this item in your cargo area (you may need to rotate it).'
                                   : 'This item is too large for your cargo area in any orientation.'}
                               </p>
+                              {fits && (
+                                <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-2 italic leading-tight">
+                                  *Please make sure to cross-check the dimensions on Google, as model variance and other factors may affect actual cargo space.
+                                </p>
+                              )}
                             </div>
                           </>
                         )
