@@ -5,6 +5,7 @@ import { useAuth } from '../../../context/AuthContext'
 import GarageSaleNavbar from '../components/GarageSaleNavbar'
 import GarageSaleCard from '../components/GarageSaleCard'
 import GarageSaleMap from '../components/GarageSaleMap'
+import { detectMegaSales } from '../lib/clustering'
 
 const CATEGORIES = ['Furniture', 'Electronics', 'Sports', 'Kids', 'Tools', 'Appliances', 'Clothing', 'Books', 'Other']
 const SORT_OPTIONS = ['Soonest', 'Newest', 'Nearest', 'Most Viewed']
@@ -27,6 +28,7 @@ export default function GarageSales() {
   const navigate = useNavigate()
   const { user } = useAuth()
   const [sales, setSales] = useState([])
+  const [megaSales, setMegaSales] = useState([])
   const [loading, setLoading] = useState(true)
   const [view, setView] = useState('list') // 'map' or 'list'
   const [search, setSearch] = useState('')
@@ -116,10 +118,13 @@ export default function GarageSales() {
       }
 
       if (isLoadMore) {
-        setSales(prev => [...prev, ...sorted])
+        const newSales = [...prev, ...sorted]
+        setSales(newSales)
+        setMegaSales(detectMegaSales(newSales))
         setPage(currentPage)
       } else {
         setSales(sorted)
+        setMegaSales(detectMegaSales(sorted))
       }
       setHasMore(data.length === ITEMS_PER_PAGE)
     }
@@ -247,8 +252,36 @@ export default function GarageSales() {
         </div>
       </div>
 
-      {/* Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 pb-12">
+      {/* Mega-Sale Alert Banner */}
+      {megaSales.length > 0 && !loading && (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-6">
+          <div className="bg-gradient-to-r from-orange-500 to-amber-500 rounded-2xl p-[2px] shadow-2xl shadow-orange-500/20 animate-pulse-slow">
+            <div className="bg-white dark:bg-[#0b0e14] rounded-xl p-5 sm:p-6 flex flex-col sm:flex-row items-center gap-4 sm:gap-6 relative overflow-hidden h-full">
+              <div className="absolute -top-10 -right-10 text-9xl opacity-10">🔥</div>
+              <div className="w-12 h-12 bg-orange-500/10 rounded-full flex items-center justify-center shrink-0">
+                <span className="text-2xl">🔥</span>
+              </div>
+              <div className="text-center sm:text-left flex-1 relative z-10">
+                <h3 className="text-lg font-extrabold text-slate-900 dark:text-white flex items-center gap-2 justify-center sm:justify-start">
+                  MEGA-SALE ZONE DETECTED!
+                  <span className="bg-rose-500 text-white text-[10px] uppercase px-2 py-0.5 rounded-full font-bold">Hot</span>
+                </h3>
+                <p className="text-sm text-slate-600 dark:text-slate-300 mt-1">
+                  We found <strong className="text-orange-600 dark:text-orange-400">{megaSales.length} massive cluster(s)</strong> of garage sales happening simultaneously! 
+                  {megaSales.map((m, i) => (
+                    <span key={i} className="block mt-1 font-medium">
+                      • {m.count} neighbors selling in <strong>{m.neighborhood}</strong> on {m.date}
+                    </span>
+                  ))}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
         {loading ? (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
             {[...Array(6)].map((_, i) => (
@@ -265,6 +298,7 @@ export default function GarageSales() {
         ) : view === 'map' ? (
           <GarageSaleMap
             sales={sales}
+            megaSales={megaSales}
             center={userLocation ? [userLocation.lat, userLocation.lng] : null}
             zoom={12}
             className="h-[calc(100vh-280px)] sm:h-[600px]"
@@ -307,7 +341,10 @@ export default function GarageSales() {
                   distance={getDistanceForSale(sale)}
                   onSaleDeleted={(deletedId) => {
                     setSales(prev => prev.filter(s => s.id !== deletedId))
+                    // Re-run clustering since a sale was removed
+                    setMegaSales(detectMegaSales(sales.filter(s => s.id !== deletedId)))
                   }}
+                  isMegaSale={megaSales.some(m => m.saleIds.includes(sale.id))}
                 />
               ))}
             </div>

@@ -3,9 +3,10 @@
 
 export async function geocodeAddress(address, city, state, zip) {
   const query = [address, city, state, zip].filter(Boolean).join(', ')
+  const fallbackQuery = [city, state, zip].filter(Boolean).join(', ')
   
   try {
-    const response = await fetch(
+    let response = await fetch(
       `https://nominatim.openstreetmap.org/search?` + 
       new URLSearchParams({
         q: query,
@@ -20,7 +21,27 @@ export async function geocodeAddress(address, city, state, zip) {
       }
     )
     
-    const data = await response.json()
+    let data = await response.json()
+    
+    // If strict address fails, fallback to city/state/zip
+    if (!data || data.length === 0) {
+      console.warn(`Geocoding failed for strict address: ${query}. Retrying with fallback: ${fallbackQuery}`)
+      response = await fetch(
+        `https://nominatim.openstreetmap.org/search?` + 
+        new URLSearchParams({
+          q: fallbackQuery,
+          format: 'json',
+          limit: '1',
+          countrycodes: 'us'
+        }),
+        {
+          headers: {
+            'User-Agent': 'CulDeSale-App/1.0'
+          }
+        }
+      )
+      data = await response.json()
+    }
     
     if (data && data.length > 0) {
       return {
