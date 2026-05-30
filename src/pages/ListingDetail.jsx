@@ -43,6 +43,13 @@ export default function ListingDetail() {
   const [showLightbox, setShowLightbox] = useState(false)
   const [selectedCarId, setSelectedCarId] = useState('')
   const [showFitCalculator, setShowFitCalculator] = useState(false)
+  const [currentTime, setCurrentTime] = useState(new Date())
+
+  useEffect(() => {
+    if (!listing?.is_live_drop) return
+    const interval = setInterval(() => setCurrentTime(new Date()), 1000)
+    return () => clearInterval(interval)
+  }, [listing?.is_live_drop])
 
   const nextPhoto = useCallback(() => {
     if (!listing || !listing.photos) return
@@ -458,7 +465,6 @@ export default function ListingDetail() {
   const isFirefighter = user?.email === 'satish.dfw@gmail.com'
   const canManage = isSeller || isFirefighter
   const minBid = (listing.current_price || listing.starting_price) + 1
-  const isEnded = timeLeft(listing.ends_at) === 'Ended'
   const isSold = listing.status === 'sold'
   const isReserved = listing.status === 'reserved'
   const isReservedByMe = isReserved && listing.reserved_by === user.id
@@ -473,6 +479,24 @@ export default function ListingDetail() {
     const m = Math.floor((diff % 3600000) / 60000)
     return `${h}h ${m}m`
   }
+
+  const dropTime = listing?.drop_time ? new Date(listing.drop_time) : null
+  const dropEndTime = dropTime ? new Date(dropTime.getTime() + 15 * 60000) : null
+  const isPreDrop = listing?.is_live_drop && dropTime && dropTime > currentTime
+  const isActiveDrop = listing?.is_live_drop && dropTime && dropTime <= currentTime && dropEndTime > currentTime
+  const isDropEndedByTime = listing?.is_live_drop && dropEndTime && dropEndTime <= currentTime
+
+  const formatCountdown = (targetDate) => {
+    if (!targetDate) return ''
+    const diff = targetDate - currentTime
+    if (diff <= 0) return '00:00:00'
+    const h = Math.floor(diff / 3600000).toString().padStart(2, '0')
+    const m = Math.floor((diff % 3600000) / 60000).toString().padStart(2, '0')
+    const s = Math.floor((diff % 60000) / 1000).toString().padStart(2, '0')
+    return `${h}:${m}:${s}`
+  }
+
+  const isEnded = timeLeft(listing.ends_at) === 'Ended' || isDropEndedByTime
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#07090e] bg-grid-pattern text-slate-900 dark:text-slate-100 relative overflow-hidden">
@@ -567,6 +591,24 @@ export default function ListingDetail() {
             </div>
           )}
         </div>
+
+        {/* Live Drop Header */}
+        {listing.is_live_drop && (
+          <div className={`mb-6 p-6 rounded-2xl border backdrop-blur-md shadow-2xl flex flex-col items-center justify-center text-center ${
+            isPreDrop 
+              ? 'bg-slate-900 border-slate-700 text-white' 
+              : isActiveDrop
+              ? 'bg-orange-500/10 border-orange-500 text-orange-500 animate-pulse'
+              : 'bg-rose-500/10 border-rose-500 text-rose-500'
+          }`}>
+            <h2 className="text-sm font-black tracking-widest uppercase mb-2">
+              {isPreDrop ? '🔥 Live Drop Unlocks In' : isActiveDrop ? '⚡ FLASH AUCTION ACTIVE - ENDS IN' : '🛑 Flash Auction Ended'}
+            </h2>
+            <div className={`text-6xl font-black font-mono tracking-tighter ${isPreDrop ? 'text-white' : isActiveDrop ? 'text-orange-500' : 'text-rose-500'}`}>
+              {isPreDrop ? formatCountdown(dropTime) : isActiveDrop ? formatCountdown(dropEndTime) : '00:00:00'}
+            </div>
+          </div>
+        )}
 
         <div className="mb-6">
           <div className="text-xs text-indigo-400 font-semibold uppercase tracking-wider mb-2">{listing.category}</div>
@@ -679,7 +721,8 @@ export default function ListingDetail() {
         </div>
 
         {/* Pricing Dashboard */}
-        <div className="bg-white dark:bg-white/[0.015] border border-slate-200 dark:border-white/[0.04] rounded-2xl p-6 mb-6 backdrop-blur-md shadow-lg">
+        {(!listing.is_live_drop || !isPreDrop) && (
+          <div className="bg-white dark:bg-white/[0.015] border border-slate-200 dark:border-white/[0.04] rounded-2xl p-6 mb-6 backdrop-blur-md shadow-lg">
           <div className="flex justify-between items-center mb-4">
             <div>
               <div className="text-[10px] text-slate-500 uppercase font-semibold tracking-wider mb-1">
@@ -701,6 +744,7 @@ export default function ListingDetail() {
             {!listing.is_free && <span>Started at ${listing.starting_price}</span>}
           </div>
         </div>
+        )}
 
         {bids.length > 0 && (
           <div className="bg-white dark:bg-white/[0.015] border border-slate-200 dark:border-white/[0.04] rounded-2xl p-5 mb-6 backdrop-blur-md shadow-lg">
@@ -831,7 +875,7 @@ export default function ListingDetail() {
         )}
 
         {/* Buyer Actions */}
-        {!isSeller && listing.status === 'active' && !isEnded && (
+        {!isSeller && listing.status === 'active' && !isEnded && !isPreDrop && (
           <div className="flex flex-col gap-4">
             {!listing.is_free && (
               <div className="flex flex-col sm:flex-row gap-3">

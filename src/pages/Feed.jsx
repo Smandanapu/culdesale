@@ -269,6 +269,9 @@ const [sortOption, setSortOption] = useState('Newest')
     return l.computedDistance !== undefined && l.computedDistance !== null && l.computedDistance <= maxDist;
   });
 
+  const liveDrops = filteredListings.filter(l => l.is_live_drop);
+  const regularListings = filteredListings.filter(l => !l.is_live_drop);
+
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#07090e] bg-grid-pattern text-slate-900 dark:text-slate-100 relative overflow-hidden">
       {/* Floating Ambient Glow Orbs */}
@@ -399,9 +402,51 @@ const [sortOption, setSortOption] = useState('Newest')
           </div>
         )}
 
-        {!loading && filteredListings.length > 0 && (
+        {/* 🔥 Live Drops Section */}
+        {!loading && liveDrops.length > 0 && (
+          <div className="mb-8">
+            <h2 className="text-xl font-black text-orange-500 mb-4 flex items-center gap-2">
+              <span className="animate-pulse">🔥</span> LIVE DROPS
+            </h2>
+            <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-orange-500/20">
+              {liveDrops.map(listing => (
+                <div
+                  key={listing.id}
+                  onClick={() => navigate('/listing/' + listing.id)}
+                  className="w-72 shrink-0 card-gradient-border bg-[#0a0a0a] backdrop-blur-md border-2 border-orange-500/30 rounded-2xl overflow-hidden cursor-pointer hover:-translate-y-1.5 hover:shadow-[0_0_20px_rgba(249,115,22,0.2)] transition-all duration-300 flex flex-col group"
+                >
+                  <div className="h-40 bg-black flex items-center justify-center relative overflow-hidden">
+                    {listing.photos && listing.photos[0] ? (
+                      <img
+                        src={listing.photos[0]}
+                        alt={listing.title}
+                        className="w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity duration-500"
+                      />
+                    ) : (
+                      <span className="text-4xl">📦</span>
+                    )}
+                    <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                      <span className="text-3xl mb-1">⏱️</span>
+                      <span className="text-white font-black tracking-widest text-lg drop-shadow-md bg-black/50 px-3 py-1 rounded-md border border-white/10">
+                        {listing.drop_time && new Date(listing.drop_time) > new Date() ? 'DROPS SOON' : 'LIVE NOW'}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="p-4 flex flex-col flex-1">
+                    <h3 className="font-bold text-white text-lg truncate mb-1">{listing.title}</h3>
+                    <p className="text-xs font-semibold text-orange-400">
+                      {listing.drop_time ? new Date(listing.drop_time).toLocaleString(undefined, { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric'}) : 'TBD'}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {!loading && regularListings.length > 0 && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredListings.map(listing => (
+            {regularListings.map(listing => (
               <div
                 key={listing.id}
                 onClick={() => navigate('/listing/' + listing.id)}
