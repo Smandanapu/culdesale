@@ -164,7 +164,7 @@ export default function WantedDetail() {
             </div>
 
             {!isOwner && bounty.status === 'active' && (
-              <div className="mt-12 text-center">
+              <div className="mt-16 sm:mt-20 pt-10 border-t border-amber-900/10 dark:border-amber-500/20 text-center relative z-10 flex flex-col items-center">
                 <button
                   onClick={handleContactBuyer}
                   className="group relative inline-flex items-center justify-center gap-3 px-10 py-4 bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 rounded-2xl text-white font-bold text-lg tracking-wide shadow-xl shadow-orange-500/30 hover:shadow-orange-500/50 hover:scale-105 transition-all duration-300 active:scale-95 overflow-hidden"
@@ -173,7 +173,7 @@ export default function WantedDetail() {
                   <span className="text-2xl drop-shadow-md">✨</span>
                   <span className="drop-shadow-md">I Have This Item</span>
                 </button>
-                <p className="mt-3 text-sm font-semibold text-slate-600 dark:text-slate-400">Click to instantly message the buyer.</p>
+                <p className="mt-4 text-sm font-semibold text-slate-600 dark:text-slate-400">Click to instantly message the buyer.</p>
               </div>
             )}
           </div>
