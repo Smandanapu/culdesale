@@ -338,7 +338,7 @@ export default function EditListing() {
           {/* Dimensions */}
           <div>
             <label className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2 block">Dimensions (inches) - Optional</label>
-            <div className="flex gap-2">
+            <div className="flex flex-col sm:flex-row gap-2">
               <input
                 type="number"
                 value={form.dim_length}

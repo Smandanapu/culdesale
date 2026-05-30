@@ -604,7 +604,7 @@ export default function ListingDetail() {
             <h2 className="text-sm font-black tracking-widest uppercase mb-2">
               {isPreDrop ? '🔥 Live Drop Unlocks In' : isActiveDrop ? '⚡ FLASH AUCTION ACTIVE - ENDS IN' : '🛑 Flash Auction Ended'}
             </h2>
-            <div className={`text-6xl font-black font-mono tracking-tighter ${isPreDrop ? 'text-white' : isActiveDrop ? 'text-orange-500' : 'text-rose-500'}`}>
+            <div className={`text-4xl sm:text-6xl font-black font-mono tracking-tighter ${isPreDrop ? 'text-white' : isActiveDrop ? 'text-orange-500' : 'text-rose-500'}`}>
               {isPreDrop ? formatCountdown(dropTime) : isActiveDrop ? formatCountdown(dropEndTime) : '00:00:00'}
             </div>
           </div>
