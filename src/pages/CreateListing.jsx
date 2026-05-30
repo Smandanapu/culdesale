@@ -129,6 +129,11 @@ export default function CreateListing() {
     duration: DURATIONS[1],
     meetup_type: MEETUP_TYPES[0],
     zip_code: '',
+    dim_length: '',
+    dim_width: '',
+    dim_height: '',
+    is_live_drop: false,
+    drop_time: '',
   })
 
   const set = (key, val) => setForm(f => ({ ...f, [key]: val }))
@@ -224,6 +229,11 @@ export default function CreateListing() {
       zip_code: form.zip_code,
       latitude: lat,
       longitude: lon,
+      dim_length: form.dim_length ? parseFloat(form.dim_length) : null,
+      dim_width: form.dim_width ? parseFloat(form.dim_width) : null,
+      dim_height: form.dim_height ? parseFloat(form.dim_height) : null,
+      is_live_drop: form.is_live_drop,
+      drop_time: form.is_live_drop && form.drop_time ? new Date(form.drop_time).toISOString() : null,
     })
 
     if (error) {
@@ -409,12 +419,72 @@ export default function CreateListing() {
                   ))}
                 </div>
               </div>
+
+              <div>
+                <label className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2 block">Dimensions (inches) - Optional</label>
+                <div className="flex gap-2">
+                  <input
+                    type="number"
+                    value={form.dim_length}
+                    onChange={e => set('dim_length', e.target.value)}
+                    placeholder="Length"
+                    className="w-full bg-white dark:bg-white/[0.02] border border-slate-200 dark:border-white/[0.06] rounded-xl px-3 py-2 text-sm text-slate-900 dark:text-white placeholder-slate-500 focus:outline-none focus:border-orange-500/60 focus:ring-1 focus:ring-orange-500/20"
+                  />
+                  <input
+                    type="number"
+                    value={form.dim_width}
+                    onChange={e => set('dim_width', e.target.value)}
+                    placeholder="Width"
+                    className="w-full bg-white dark:bg-white/[0.02] border border-slate-200 dark:border-white/[0.06] rounded-xl px-3 py-2 text-sm text-slate-900 dark:text-white placeholder-slate-500 focus:outline-none focus:border-orange-500/60 focus:ring-1 focus:ring-orange-500/20"
+                  />
+                  <input
+                    type="number"
+                    value={form.dim_height}
+                    onChange={e => set('dim_height', e.target.value)}
+                    placeholder="Height"
+                    className="w-full bg-white dark:bg-white/[0.02] border border-slate-200 dark:border-white/[0.06] rounded-xl px-3 py-2 text-sm text-slate-900 dark:text-white placeholder-slate-500 focus:outline-none focus:border-orange-500/60 focus:ring-1 focus:ring-orange-500/20"
+                  />
+                </div>
+              </div>
             </div>
           )}
 
           {step === 2 && (
             <div className="flex flex-col gap-5">
               <div className="text-lg font-bold text-slate-900 dark:text-white mb-1">Pricing & Duration</div>
+
+              {/* Live Drop Toggle */}
+              <div
+                onClick={() => set('is_live_drop', !form.is_live_drop)}
+                className={`flex items-center justify-between p-4 rounded-xl border cursor-pointer transition-all duration-200 ${
+                  form.is_live_drop
+                    ? 'bg-orange-500/10 border-orange-500/25 text-slate-900 dark:text-white'
+                    : 'bg-white/[0.01] border-slate-200 dark:border-white/[0.04] hover:bg-white dark:bg-white/[0.02]'
+                }`}
+              >
+                <div>
+                  <div className="font-semibold text-sm flex items-center gap-2">🔥 Make this a Live Drop</div>
+                  <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Creates a countdown timer and a 15-minute flash auction.</div>
+                </div>
+                <div className={`w-10 h-6 rounded-full relative transition-colors duration-200 ${form.is_live_drop ? 'bg-orange-500' : 'bg-white/[0.08]'}`}>
+                  <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all duration-200 ${form.is_live_drop ? 'left-5' : 'left-1'}`} />
+                </div>
+              </div>
+
+              {form.is_live_drop && (
+                <div className="p-4 bg-orange-500/5 border border-orange-500/20 rounded-xl">
+                  <label className="text-xs font-semibold uppercase tracking-wider text-orange-500 mb-1.5 block">When does the drop start?</label>
+                  <input
+                    type="datetime-local"
+                    value={form.drop_time}
+                    onChange={e => set('drop_time', e.target.value)}
+                    className="w-full bg-white dark:bg-white/[0.02] border border-orange-500/20 rounded-xl px-4 py-3 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-orange-500/60 focus:ring-1 focus:ring-orange-500/20 transition-all duration-300"
+                  />
+                  <p className="text-[10px] text-orange-500/80 mt-2 italic">
+                    When this time is reached, the item will unlock for exactly 15 minutes of live bidding.
+                  </p>
+                </div>
+              )}
 
               <div
                 onClick={() => set('is_free', !form.is_free)}

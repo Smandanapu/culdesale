@@ -4,6 +4,8 @@ import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import Navbar from '../components/Navbar'
 import NeighborhoodMap from '../components/NeighborhoodMap'
+import { CAR_DIMENSIONS } from '../lib/carDimensions'
+import { canItFit } from '../lib/fitCalculator'
 
 function timeLeft(endsAt) {
   if (!endsAt) return 'No expiry'
@@ -39,6 +41,15 @@ export default function ListingDetail() {
   const [submittingReview, setSubmittingReview] = useState(false)
   const [sellerRating, setSellerRating] = useState(null)
   const [showLightbox, setShowLightbox] = useState(false)
+  const [selectedCarId, setSelectedCarId] = useState('')
+  const [showFitCalculator, setShowFitCalculator] = useState(false)
+  const [currentTime, setCurrentTime] = useState(new Date())
+
+  useEffect(() => {
+    if (!listing?.is_live_drop) return
+    const interval = setInterval(() => setCurrentTime(new Date()), 1000)
+    return () => clearInterval(interval)
+  }, [listing?.is_live_drop])
 
   const nextPhoto = useCallback(() => {
     if (!listing || !listing.photos) return
@@ -454,7 +465,6 @@ export default function ListingDetail() {
   const isFirefighter = user?.email === 'satish.dfw@gmail.com'
   const canManage = isSeller || isFirefighter
   const minBid = (listing.current_price || listing.starting_price) + 1
-  const isEnded = timeLeft(listing.ends_at) === 'Ended'
   const isSold = listing.status === 'sold'
   const isReserved = listing.status === 'reserved'
   const isReservedByMe = isReserved && listing.reserved_by === user.id
@@ -469,6 +479,24 @@ export default function ListingDetail() {
     const m = Math.floor((diff % 3600000) / 60000)
     return `${h}h ${m}m`
   }
+
+  const dropTime = listing?.drop_time ? new Date(listing.drop_time) : null
+  const dropEndTime = dropTime ? new Date(dropTime.getTime() + 15 * 60000) : null
+  const isPreDrop = listing?.is_live_drop && dropTime && dropTime > currentTime
+  const isActiveDrop = listing?.is_live_drop && dropTime && dropTime <= currentTime && dropEndTime > currentTime
+  const isDropEndedByTime = listing?.is_live_drop && dropEndTime && dropEndTime <= currentTime
+
+  const formatCountdown = (targetDate) => {
+    if (!targetDate) return ''
+    const diff = targetDate - currentTime
+    if (diff <= 0) return '00:00:00'
+    const h = Math.floor(diff / 3600000).toString().padStart(2, '0')
+    const m = Math.floor((diff % 3600000) / 60000).toString().padStart(2, '0')
+    const s = Math.floor((diff % 60000) / 1000).toString().padStart(2, '0')
+    return `${h}:${m}:${s}`
+  }
+
+  const isEnded = timeLeft(listing.ends_at) === 'Ended' || isDropEndedByTime
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#07090e] bg-grid-pattern text-slate-900 dark:text-slate-100 relative overflow-hidden">
@@ -564,6 +592,24 @@ export default function ListingDetail() {
           )}
         </div>
 
+        {/* Live Drop Header */}
+        {listing.is_live_drop && (
+          <div className={`mb-6 p-6 rounded-2xl border backdrop-blur-md shadow-2xl flex flex-col items-center justify-center text-center ${
+            isPreDrop 
+              ? 'bg-slate-900 border-slate-700 text-white' 
+              : isActiveDrop
+              ? 'bg-orange-500/10 border-orange-500 text-orange-500 animate-pulse'
+              : 'bg-rose-500/10 border-rose-500 text-rose-500'
+          }`}>
+            <h2 className="text-sm font-black tracking-widest uppercase mb-2">
+              {isPreDrop ? '🔥 Live Drop Unlocks In' : isActiveDrop ? '⚡ FLASH AUCTION ACTIVE - ENDS IN' : '🛑 Flash Auction Ended'}
+            </h2>
+            <div className={`text-6xl font-black font-mono tracking-tighter ${isPreDrop ? 'text-white' : isActiveDrop ? 'text-orange-500' : 'text-rose-500'}`}>
+              {isPreDrop ? formatCountdown(dropTime) : isActiveDrop ? formatCountdown(dropEndTime) : '00:00:00'}
+            </div>
+          </div>
+        )}
+
         <div className="mb-6">
           <div className="text-xs text-indigo-400 font-semibold uppercase tracking-wider mb-2">{listing.category}</div>
           <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white mb-3 tracking-tight">{listing.title}</h1>
@@ -590,6 +636,83 @@ export default function ListingDetail() {
               </>
             )}
           </div>
+
+          {/* Will It Fit Calculator */}
+          {listing.dim_length && listing.dim_width && listing.dim_height && (
+            <div className="mt-6 bg-slate-100 dark:bg-white/[0.02] border border-slate-200 dark:border-white/[0.06] rounded-2xl p-5 shadow-sm">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h3 className="font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                    🚗 Will it fit in my car?
+                  </h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                    Item Dimensions: {listing.dim_length}"L x {listing.dim_width}"W x {listing.dim_height}"H
+                  </p>
+                </div>
+                <button
+                  onClick={() => setShowFitCalculator(!showFitCalculator)}
+                  className="px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white text-xs font-bold rounded-xl transition-colors shadow-md shadow-indigo-500/20"
+                >
+                  {showFitCalculator ? 'Hide' : 'Check Fit'}
+                </button>
+              </div>
+
+              {showFitCalculator && (
+                <div className="mt-4 pt-4 border-t border-slate-200 dark:border-white/[0.06] animate-fade-in-up">
+                  <label className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2 block">
+                    Select your vehicle
+                  </label>
+                  <select
+                    value={selectedCarId}
+                    onChange={(e) => setSelectedCarId(e.target.value)}
+                    className="w-full bg-white dark:bg-[#0b0e14] border border-slate-200 dark:border-white/[0.1] rounded-xl px-4 py-3 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500/60 focus:ring-1 focus:ring-indigo-500/20 mb-4 cursor-pointer"
+                  >
+                    <option value="">-- Choose a vehicle --</option>
+                    {CAR_DIMENSIONS.map(car => (
+                      <option key={car.id} value={car.id}>
+                        {car.icon} {car.make} {car.model}
+                      </option>
+                    ))}
+                  </select>
+
+                  {selectedCarId && (
+                    <div className="bg-white dark:bg-black/20 rounded-xl p-4 border border-slate-200 dark:border-white/[0.04] flex items-center gap-4">
+                      {(() => {
+                        const car = CAR_DIMENSIONS.find(c => c.id === selectedCarId)
+                        const fits = canItFit(
+                          [listing.dim_length, listing.dim_width, listing.dim_height],
+                          car.dimensions
+                        )
+                        return (
+                          <>
+                            <div className={`w-14 h-14 shrink-0 rounded-full flex items-center justify-center text-2xl ${fits ? 'bg-emerald-500/20 text-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.3)]' : 'bg-rose-500/20 text-rose-500 shadow-[0_0_15px_rgba(244,63,94,0.3)]'}`}>
+                              {fits ? '✅' : '❌'}
+                            </div>
+                            <div>
+                              <h4 className={`font-bold ${fits ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>
+                                {fits ? 'Yes, it fits!' : 'No, it\'s too big.'}
+                              </h4>
+                              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                                {fits 
+                                  ? 'Based on the dimensions, you can fit this item in your cargo area (you may need to rotate it).'
+                                  : 'This item is too large for your cargo area in any orientation.'}
+                              </p>
+                              {fits && (
+                                <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-2 italic leading-tight">
+                                  *Please make sure to cross-check the dimensions on Google, as model variance and other factors may affect actual cargo space.
+                                </p>
+                              )}
+                            </div>
+                          </>
+                        )
+                      })()}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+
           {listing.latitude && listing.longitude && (
             <div className="mt-6 border border-slate-200 dark:border-white/[0.04] rounded-2xl overflow-hidden shadow-sm h-48 sm:h-64">
               <NeighborhoodMap latitude={listing.latitude} longitude={listing.longitude} />
@@ -598,7 +721,8 @@ export default function ListingDetail() {
         </div>
 
         {/* Pricing Dashboard */}
-        <div className="bg-white dark:bg-white/[0.015] border border-slate-200 dark:border-white/[0.04] rounded-2xl p-6 mb-6 backdrop-blur-md shadow-lg">
+        {(!listing.is_live_drop || !isPreDrop) && (
+          <div className="bg-white dark:bg-white/[0.015] border border-slate-200 dark:border-white/[0.04] rounded-2xl p-6 mb-6 backdrop-blur-md shadow-lg">
           <div className="flex justify-between items-center mb-4">
             <div>
               <div className="text-[10px] text-slate-500 uppercase font-semibold tracking-wider mb-1">
@@ -620,6 +744,7 @@ export default function ListingDetail() {
             {!listing.is_free && <span>Started at ${listing.starting_price}</span>}
           </div>
         </div>
+        )}
 
         {bids.length > 0 && (
           <div className="bg-white dark:bg-white/[0.015] border border-slate-200 dark:border-white/[0.04] rounded-2xl p-5 mb-6 backdrop-blur-md shadow-lg">
@@ -750,7 +875,7 @@ export default function ListingDetail() {
         )}
 
         {/* Buyer Actions */}
-        {!isSeller && listing.status === 'active' && !isEnded && (
+        {!isSeller && listing.status === 'active' && !isEnded && !isPreDrop && (
           <div className="flex flex-col gap-4">
             {!listing.is_free && (
               <div className="flex flex-col sm:flex-row gap-3">
