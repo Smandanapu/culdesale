@@ -28,6 +28,9 @@ export default function EditListing() {
     is_free: false,
     meetup_type: '',
     zip_code: '',
+    dim_length: '',
+    dim_width: '',
+    dim_height: '',
   })
 
   const set = (key, val) => setForm(f => ({ ...f, [key]: val }))
@@ -64,6 +67,9 @@ export default function EditListing() {
       is_free: data.is_free || false,
       meetup_type: data.meetup_type || MEETUP_TYPES[0],
       zip_code: data.zip_code || '',
+      dim_length: data.dim_length || '',
+      dim_width: data.dim_width || '',
+      dim_height: data.dim_height || '',
     })
     setLoading(false)
   }
@@ -160,6 +166,9 @@ export default function EditListing() {
         zip_code: form.zip_code,
         latitude: lat,
         longitude: lon,
+        dim_length: form.dim_length ? parseFloat(form.dim_length) : null,
+        dim_width: form.dim_width ? parseFloat(form.dim_width) : null,
+        dim_height: form.dim_height ? parseFloat(form.dim_height) : null,
       })
       .eq('id', id)
 
@@ -317,6 +326,34 @@ export default function EditListing() {
                   }`}
                 >{c}</button>
               ))}
+            </div>
+          </div>
+
+          {/* Dimensions */}
+          <div>
+            <label className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2 block">Dimensions (inches) - Optional</label>
+            <div className="flex gap-2">
+              <input
+                type="number"
+                value={form.dim_length}
+                onChange={e => set('dim_length', e.target.value)}
+                placeholder="Length"
+                className="w-full bg-white dark:bg-white/[0.02] border border-slate-200 dark:border-white/[0.06] rounded-xl px-3 py-2 text-sm text-slate-900 dark:text-white placeholder-slate-500 focus:outline-none focus:border-orange-500/60 focus:ring-1 focus:ring-orange-500/20"
+              />
+              <input
+                type="number"
+                value={form.dim_width}
+                onChange={e => set('dim_width', e.target.value)}
+                placeholder="Width"
+                className="w-full bg-white dark:bg-white/[0.02] border border-slate-200 dark:border-white/[0.06] rounded-xl px-3 py-2 text-sm text-slate-900 dark:text-white placeholder-slate-500 focus:outline-none focus:border-orange-500/60 focus:ring-1 focus:ring-orange-500/20"
+              />
+              <input
+                type="number"
+                value={form.dim_height}
+                onChange={e => set('dim_height', e.target.value)}
+                placeholder="Height"
+                className="w-full bg-white dark:bg-white/[0.02] border border-slate-200 dark:border-white/[0.06] rounded-xl px-3 py-2 text-sm text-slate-900 dark:text-white placeholder-slate-500 focus:outline-none focus:border-orange-500/60 focus:ring-1 focus:ring-orange-500/20"
+              />
             </div>
           </div>
 
