@@ -28,6 +28,7 @@ export default function CreateListing() {
   const [voiceError, setVoiceError] = useState('')
   const [voiceTranscript, setVoiceTranscript] = useState('')
   const recognitionRef = useRef(null)
+  const isSpeechSupported = !!(window.SpeechRecognition || window.webkitSpeechRecognition)
 
   useEffect(() => {
     worker.current = new Worker(new URL('../lib/worker.js', import.meta.url), { type: 'module' })
@@ -266,34 +267,36 @@ export default function CreateListing() {
         )}
 
         {/* AI Voice Action */}
-        <div className="mb-6 relative group">
-          <div className={`absolute inset-0 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-2xl blur-xl transition-all duration-500 ${isListening ? 'opacity-100 scale-105' : 'opacity-0'}`}></div>
-          <button
-            onClick={startVoiceInput}
-            className={`w-full relative overflow-hidden bg-white dark:bg-white/[0.04] border ${isListening ? 'border-purple-500/50' : 'border-slate-200 dark:border-white/[0.06]'} rounded-2xl p-4 shadow-sm backdrop-blur-md flex items-center justify-between transition-all cursor-pointer hover:border-purple-500/30 group-hover:shadow-lg group-hover:shadow-purple-500/10`}
-          >
-            <div className="flex items-center gap-4">
-              <div className={`w-12 h-12 rounded-full flex items-center justify-center text-xl transition-all ${isListening ? 'bg-purple-500 text-white shadow-lg shadow-purple-500/30 scale-110 animate-pulse' : 'bg-slate-100 dark:bg-white/[0.04] text-slate-500 dark:text-slate-400'}`}>
-                🎙️
-              </div>
-              <div className="text-left">
-                <div className="font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                  Voice-to-Inventory 
-                  <span className="text-[10px] uppercase tracking-widest font-bold bg-purple-500/10 text-purple-600 dark:text-purple-400 px-2 py-0.5 rounded-full">AI Magic</span>
+        {isSpeechSupported && (
+          <div className="mb-6 relative group">
+            <div className={`absolute inset-0 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-2xl blur-xl transition-all duration-500 ${isListening ? 'opacity-100 scale-105' : 'opacity-0'}`}></div>
+            <button
+              onClick={startVoiceInput}
+              className={`w-full relative overflow-hidden bg-white dark:bg-white/[0.04] border ${isListening ? 'border-purple-500/50' : 'border-slate-200 dark:border-white/[0.06]'} rounded-2xl p-4 shadow-sm backdrop-blur-md flex items-center justify-between transition-all cursor-pointer hover:border-purple-500/30 group-hover:shadow-lg group-hover:shadow-purple-500/10`}
+            >
+              <div className="flex items-center gap-4">
+                <div className={`w-12 h-12 rounded-full flex items-center justify-center text-xl transition-all ${isListening ? 'bg-purple-500 text-white shadow-lg shadow-purple-500/30 scale-110 animate-pulse' : 'bg-slate-100 dark:bg-white/[0.04] text-slate-500 dark:text-slate-400'}`}>
+                  🎙️
                 </div>
-                <div className="text-xs text-slate-500 dark:text-slate-400">
-                  {isListening ? (
-                    <span className="text-purple-600 dark:text-purple-400 font-medium">Listening... "{voiceTranscript}"</span>
-                  ) : (
-                    "Tap to speak your listing (e.g. 'Vintage lamp for $15')"
-                  )}
+                <div className="text-left">
+                  <div className="font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                    Voice-to-Inventory 
+                    <span className="text-[10px] uppercase tracking-widest font-bold bg-purple-500/10 text-purple-600 dark:text-purple-400 px-2 py-0.5 rounded-full">AI Magic</span>
+                  </div>
+                  <div className="text-xs text-slate-500 dark:text-slate-400">
+                    {isListening ? (
+                      <span className="text-purple-600 dark:text-purple-400 font-medium">Listening... "{voiceTranscript}"</span>
+                    ) : (
+                      "Tap to speak your listing (e.g. 'Vintage lamp for $15')"
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-            {!isListening && <div className="text-sm font-semibold text-purple-600 dark:text-purple-400 opacity-0 group-hover:opacity-100 transition-opacity">Try it →</div>}
-          </button>
-          {voiceError && <div className="text-xs text-rose-500 mt-2 px-2">{voiceError}</div>}
-        </div>
+              {!isListening && <div className="text-sm font-semibold text-purple-600 dark:text-purple-400 opacity-0 group-hover:opacity-100 transition-opacity">Try it →</div>}
+            </button>
+            {voiceError && <div className="text-xs text-rose-500 mt-2 px-2">{voiceError}</div>}
+          </div>
+        )}
 
         <div className="card-gradient-border bg-white dark:bg-white/[0.015] backdrop-blur-md border border-slate-200 dark:border-white/[0.04] rounded-2xl p-6 shadow-2xl">
           {step === 1 && (
