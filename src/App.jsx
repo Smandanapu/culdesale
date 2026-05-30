@@ -30,6 +30,10 @@ import GarageSaleDetail from './features/garage-sales/pages/GarageSaleDetail'   
 import CreateGarageSale from './features/garage-sales/pages/CreateGarageSale'   /* GARAGE-SALES-FEATURE */
 import EditGarageSale from './features/garage-sales/pages/EditGarageSale'   /* GARAGE-SALES-FEATURE */
 
+import WantedFeed from './pages/WantedFeed'
+import CreateWanted from './pages/CreateWanted'
+import WantedDetail from './pages/WantedDetail'
+
 export default function App() {
   return (
     <ThemeProvider>
@@ -58,6 +62,9 @@ export default function App() {
                 <Route path="/edit/:id" element={<ProtectedRoute><EditListing /></ProtectedRoute>} />
                 <Route path="/inbox" element={<ProtectedRoute><Inbox /></ProtectedRoute>} />
                 <Route path="/inbox/:conversationId" element={<ProtectedRoute><Chat /></ProtectedRoute>} />
+                <Route path="/wanted" element={<ProtectedRoute><WantedFeed /></ProtectedRoute>} />
+                <Route path="/create-wanted" element={<ProtectedRoute><CreateWanted /></ProtectedRoute>} />
+                <Route path="/wanted/:id" element={<ProtectedRoute><WantedDetail /></ProtectedRoute>} />
                 <Route path="*" element={<Navigate to="/" replace />} />
                 <Route path="/user/:username" element={<ProtectedRoute><PublicProfile /></ProtectedRoute>} />
                 <Route path="/setup" element={<ProtectedRoute><SetupUsername /></ProtectedRoute>} />

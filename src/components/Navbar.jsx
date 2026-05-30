@@ -142,11 +142,17 @@ export default function Navbar() {
           >
             <span>🏷️</span> Garage Sales
           </button>
+          <button
+            onClick={() => navigate('/wanted')}
+            className="px-3 py-1.5 text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-orange-500 dark:hover:text-orange-400 rounded-lg hover:bg-slate-100 dark:hover:bg-white/[0.04] transition cursor-pointer flex items-center gap-1"
+          >
+            <span>🎯</span> Wanted
+          </button>
         </div>
       </div>
 
       <div className="flex items-center gap-2 sm:gap-3">
-        {/* GARAGE-SALES-FEATURE: Mobile-only button */}
+        {/* Mobile-only buttons */}
         <button
           onClick={() => navigate('/garage-sales')}
           className="md:hidden p-2 text-slate-500 dark:text-slate-400 hover:text-orange-500 dark:hover:text-orange-400 transition cursor-pointer active:scale-95 group"
@@ -154,9 +160,13 @@ export default function Navbar() {
         >
           <span className="text-xl group-hover:scale-110 transition-transform duration-300 inline-block">🏷️</span>
         </button>
-
-
         <button
+          onClick={() => navigate('/wanted')}
+          className="md:hidden p-2 text-slate-500 dark:text-slate-400 hover:text-orange-500 dark:hover:text-orange-400 transition cursor-pointer active:scale-95 group"
+          title="Wanted"
+        >
+          <span className="text-xl group-hover:scale-110 transition-transform duration-300 inline-block">🎯</span>
+        </button>        <button
           onClick={() => navigate('/create')}
           className="px-3 sm:px-4 py-2 text-sm bg-gradient-to-r from-orange-500 to-amber-500 hover:opacity-90 text-slate-900 dark:text-white rounded-lg transition-all font-semibold shadow-lg shadow-orange-500/25 active:scale-95 cursor-pointer"
         >
