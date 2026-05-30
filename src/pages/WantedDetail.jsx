@@ -109,6 +109,15 @@ export default function WantedDetail() {
         content: `Hi! I saw your Wanted request for "${bounty.title}". I might have exactly what you're looking for!`
       })
 
+      // Send explicit notification
+      await supabase.from('notifications').insert({
+        user_id: bounty.buyer_id,
+        type: 'message',
+        title: '🎯 Bounty Match!',
+        message: `A neighbor has the "${bounty.title}" you requested! Check your inbox.`,
+        related_user_id: user.id
+      })
+
       navigate(`/inbox/${convId}`)
     } catch (err) {
       console.error(err)
