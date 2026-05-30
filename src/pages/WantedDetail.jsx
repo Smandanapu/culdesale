@@ -167,9 +167,11 @@ export default function WantedDetail() {
               <div className="mt-12 text-center">
                 <button
                   onClick={handleContactBuyer}
-                  className="px-10 py-5 bg-gradient-to-r from-red-700 to-red-600 hover:from-red-600 hover:to-red-500 text-white rounded-xl text-xl font-black uppercase tracking-widest shadow-2xl shadow-red-700/30 hover:scale-105 transition-all active:scale-95"
+                  className="group relative inline-flex items-center justify-center gap-3 px-10 py-4 bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 rounded-2xl text-white font-bold text-lg tracking-wide shadow-xl shadow-orange-500/30 hover:shadow-orange-500/50 hover:scale-105 transition-all duration-300 active:scale-95 overflow-hidden"
                 >
-                  I HAVE THIS ITEM!
+                  <div className="absolute inset-0 bg-white/20 group-hover:translate-x-full -translate-x-full transition-transform duration-500 skew-x-12" />
+                  <span className="text-2xl drop-shadow-md">✨</span>
+                  <span className="drop-shadow-md">I Have This Item</span>
                 </button>
                 <p className="mt-3 text-sm font-semibold text-slate-600 dark:text-slate-400">Click to instantly message the buyer.</p>
               </div>
