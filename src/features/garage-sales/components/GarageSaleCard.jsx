@@ -84,7 +84,7 @@ function formatDateRange(startDateStr, endDateStr) {
   return `${start.toLocaleDateString('en-US', options)} - ${end.toLocaleDateString('en-US', options)}`
 }
 
-export default function GarageSaleCard({ sale, distance, onSaleDeleted }) {
+export default function GarageSaleCard({ sale, distance, onSaleDeleted, isMegaSale }) {
   const navigate = useNavigate()
   const { user } = useAuth()
   const { addSaleToRoute, removeSaleFromRoute, isInRoute } = useRoute()
@@ -108,6 +108,20 @@ export default function GarageSaleCard({ sale, distance, onSaleDeleted }) {
       onClick={() => navigate(`/garage-sales/${sale.id}`)}
       className="group bg-white dark:bg-white/[0.02] border border-slate-200 dark:border-white/[0.06] rounded-2xl p-3 sm:p-5 flex flex-row gap-3 sm:gap-5 shadow-sm hover:shadow-xl hover:border-slate-300 dark:hover:border-white/[0.12] transition-all duration-300 cursor-pointer hover:-translate-y-1 relative"
     >
+      {/* 3D Walkthrough Badge */}
+      {sale.model_url && (
+        <div className="absolute top-3 left-3 bg-white/90 dark:bg-black/60 backdrop-blur-md px-2 py-1 rounded-md text-[10px] font-bold text-slate-800 dark:text-slate-200 border border-slate-200/50 dark:border-white/10 flex items-center gap-1 shadow-sm group-hover:scale-105 transition-transform">
+          <span>3D</span>
+        </div>
+      )}
+
+      {/* Mega Sale Badge */}
+      {isMegaSale && (
+        <div className="absolute top-3 left-3 bg-gradient-to-r from-orange-500 to-amber-500 px-3 py-1 rounded-full text-[10px] font-bold text-white shadow-lg shadow-orange-500/40 animate-pulse flex items-center gap-1">
+          🔥 MEGA-SALE
+        </div>
+      )}
+
       {/* Dynamic Icon */}
       <div className={`shrink-0 w-14 h-14 sm:w-20 sm:h-20 rounded-xl sm:rounded-2xl ${style.bg} flex items-center justify-center border border-white/50 dark:border-white/5`}>
         <span className="text-2xl sm:text-4xl group-hover:scale-110 transition-transform duration-300">{style.emoji}</span>

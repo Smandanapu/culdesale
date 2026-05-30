@@ -47,7 +47,7 @@ const activeIcon = L.divIcon({
   popupAnchor: [0, -40],
 })
 
-export default function GarageSaleMap({ sales, center, zoom = 12, className = '' }) {
+export default function GarageSaleMap({ sales, megaSales = [], center, zoom = 12, className = '' }) {
   const mapRef = useRef(null)
   const mapInstanceRef = useRef(null)
   const markersRef = useRef([])
@@ -87,6 +87,29 @@ export default function GarageSaleMap({ sales, center, zoom = 12, className = ''
     // Clear old markers
     markersRef.current.forEach(m => map.removeLayer(m))
     markersRef.current = []
+
+    // Draw Mega-Sale Zones first (so they are underneath markers)
+    megaSales.forEach(mega => {
+      if (!mega.centerLat || !mega.centerLon) return
+      
+      const circle = L.circle([mega.centerLat, mega.centerLon], {
+        color: '#f97316',
+        fillColor: '#f59e0b',
+        fillOpacity: 0.2,
+        radius: 800, // 800 meters (~0.5 miles)
+        weight: 2,
+      }).addTo(map)
+
+      const popupContent = `
+        <div style="text-align: center; font-family: system-ui;">
+          <div style="font-size: 24px;">🔥</div>
+          <div style="font-weight: bold; color: #ea580c; margin-top: 4px;">MEGA-SALE ZONE</div>
+          <div style="font-size: 12px; color: #475569;">${mega.count} sales happening in ${mega.neighborhood} on ${mega.date}!</div>
+        </div>
+      `
+      circle.bindPopup(popupContent)
+      markersRef.current.push(circle)
+    })
 
     const validSales = sales.filter(s => s.latitude && s.longitude)
 
@@ -141,11 +164,15 @@ export default function GarageSaleMap({ sales, center, zoom = 12, className = ''
     })
 
     // Fit bounds to all markers
-    if (validSales.length > 0 && !center) {
-      const bounds = L.latLngBounds(validSales.map(s => [s.latitude, s.longitude]))
+    // Fit bounds to all markers and circles
+    if ((validSales.length > 0 || megaSales.length > 0) && !center) {
+      const bounds = L.latLngBounds([
+        ...validSales.map(s => [s.latitude, s.longitude]),
+        ...megaSales.map(m => [m.centerLat, m.centerLon])
+      ])
       map.fitBounds(bounds, { padding: [50, 50], maxZoom: 14 })
     }
-  }, [sales, center])
+  }, [sales, megaSales, center])
 
   // Update center when it changes
   useEffect(() => {
