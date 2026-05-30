@@ -82,6 +82,7 @@ export default function WantedDetail() {
       const { data: existing } = await supabase
         .from('conversations')
         .select('*')
+        .eq('bounty_id', bounty.id)
         .eq('buyer_id', bounty.buyer_id) // For a bounty, the person fulfilling it is the "seller", the person who posted is the "buyer".
         .eq('seller_id', user.id)
         .maybeSingle()
@@ -92,6 +93,7 @@ export default function WantedDetail() {
         const { data: newConv, error } = await supabase
           .from('conversations')
           .insert({
+            bounty_id: bounty.id,
             buyer_id: bounty.buyer_id, // Person who wants it
             seller_id: user.id // Person who has it
           })

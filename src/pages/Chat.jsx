@@ -60,9 +60,11 @@ export default function Chat() {
       .select(`
         id,
         listing_id,
+        bounty_id,
         seller_id,
         buyer_id,
         listings(title, photos),
+        bounties(title),
         seller:profiles!conversations_seller_id_fkey(username),
         buyer:profiles!conversations_buyer_id_fkey(username)
       `)
@@ -110,7 +112,7 @@ export default function Chat() {
         user_id: recipientId,
         type: 'message',
         title: 'New Message',
-        message: `New message regarding "${conversation.listings?.title || 'an item'}"`,
+        message: `New message regarding "${conversation.listings?.title || conversation.bounties?.title || 'an item'}"`,
         listing_id: conversation.listing_id
       })
     }
@@ -155,7 +157,7 @@ export default function Chat() {
           user_id: recipientId,
           type: 'message',
           title: 'New Photo',
-          message: `New photo regarding "${conversation.listings?.title || 'an item'}"`,
+          message: `New photo regarding "${conversation.listings?.title || conversation.bounties?.title || 'an item'}"`,
           listing_id: conversation.listing_id
         })
       }
@@ -190,7 +192,7 @@ export default function Chat() {
         user_id: recipientId,
         type: 'message',
         title: 'New Offer',
-        message: `New offer of $${amt.toFixed(2)} regarding "${conversation.listings?.title || 'an item'}"`,
+        message: `New offer of $${amt.toFixed(2)} regarding "${conversation.listings?.title || conversation.bounties?.title || 'an item'}"`,
         listing_id: conversation.listing_id
       })
     }
@@ -218,7 +220,7 @@ export default function Chat() {
       user_id: recipientId,
       type: 'message',
       title: `Offer ${status === 'accepted' ? 'Accepted' : 'Declined'}`,
-      message: `Your offer of $${msg.offer_amount} for "${conversation.listings?.title || 'an item'}" was ${status}.`,
+      message: `Your offer of $${msg.offer_amount} for "${conversation.listings?.title || conversation.bounties?.title || 'an item'}" was ${status}.`,
       listing_id: conversation.listing_id
     })
   }
@@ -270,16 +272,25 @@ export default function Chat() {
         <div className="flex-1 min-w-0">
           <div className="font-bold text-slate-900 dark:text-white text-base">@{getOtherUser() || 'neighbor'}</div>
           <div className="text-xs text-indigo-400 font-semibold tracking-wide truncate mt-0.5">
-            Re: {conversation && conversation.listings && conversation.listings.title}
+            Re: {(conversation?.listings?.title) || (conversation?.bounties?.title) || 'an item'}
           </div>
         </div>
 
-        <button
-          onClick={() => conversation && navigate('/listing/' + conversation.listing_id)}
-          className="text-xs text-orange-400 hover:text-orange-300 font-bold transition-colors flex-shrink-0 cursor-pointer"
-        >
-          View Listing
-        </button>
+        {conversation?.listing_id ? (
+          <button
+            onClick={() => navigate('/listing/' + conversation.listing_id)}
+            className="text-xs text-orange-400 hover:text-orange-300 font-bold transition-colors flex-shrink-0 cursor-pointer"
+          >
+            View Listing
+          </button>
+        ) : conversation?.bounty_id ? (
+          <button
+            onClick={() => navigate('/wanted/' + conversation.bounty_id)}
+            className="text-xs text-orange-400 hover:text-orange-300 font-bold transition-colors flex-shrink-0 cursor-pointer"
+          >
+            View Wanted
+          </button>
+        ) : null}
       </div>
 
       <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 sm:py-6 flex flex-col gap-4 relative z-10">

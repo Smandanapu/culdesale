@@ -60,9 +60,11 @@ export default function Inbox() {
         id,
         created_at,
         listing_id,
+        bounty_id,
         seller_id,
         buyer_id,
         listings(title, photos),
+        bounties(title),
         seller:profiles!conversations_seller_id_fkey(username),
         buyer:profiles!conversations_buyer_id_fkey(username)
       `)
@@ -154,6 +156,8 @@ export default function Inbox() {
                     src={conv.listings.photos[0]}
                     className="w-full h-full object-cover"
                   />
+                ) : conv.bounty_id ? (
+                  <span className="text-2xl">🎯</span>
                 ) : (
                   <span className="text-2xl">📦</span>
                 )}
@@ -171,7 +175,7 @@ export default function Inbox() {
                   )}
                 </div>
                 <div className="text-xs text-indigo-400 font-semibold tracking-wide truncate mb-1">
-                  Re: {conv.listings && conv.listings.title}
+                  Re: {(conv.listings?.title) || (conv.bounties?.title) || 'an item'}
                 </div>
                 <div className="text-sm text-slate-500 dark:text-slate-400 truncate">
                   {conv.lastMessage ? conv.lastMessage.content : 'No messages yet'}
