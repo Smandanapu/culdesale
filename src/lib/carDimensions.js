@@ -71,6 +71,53 @@ export const CAR_DIMENSIONS = [
     model: 'Odyssey (Seats Removed)',
     type: 'Minivan',
     dimensions: [96, 48, 45],
-    icon: '🚐'
+  },
+  {
+    id: 'suv_honda_pilot',
+    make: 'Honda',
+    model: 'Pilot (Seats Down)',
+    type: 'SUV',
+    dimensions: [83, 48, 33],
+    icon: '🚙'
+  },
+  {
+    id: 'suv_toyota_highlander',
+    make: 'Toyota',
+    model: 'Highlander (Seats Down)',
+    type: 'SUV',
+    dimensions: [81, 45, 31],
+    icon: '🚙'
+  },
+  {
+    id: 'suv_hyundai_santafe',
+    make: 'Hyundai',
+    model: 'Santa Fe (Seats Down)',
+    type: 'SUV',
+    dimensions: [76, 42, 31],
+    icon: '🚙'
+  },
+  {
+    id: 'suv_honda_crv',
+    make: 'Honda',
+    model: 'CR-V (Seats Down)',
+    type: 'SUV',
+    dimensions: [73, 41, 33],
+    icon: '🚙'
+  },
+  {
+    id: 'suv_benz_glc300',
+    make: 'Mercedes-Benz',
+    model: 'GLC 300 (Seats Down)',
+    type: 'SUV',
+    dimensions: [68, 43, 29],
+    icon: '🚙'
+  },
+  {
+    id: 'suv_bmw_x5',
+    make: 'BMW',
+    model: 'X5 (Seats Down)',
+    type: 'SUV',
+    dimensions: [74, 43, 31],
+    icon: '🚙'
   }
 ]
