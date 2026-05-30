@@ -8,6 +8,7 @@ import { getSaleStatus, formatTime, formatDateRange } from '../components/Garage
 import { downloadICS } from '../lib/calendar'
 import toast from 'react-hot-toast'
 import { useRoute } from '../context/RouteContext'
+import '@google/model-viewer'
 
 const CATEGORY_COLORS = {
   'Furniture': 'bg-amber-500/10 text-amber-600 dark:text-amber-400',
@@ -131,10 +132,33 @@ export default function GarageSaleDetail() {
           ← Back to Garage Sales
         </button>
 
-        {/* Hero */}
-        <div className="rounded-2xl overflow-hidden mb-6 h-40 sm:h-56 bg-gradient-to-br from-emerald-500/20 via-teal-500/20 to-cyan-500/20 dark:from-emerald-500/10 dark:via-teal-500/10 dark:to-cyan-500/10 flex items-center justify-center border border-slate-200 dark:border-white/[0.06]">
-          <span className="text-7xl opacity-30">🏷️</span>
-        </div>
+        {/* Hero / 3D Viewer */}
+        {sale.model_url ? (
+          <div className="rounded-2xl overflow-hidden mb-6 h-64 sm:h-96 border border-slate-200 dark:border-white/[0.06] bg-slate-100 dark:bg-[#0b0e14] relative group">
+            <model-viewer
+              src={sale.model_url}
+              auto-rotate
+              camera-controls
+              ar
+              shadow-intensity="1"
+              style={{ width: '100%', height: '100%' }}
+              className="w-full h-full outline-none"
+            >
+              <div slot="poster" className="absolute inset-0 flex items-center justify-center bg-slate-100 dark:bg-[#0b0e14]">
+                <div className="w-10 h-10 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
+              </div>
+            </model-viewer>
+            <div className="absolute bottom-4 left-4 right-4 text-center pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity">
+              <div className="inline-block px-4 py-1.5 bg-black/50 backdrop-blur-md rounded-full text-white text-xs font-medium">
+                👆 Drag to rotate • Pinch to zoom
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="rounded-2xl overflow-hidden mb-6 h-40 sm:h-56 bg-gradient-to-br from-emerald-500/20 via-teal-500/20 to-cyan-500/20 dark:from-emerald-500/10 dark:via-teal-500/10 dark:to-cyan-500/10 flex items-center justify-center border border-slate-200 dark:border-white/[0.06]">
+            <span className="text-7xl opacity-30">🏷️</span>
+          </div>
+        )}
 
         {/* Title + Status */}
         <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
